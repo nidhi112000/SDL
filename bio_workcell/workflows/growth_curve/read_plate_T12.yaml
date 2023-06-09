@@ -19,8 +19,7 @@ flowdef:
     module: liconic
     command: unload_plate
     args: 
-      stacker: payload.stacker
-      slot: payload.slot
+      plate_id: "1"
     checks: null
     comment: Stage pcr plates
       

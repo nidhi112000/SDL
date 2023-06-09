@@ -14,61 +14,69 @@ modules:
   - name: camera
 
 flowdef:
-  # - name: Move tip bin from Stack4 to Solo Position3
-  #   module: plateCrane
-  #   command: transfer
-  #   args:
-  #     source: "Stack4"
-  #     target: "Solo.Position3"
-  #     source_type: "stack"
-  #     target_type: "stack"
-  #     plate_type: "tip_box_lid_off"
-  #   checks: null
-  #   comment: Place plate in Solo Position4
+  - name: Move tip bin from Stack4 to Solo Position3
+    module: plateCrane
+    command: transfer
+    args:
+      source: "Stack4"
+      target: "Solo.Position3"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "tip_box_lid_off"
+    checks: null
+    comment: Place plate in Solo Position4
 
-  # - name: Move plate from Stack5 to Solo Position4
-  #   module: plateCrane
-  #   command: transfer
-  #   args:
-  #     source: "Stack5"
-  #     target: "Solo.Position4"
-  #     source_type: "stack"
-  #     target_type: "stack"
-  #     plate_type: "96_well"
-  #   checks: null
-  #   comment: Place plate in Solo Position4
+  - name: Move plate from Stack5 to Solo Position4
+    module: plateCrane
+    command: transfer
+    args:
+      source: "Stack5"
+      target: "Solo.Position4"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate in Solo Position4
 
-  # - name: Remove lid
-  #   module: plateCrane
-  #   command: remove_lid
-  #   args:
-  #     source: "Solo.Position4"
-  #     target: "LidNest2"
-  #     plate_type: "96_well"
-  #   checks: null
-  #   comment: Place plate lid on lid nest 2
+  - name: Remove lid
+    module: plateCrane
+    command: remove_lid
+    args:
+      source: "Solo.Position4"
+      target: "Stack2"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate lid on lid nest 2
+  
+  - name: Refill Tips
+    module: solo
+    command: refill_tips
+    args:
+      position: payload.tip_box_position
+    checks: null
+    comment: Reset Tip Box Number to 96 Tips
 
-  #   # STEP 1
-  # - name: Mix Reactions
-  #   module: solo
-  #   command: run_protocol
-  #   args:
-  #     hso_contents: payload.hso_1
-  #     hso_num_lines: payload.hso_1_lines
-  #     hso_basename: payload.hso_1_basename
-  #   checks: RESOURCE_CHECK
-  #   comment: resource check not implemented, but will be
+    # STEP 1
+  - name: Mix Reactions
+    module: solo
+    command: run_protocol
+    args:
+      hso_contents: payload.hso_1
+      hso_num_lines: payload.hso_1_lines
+      hso_basename: payload.hso_1_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
 
-  #   # STEP 2
-  # - name: Mix Reactions
-  #   module: solo
-  #   command: run_protocol
-  #   args:
-  #     hso_contents: payload.hso_2
-  #     hso_num_lines: payload.hso_2_lines
-  #     hso_basename: payload.hso_2_basename
-  #   checks: RESOURCE_CHECK
-  #   comment: resource check not implemented, but will be
+    # STEP 2
+  - name: Mix Reactions
+    module: solo
+    command: run_protocol
+    args:
+      hso_contents: payload.hso_2
+      hso_num_lines: payload.hso_2_lines
+      hso_basename: payload.hso_2_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
 
     # STEP 3
   - name: Mix Reactions
@@ -161,8 +169,7 @@ flowdef:
     module: liconic
     command: load_plate
     args: 
-      stacker: payload.stacker
-      slot: payload.slot
+      plate_id: "1"
     checks: null
     comment: Stage pcr plates
 
