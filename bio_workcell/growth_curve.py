@@ -67,10 +67,10 @@ def main():
     flow_title = flow_title.parents[0]
   
     c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
-    # wait while incubating
+    #wait while incubating
     time.sleep(43200)
 
-    # # read plate
+    # read plate
     flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)
 
     flow_status = exp.query_job(flow_info["job_id"])
