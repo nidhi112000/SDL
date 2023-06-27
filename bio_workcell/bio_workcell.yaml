@@ -64,7 +64,7 @@ modules:
     model: Solo
     config:
       tcp_address: "hudson01.cels.anl.gov"
-      tcp_port: "5557"
+      tcp_port: "2001"
     positions:
       default: []
 

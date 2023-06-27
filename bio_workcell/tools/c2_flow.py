@@ -61,7 +61,9 @@ def c2_flow(exp_name, plate_n,time, local_path, fname, exp):
         publishFlow = C2Flow()
         label = 'BioTestFlow'
         # Run the flow
+        print(publishFlow.flows_manager)
         flow = publishFlow.run_flow(flow_input=flow_input,label=label)
+        
         # Track progress
         action_id = flow['action_id']
         publishFlow.progress(action_id)

@@ -71,10 +71,11 @@ def main():
     # time.sleep(43200)
 
     startTime = round(time.time())
-    while((round(time.time()) - startTime) < 12600):
-        seconds = int(round(time.time()))
-        minutes = seconds % 60
-        hours = minutes % 60
+    while((round(time.time()) - startTime) < 43200):
+        deltaSeconds = int(round(time.time()) - startTime)
+        hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
+        minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
+        seconds = deltaSeconds - hours*3600 - minutes * 60
         print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
 
 
@@ -89,13 +90,13 @@ def main():
     run_info = flow_status["result"]
     run_info["run_dir"] = Path(run_info["run_dir"])
 
-    # print(run_info)
-    # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    # hidex_file_path = hidex_file_path.replace('\\', '/')
-    # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    # fname = flow_title.name
-    # flow_title = flow_title.parents[0]
+    print(run_info)
+    hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    hidex_file_path = hidex_file_path.replace('\\', '/')
+    hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    fname = flow_title.name
+    flow_title = flow_title.parents[0]
   
 
 if __name__ == "__main__":
