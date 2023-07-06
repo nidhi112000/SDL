@@ -71,7 +71,7 @@ def main():
     # time.sleep(43200)
 
     startTime = round(time.time())
-    while((round(time.time()) - startTime) < 43200):
+    while((round(time.time()) - startTime) < 43200): # change total time in seconds here
         deltaSeconds = int(round(time.time()) - startTime)
         hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
         minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
