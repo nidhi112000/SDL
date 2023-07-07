@@ -1,6 +1,6 @@
+name: BIO_workcell
 
 config:
-  ros_namespace: bio_workcell
   funcx_local_ep: ""
   globus_local_ep: ""
   ##
@@ -8,6 +8,7 @@ config:
   globus_portal_ep: "bb8d048a-2cad-4029-a9c7-671ec5d1f84d"
   ##
   globus_group: "dda56f31-53d1-11ed-bd8b-0db7472df7d6"
+  origin_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
 modules:
   - name: plateCrane
@@ -15,6 +16,7 @@ modules:
     model: plateCrane
     config:
       ros_node: "/std_ns/PlateCraneNode"
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
     positions:
       stack1: "Stack1"
 
@@ -23,32 +25,28 @@ modules:
     model: sealer
     config:
       ros_node: "/std_ns/SealerNode"
-    positions:
-      default: []
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
       
   - name: peeler
     type: wei_ros_node
     model: peeler
     config:
       ros_node: "/std_ns/PeelerNode"
-    positions:
-      default: []
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: biometra
     type: wei_ros_node
     model: biometra
     config:
       ros_node: "/std_ns/biometraNode"
-    positions:
-      default: []
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: liconic
     type: wei_ros_node
     model: liconic
     config:
       ros_node: "/std_ns/liconicNode"
-    positions:
-      default: []
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: hidex
     type: wei_tcp_node
@@ -56,8 +54,7 @@ modules:
     config:
       tcp_address: "hudson01.cels.anl.gov"
       tcp_port: "2000"
-    positions:
-      default: []
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: solo
     type: wei_zmq_node
@@ -65,10 +62,11 @@ modules:
     config:
       tcp_address: "hudson01.cels.anl.gov"
       tcp_port: "2001"
-    positions:
-      default: []
+    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
-
+locations:
+  plateCrane:
+    pos1: 'pos1'
 
 
 
