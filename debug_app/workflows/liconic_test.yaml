@@ -1,10 +1,10 @@
+name: Liconic Test - Workflow
+
 metadata:
-  name: Liconic Test - Workflow
   author: Casey Stone, Rafael Vescovi
   info: Initial Tests for the Liconic Driver at BIO.
   version: 0.1
 
-workcell: /home/rpl/workspace/rpl_workcell/bio_workcell/bio_workcell.yaml
 
 modules:
   - name: liconic

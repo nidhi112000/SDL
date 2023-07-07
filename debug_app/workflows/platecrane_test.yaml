@@ -1,10 +1,10 @@
+name: Platecrane - Workflow
+
 metadata:
-  name: Platecrane - Workflow
   author: Doga Ozgulbas
   info: Platecrane movements
   version: 0.1
 
-workcell: /home/rpl/workspace/rpl_workcell/bio_workcell/bio_workcell.yaml
 
 modules:
   - name: plateCrane

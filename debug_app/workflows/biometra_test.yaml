@@ -1,10 +1,9 @@
+name: Biometra test - Workflow
+
 metadata:
-  name: Biometra test - Workflow
   author: Casey Stone, Rafael Vescovi
   info: Initial Tests for the Biometra at BIO.
   version: 0.1
-
-workcell: /home/rpl/workspace/BIO_workcell/bio_workcell/bio_workcell.yaml
 
 modules:
   - name: biometra

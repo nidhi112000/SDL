@@ -1,17 +1,12 @@
+name: PCR - Workflow
+
 metadata:
-  name: PCR - Workflow
   author: Alp Demirtas
   info: Initial PCR workflow for RPL workcell
   version: 0.1
 
-workcell: /home/rpl/workspace/BIO_workcell/bio_workcell/bio_workcell.yaml
-
 modules:
   - name: solo
-  - name: peeler
-  - name: sealer
-  - name: plateEx
-  - name: camera
 
 flowdef:
     # STEP 2

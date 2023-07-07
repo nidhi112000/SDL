@@ -1,10 +1,9 @@
+name: PCR - Workflow
+
 metadata:
-  name: PCR - Workflow
   author: Casey Stone, Rafael Vescovi
   info: Initial PCR workflow for RPL workcell
   version: 0.1
-
-workcell: /home/rpl/workspace/rpl_workcell/bio_workcell/bio_workcell.yaml
 
 modules:
   - name: solo

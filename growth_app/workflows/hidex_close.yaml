@@ -1,17 +1,12 @@
+name: Growth Curve - Workflow
+
 metadata:
-  name: Growth Curve - Workflow
   author: Casey Stone, Rafael Vescovi
   info: Initial PCR workflow for RPL workcell
   version: 0.1
 
-workcell: /home/rpl/workspace/BIO_workcell/bio_workcell/bio_workcell.yaml
-
 modules:
-  - name: solo
-  - name: peeler
-  - name: sealer
-  - name: plateEx
-  - name: camera
+  - name: hidex
 
 flowdef:
   - name: Close Hidex
