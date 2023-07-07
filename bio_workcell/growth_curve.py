@@ -76,8 +76,8 @@ def main():
         hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
         minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
         seconds = deltaSeconds - hours*3600 - minutes * 60
-        print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
-
+        #print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
+    print("Time Since Start: 12 Hours")
 
     # read plate
     flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)
