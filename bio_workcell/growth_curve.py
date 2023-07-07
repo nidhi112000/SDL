@@ -59,44 +59,44 @@ def main():
     run_info["run_dir"] = Path(run_info["run_dir"])
 
     print(run_info)
-    hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    hidex_file_path = hidex_file_path.replace('\\', '/')
-    hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    fname = flow_title.name
-    flow_title = flow_title.parents[0]
+    # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    # hidex_file_path = hidex_file_path.replace('\\', '/')
+    # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    # fname = flow_title.name
+    # flow_title = flow_title.parents[0]
   
-    c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
-    #wait while incubating
-    # time.sleep(43200)
+    # c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+    # #wait while incubating
+    # # time.sleep(43200)
 
-    startTime = round(time.time())
-    while((round(time.time()) - startTime) < 43200): # change total time in seconds here
-        deltaSeconds = int(round(time.time()) - startTime)
-        hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
-        minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
-        seconds = deltaSeconds - hours*3600 - minutes * 60
-        #print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
-    print("Time Since Start: 12 Hours")
+    # startTime = round(time.time())
+    # while((round(time.time()) - startTime) < 43200): # change total time in seconds here
+    #     deltaSeconds = int(round(time.time()) - startTime)
+    #     hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
+    #     minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
+    #     seconds = deltaSeconds - hours*3600 - minutes * 60
+    #     #print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
+    # print("Time Since Start: 12 Hours")
 
-    # read plate
-    flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)
+    # # read plate
+    # flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)
 
-    flow_status = exp.query_job(flow_info["job_id"])
-    while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
-        flow_status = exp.query_job(flow_info["job_id"])
-        time.sleep(3)
+    # flow_status = exp.query_job(flow_info["job_id"])
+    # while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
+    #     flow_status = exp.query_job(flow_info["job_id"])
+    #     time.sleep(3)
 
-    run_info = flow_status["result"]
-    run_info["run_dir"] = Path(run_info["run_dir"])
+    # run_info = flow_status["result"]
+    # run_info["run_dir"] = Path(run_info["run_dir"])
 
-    print(run_info)
-    hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    hidex_file_path = hidex_file_path.replace('\\', '/')
-    hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    fname = flow_title.name
-    flow_title = flow_title.parents[0]
+    # print(run_info)
+    # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    # hidex_file_path = hidex_file_path.replace('\\', '/')
+    # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    # fname = flow_title.name
+    # flow_title = flow_title.parents[0]
   
 
 if __name__ == "__main__":
