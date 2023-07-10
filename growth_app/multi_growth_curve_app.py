@@ -43,6 +43,7 @@ HIDEX_OPEN_CLOSE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workfl
 
 exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
 exp.register_exp() 
+print("Registered Experiment")
 exp.events.log_local_compute("package_hso")
 
 def main():
