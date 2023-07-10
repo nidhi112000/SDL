@@ -26,7 +26,7 @@ CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
 
 TENSORFLOW_MODEL = None
-AI_MODEL_FILE_PATH = ''
+AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tensorflow_model"
 AI_MODEL_IN_USE = True
 
 COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/complete_hudson_setup.yaml'
@@ -166,7 +166,7 @@ def train_model():
     WeIGHT = .5
 
 def save_model():
-    STRING_PATH_URL = ''
+    TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
 
 def run_experiment(total_iterations, incubation_time_sec): 
     iterations = 0
