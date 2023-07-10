@@ -73,6 +73,10 @@ def load_model():
         TENSORFLOW_MODEL.summary()
     
 def predict_experiment():
+    #Create a combination of possible values
+    #Add those combinations to the data frame
+    #Predict the Model on the Data frame
+    #Sort the combinations and output the one/two/three/...twelve that need AI modeling
     predictions = []
     combinations = []
     treatment_values = []
@@ -80,7 +84,7 @@ def predict_experiment():
 
     search_space = {}
 
-    for i in range (0,12):
+    for i in range (1,13):
         treatment_key = 'antibiotic' + str(int(i+1))
         culture_key = 'cell' + str(int(i+1))
         for j in range(1,6):
@@ -114,6 +118,33 @@ def predict_experiment():
     # Print the selected combinations and their predicted growth rates
     for combination, growth_rate in selected_combinations:
         print(f"Combination: {combination} | Predicted Growth Rate: {growth_rate}")
+
+def create_dictionary_of_possible_combinations():
+
+    predictions = []
+    combinations = []
+    treatment_values = []
+    treatment_indices = []
+    culture_values = []
+    culture_indices = []
+
+    search_space = {}
+
+    for i in range (1,13):
+        antibiotic_concentration_type = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i-1]
+        if(antibiotic_concentration_type != 0 and antibiotic_concentration_type != None):
+            for j in range(1,6):
+                treatment_values.append(antibiotic_concentration_type**j)
+                treatment_indices.append(i)
+            treatment_values.append(0)
+            treatment_indices.append(6)
+
+    
+    for i in range(1,13):
+        cell_concentration_type = ORIGINAL_CELL_CONCENTRATION[i-1]
+        if(cell_concentration_type != 0 and antibiotic_concentration_type != None):
+            treatment_values.append(cell_concentration_type)
+            culture_indices.append(i)
 
 def determine_payload_from_excel():
     print("Run Log Starts Now")
