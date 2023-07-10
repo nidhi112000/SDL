@@ -86,11 +86,11 @@ def main():
     # time.sleep(43200)
 
     startTime = round(time.time())
-    #hidex_test_times = [30, 3600, 7200, 21600]
-    hidex_test_times = [5, 6, 7, 8]
+    hidex_test_times = [30, 3600, 7200, 21600]
+    #hidex_test_times = [5, 6, 7, 8]
     run_globus_test = True
 
-    while((round(time.time()) - startTime) < 240):#43200): # change total time in seconds here
+    while((round(time.time()) - startTime) < 43200): # change total time in seconds here
         deltaSeconds = int(round(time.time()) - startTime)
         try:
             if run_globus_test == True:
