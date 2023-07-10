@@ -115,8 +115,8 @@ def predict_experiment():
 
 def determine_payload_from_excel():
     print("Run Log Starts Now")
-    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\active_runs"
-    #folder_path = str(pathlib.Path().resolve()) + "/active_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\active_runs"
+    folder_path = str(pathlib.Path().resolve()) + "/active_runs"
     files = os.listdir(folder_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
     sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
