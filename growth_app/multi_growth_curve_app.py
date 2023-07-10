@@ -3,11 +3,11 @@
 import logging
 from argparse import ArgumentParser
 import time
-# from tools.c2_flow import c2_flow
+from tools.c2_flow import c2_flow
 from pathlib import Path
-# from workflows.growth_curve.hso_functions import package_hso
-# from workflows.growth_curve import solo_step1, solo_step2, solo_step3
-# from workflows.growth_curve import solo_multi_step1, solo_multi_step2, solo_multi_step3
+from workflows.hso_functions import package_hso
+from workflows import solo_step1, solo_step2, solo_step3
+from workflows import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -16,7 +16,7 @@ from tensorflow import keras
 import numpy as np
 import os
 
-# from rpl_wei import Experiment
+from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
@@ -29,21 +29,21 @@ TENSORFLOW_MODEL = None
 AI_MODEL_FILE_PATH = ''
 AI_MODEL_IN_USE = True
 
-COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/complete_hudson_setup.yaml'
-STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/streamlined_hudson_setup.yaml'
-SETUP_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/setup_growth_media.yaml'
+COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/complete_hudson_setup.yaml'
+STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/streamlined_hudson_setup.yaml'
+SETUP_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/setup_growth_media.yaml'
 
-CREATE_PLATE_T0_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/create_plate_T0.yaml'
-READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/read_plate_T12.yaml'
+CREATE_PLATE_T0_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/create_plate_T0.yaml'
+READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/read_plate_T12.yaml'
 
-DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/dispose_box_plate.yaml'
-DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/dispose_growth_media.yaml'
+DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/dispose_box_plate.yaml'
+DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/dispose_growth_media.yaml'
 
-HIDEX_OPEN_CLOSE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/bio_workcell/workflows/growth_curve/open_close_hidex.yaml'
+HIDEX_OPEN_CLOSE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml'
 
-# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-# exp.register_exp() 
-# exp.events.log_local_compute("package_hso")
+exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+exp.register_exp() 
+exp.events.log_local_compute("package_hso")
 
 def main():
     if AI_MODEL_IN_USE:
