@@ -31,7 +31,7 @@ def main():
         "culture_dil_column": 1,  # int of dilution column for 1:10 culture dilutions. Ex. 1, 2, 3, etc.
         "media_start_column": 1,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
         "treatment_dil_half": 1,  #  int of which plate half to use for treatment serial dilutions. Options are 1 or 2.
-        "tip_box_position": 3,
+        "tip_box_position": "3",
     }
 
     # from somewhere import create_hso? or directly the solo script
