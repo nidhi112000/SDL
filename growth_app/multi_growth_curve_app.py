@@ -75,13 +75,14 @@ def load_model():
 def predict_experiment():
     predictions = []
     combinations = []
+    treatment_values = []
+    culture_values = []
 
     search_space = {}
 
     for i in range (0,12):
         treatment_key = 'antibiotic' + str(int(i+1))
         culture_key = 'cell' + str(int(i+1))
-        treatment_values = []
         for j in range(1,6):
             treatment_values.append(ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]/2**j)
         treatment_values.append(0)

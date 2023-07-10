@@ -13,7 +13,7 @@ import time
 
 def main():
     wf_path_1 = Path(
-        "/home/rpl/workspace/BIO_workcell/growth_app/workflows/growth_curve/create_plate_T0.yaml"
+        "/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml"
     )
     wf_path_2 = Path(
         "/home/rpl/workspace/BIO_workcell/growth_app/workflows/growth_curve/read_plate_T12.yaml"
