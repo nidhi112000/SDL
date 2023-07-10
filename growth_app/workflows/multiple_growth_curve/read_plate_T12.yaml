@@ -1,0 +1,100 @@
+metadata:
+  name: Multi-Growth Assay Run Workflow
+  author: Rafael Vescovi, Casey Stone, Abraham Stroka, Alp Demirtas
+  info: Growth Assay Workflow and all of its individual components called from the multi_growth_curve.py file
+  version: 1.3
+
+workcell: /home/rpl/workspace/BIO_workcell/bio_workcell/bio_workcell.yaml
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+
+  - name: Unload Liconic
+    module: liconic
+    command: unload_plate
+    args: 
+      plate_id: payload.incubation_plate_id
+    checks: null
+    comment: Stage pcr plates
+      
+  - name: Move plate from Liconic to Peeler
+    module: plateCrane
+    command: transfer
+    args:
+      source: "Liconic.Nest"
+      target: "PeelerNest"
+      source_type: "stack"
+      target_type: "module"   
+    checks: null
+    comment: Place plate onto PeelerNest
+  
+  - name: Peel
+    module: peeler
+    command: peel
+    args:
+      test: null
+    checks: null
+    comment: null
+    
+  - name: Open Hidex
+    module: hidex
+    command: open
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Open Hidex Gate
+
+  - name: Move plate from PeelerNest to HidexNest
+    module: plateCrane
+    command: transfer
+    args:
+      source: "PeelerNest"
+      target: "HidexNest2"
+      source_type: "module"
+      target_type: "module"  
+      height_offset: "700"
+    checks: nullpayload.stacker
+    comment: Place plate in Hidex Nest
+
+  - name: run Hidex
+    module: hidex
+    command: run_assay
+    args: 
+      assay_name: "Campaign2_wei_cs"
+    checks: null  
+    comment: Run protocol Hidex 
+
+  - name: Open Hidex
+    module: hidex
+    command: open
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Open Hidex Gate
+
+  - name: Move plate from HidexNest to Stack2
+    module: plateCrane
+    command: transfer
+    args:
+      source: "HidexNest2"
+      target: "Stack2"
+      source_type: "module"
+      target_type: "stack"   
+      height_offset: "650"
+    checks: null
+    comment: Place plate into trash Stack
+
+  - name: Close Hidex
+    module: hidex
+    command: close
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Close Hidex Gate
+     

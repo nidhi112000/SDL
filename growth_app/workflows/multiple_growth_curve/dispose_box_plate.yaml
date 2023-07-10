@@ -1,0 +1,39 @@
+metadata:
+  name: Multi-Growth Assay Run Workflow
+  author: Alp Demirtas
+  info: Growth Assay Workflow and all of its individual components called from the multi_growth_curve.py file
+  version: 1.3
+
+workcell: /home/rpl/workspace/BIO_workcell/bio_workcell/bio_workcell.yaml
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+  - name: Move tip bin from Solo Position3 to Stack 1
+    module: plateCrane
+    command: transfer
+    args:
+      source: "Solo.Position3"
+      target: "Stack1"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "tip_box_lid_off"
+    checks: null
+    comment: Place plate in Solo Position4
+
+  - name: Move deep well plate from Solo Position6 to Disposal Location
+    module: plateCrane
+    command: transfer
+    args:
+      source: "Solo.Position6"
+      target: payload.disposal_location
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "96_deep_well"
+    checks: null
+    comment: Place plate in Solo Position4
