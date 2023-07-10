@@ -72,69 +72,42 @@ def load_model():
         TENSORFLOW_MODEL.compile(optimizer='adam', loss='mean_squared_error')
         TENSORFLOW_MODEL.summary()
     
-def predict_experiment():
-    #Create a combination of possible values
-    #Add those combinations to the data frame
+def predict_experiment(num_prediction_requests):
     #Predict the Model on the Data frame
     #Sort the combinations and output the one/two/three/...twelve that need AI modeling
     predictions = []
-    combinations = []
-    treatment_values = []
-    culture_values = []
+    prediction_dataframe = return_combination_data_frame()
+     # Make prediction on the combination using the trained model
+    prediction = TENSORFLOW_MODEL.predict(prediction_dataframe)
+    prediction_dataframe['Predictions'] = predictions
 
-    search_space = {}
+    prediction_dataframe = prediction_dataframe.sort_values('Predictions')
 
-    for i in range (1,13):
-        treatment_key = 'antibiotic' + str(int(i+1))
-        culture_key = 'cell' + str(int(i+1))
-        for j in range(1,6):
-            treatment_values.append(ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]/2**j)
-        treatment_values.append(0)
+    # Select the set of smallest values defined by num_prediction_requests
+    selected_rows = prediction_dataframe.head(num_prediction_requests)
 
-        # Define other input variables and their search ranges
+    treatment_column = selected_rows['Treatment Column'].values
+    treatment_concentration = selected_rows['Treatment Concentration'].values
+    cell_column = selected_rows['Cell Column'].values
+    cell_concentration = selected_rows['Cell Concentration'].values
+    predictions = selected_rows['Predictions'].values
 
-    # Iterate over antibiotics and cells separately
-    antibiotics = [key for key in search_space if 'antibiotic' in key]
-    cells = [key for key in search_space if 'cell' in key]
+    return treatment_column, treatment_concentration, cell_column, cell_concentration, predictions
 
-    for antibiotic in antibiotics:
-        for cell in cells:
-            # Generate potential combination between the antibiotic and cell
-            combination_antibiotic = search_space[antibiotic]
-            combination_cell = search_space[cell]
-            combination = {antibiotic: combination_antibiotic, cell: combination_cell}
-            combinations.append(combination)
+def return_combination_data_frame():
 
-    # Make prediction on the combination using the trained model
-    prediction = TENSORFLOW_MODEL.predict(np.array(list(combination.values())).T)
-    predictions.append(prediction)
+    combinations_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration'])
 
-    # Sort the combinations based on predicted growth rates
-    sorted_combinations = sorted(zip(combinations, predictions), key=lambda x: x[1])
-
-    # Select the top 12 combinations with lower growth rates
-    selected_combinations = sorted_combinations[:12]
-
-    # Print the selected combinations and their predicted growth rates
-    for combination, growth_rate in selected_combinations:
-        print(f"Combination: {combination} | Predicted Growth Rate: {growth_rate}")
-
-def create_dictionary_of_possible_combinations():
-
-    predictions = []
-    combinations = []
     treatment_values = []
     treatment_indices = []
     culture_values = []
     culture_indices = []
 
-    search_space = {}
-
     for i in range (1,13):
         antibiotic_concentration_type = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i-1]
         if(antibiotic_concentration_type != 0 and antibiotic_concentration_type != None):
             for j in range(1,6):
-                treatment_values.append(antibiotic_concentration_type**j)
+                treatment_values.append(antibiotic_concentration_type/2**j)
                 treatment_indices.append(i)
             treatment_values.append(0)
             treatment_indices.append(6)
@@ -143,8 +116,22 @@ def create_dictionary_of_possible_combinations():
     for i in range(1,13):
         cell_concentration_type = ORIGINAL_CELL_CONCENTRATION[i-1]
         if(cell_concentration_type != 0 and antibiotic_concentration_type != None):
-            treatment_values.append(cell_concentration_type)
+            culture_values.append(cell_concentration_type)
             culture_indices.append(i)
+
+    for x in range(0, len(treatment_values)):
+        for y in range(0, len(culture_values)):
+            latest_row = {
+                'Treatment Column': treatment_indices[x], 
+                'Treatment Concentration': treatment_values[x],
+                'Cell Column': culture_indices[y],
+                'Cell Concentration': culture_values[y] 
+            }
+
+            combinations_df = combinations_df.append(latest_row, ignore_index=True)
+
+    return combinations_df
+    
 
 def determine_payload_from_excel():
     print("Run Log Starts Now")
