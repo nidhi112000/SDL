@@ -1,6 +1,5 @@
 name: Multi-Growth Assay Run Workflow - Complete Hudson Setup
 
-
 metadata:
   author: Alp Demirtas
   info: Growth Assay Workflow and all of its individual components called from the multi_growth_curve.py file

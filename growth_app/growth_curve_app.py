@@ -28,9 +28,9 @@ def main():
         "humidity": 95.0,
         "shaker_speed": 30,
         "stacker": 1,
-        "slot": 1,
+        "slot": 2,
         "treatment": "col1",  # string of treatment name. Ex. "col1", "col2"
-        "culture_column": 2,  # int of cell culture column. Ex. 1, 2, 3, etc.
+        "culture_column": 3,  # int of cell culture column. Ex. 1, 2, 3, etc.
         "culture_dil_column": 1,  # int of dilution column for 1:10 culture dilutions. Ex. 1, 2, 3, etc.
         "media_start_column": 1,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
         "treatment_dil_half": 1,  #  int of which plate half to use for treatment serial dilutions. Options are 1 or 2.
@@ -62,7 +62,7 @@ def main():
     payload["hso_3_lines"] = hso_3_lines
     payload["hso_3_basename"] = hso_3_basename
 
-    # #run Growth Create Plate
+    #run Growth Create Plate
     flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
 
     flow_status = exp.query_job(flow_info["job_id"])
@@ -86,7 +86,7 @@ def main():
     # time.sleep(43200)
 
     startTime = round(time.time())
-    hidex_test_times = [30, 3600, 7200, 21600]
+    hidex_test_times = [30, 10800, 21600, 32400]
     #hidex_test_times = [5, 6, 7, 8]
     run_globus_test = True
 

@@ -165,6 +165,9 @@ def determine_payload_from_excel():
 def train_model():
     WeIGHT = .5
 
+def process_data():
+    sharpie = 1
+
 def save_model():
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
 
