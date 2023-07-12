@@ -11,7 +11,7 @@ modules:
 flowdef:
   - name: close lid
     module: biometra
-    command: close_lid
+    action: close_lid
     # args?
     checks: null
     comment: opens lid to biometra
@@ -19,7 +19,7 @@ flowdef:
   flowdef:
   - name: run quick program
     module: biometra
-    command: run_program
+    action: run_program
     args:
       program_n: payload.program
     checks: null
