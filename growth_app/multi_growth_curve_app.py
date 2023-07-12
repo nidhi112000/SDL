@@ -165,8 +165,12 @@ def determine_payload_from_excel():
 def train_model():
     WeIGHT = .5
 
-def process_data():
-    sharpie = 1
+def process_results():
+    t0_results_path = str(pathlib.Path().resolve()) + "/t0reading"
+    files = os.listdir(t0_results_path)
+    excel_files = [file for file in files if file.endswith(".xlsx")]
+    sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(t0_results_path, x)))
+    path_name = os.path.join(t0_results_path, sorted_files[0])
 
 def save_model():
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
