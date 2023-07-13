@@ -15,7 +15,7 @@ modules:
 flowdef:
   - name: Move Growth Media Plate from Solo Position2 to Stack 2
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Solo.Position2"
       target: "Stack2"

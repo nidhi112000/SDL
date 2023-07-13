@@ -16,7 +16,7 @@ flowdef:
     # STEP 1
   - name: Mix Reactions
     module: solo
-    command: run_protocol
+    action: run_protocol
     args:
       hso_contents: payload.hso_1
       hso_num_lines: payload.hso_1_lines
@@ -27,7 +27,7 @@ flowdef:
     # STEP 2
   - name: Mix Reactions
     module: solo
-    command: run_protocol
+    action: run_protocol
     args:
       hso_contents: payload.hso_2
       hso_num_lines: payload.hso_2_lines
@@ -38,7 +38,7 @@ flowdef:
     # STEP 3
   - name: Mix Reactions
     module: solo
-    command: run_protocol
+    action: run_protocol
     args:
       hso_contents: payload.hso_3
       hso_num_lines: payload.hso_3_lines
@@ -48,7 +48,7 @@ flowdef:
 
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -56,7 +56,7 @@ flowdef:
 
   - name: Move plate from Solo Position4 to Hidex Nest
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Solo.Position4"
       target: "HidexNest2"
@@ -68,7 +68,7 @@ flowdef:
 
   - name: run Hidex
     module: hidex
-    command: run_assay
+    action: run_assay
     args: 
       assay_name: "Campaign2_wei_cs"
     checks: null
@@ -76,7 +76,7 @@ flowdef:
 
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -84,7 +84,7 @@ flowdef:
 
   - name: Move plate from HidexNest to Sealer
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "HidexNest2"
       target: "SealerNest"
@@ -96,7 +96,7 @@ flowdef:
 
   - name: Close Hidex
     module: hidex
-    command: close
+    action: close
     args: 
       foo: "bar"
     checks: null
@@ -104,7 +104,7 @@ flowdef:
 
   - name: Seal PCR plate
     module: sealer
-    command: seal
+    action: seal
     args:
       time: payload:seal.time
       temperature: 175
@@ -113,7 +113,7 @@ flowdef:
 
   - name: Move plate from Sealer to Liconic
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "SealerNest"
       target: "Liconic.Nest"
@@ -124,7 +124,7 @@ flowdef:
 
   - name: Load Liconic
     module: liconic
-    command: load_plate
+    action: load_plate
     args: 
       plate_id: payload.incubation_plate_id
     checks: null
@@ -132,7 +132,7 @@ flowdef:
 
   - name: Start shaker at set speed
     module: liconic
-    command: begin_shake
+    action: begin_shake
     args: 
       shaker_speed: payload.shaker_speed
     checks: null

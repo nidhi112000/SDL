@@ -16,7 +16,7 @@ flowdef:
 
   - name: Unload Liconic
     module: liconic
-    command: unload_plate
+    action: unload_plate
     args: 
       plate_id: payload.incubation_plate_id
     checks: null
@@ -24,7 +24,7 @@ flowdef:
       
   - name: Move plate from Liconic to Peeler
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Liconic.Nest"
       target: "PeelerNest"
@@ -35,7 +35,7 @@ flowdef:
   
   - name: Peel
     module: peeler
-    command: peel
+    action: peel
     args:
       test: null
     checks: null
@@ -43,7 +43,7 @@ flowdef:
     
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -51,7 +51,7 @@ flowdef:
 
   - name: Move plate from PeelerNest to HidexNest
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "PeelerNest"
       target: "HidexNest2"
@@ -63,7 +63,7 @@ flowdef:
 
   - name: run Hidex
     module: hidex
-    command: run_assay
+    action: run_assay
     args: 
       assay_name: "Campaign2_wei_cs"
     checks: null  
@@ -71,7 +71,7 @@ flowdef:
 
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -79,7 +79,7 @@ flowdef:
 
   - name: Move plate from HidexNest to Stack2
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "HidexNest2"
       target: "Stack2"
@@ -91,7 +91,7 @@ flowdef:
 
   - name: Close Hidex
     module: hidex
-    command: close
+    action: close
     args: 
       foo: "bar"
     checks: null

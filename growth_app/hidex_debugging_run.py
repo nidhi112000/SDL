@@ -3,7 +3,7 @@
 from pathlib import Path
 from rpl_wei import Experiment
 import time
-from BIO_workcell.growth_app.tools.growth_curve_gladier_flow import c2_flow
+from tools.growth_curve_gladier_flow import c2_flow
 
 
 def main():
@@ -73,7 +73,7 @@ def main():
     print("Flow Title: ", flow_title)
     print("Fname: ", fname)
     print("Experiment: ", exp)
-    c2_flow("hidex_test_run", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+    c2_flow(exp_name = "hidex_test_run", plate_n = "4", time = "17:04", local_path=flow_title, fname = fname, exp = exp)
 
 
 

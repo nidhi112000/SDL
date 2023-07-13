@@ -15,7 +15,7 @@ modules:
 flowdef:
   - name: Move tip bin from Solo Position3 to Stack 4
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Solo.Position3"
       target: "Stack4"
@@ -27,7 +27,7 @@ flowdef:
 
   - name: Move tip bin from Stack 4 to Solo Position 3
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Stack4"
       target: "Solo.Position3"
