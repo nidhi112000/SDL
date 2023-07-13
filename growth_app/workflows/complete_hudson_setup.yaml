@@ -15,7 +15,7 @@ modules:
 flowdef:
   # - name: Move tip bin from Stack4 to Solo Position3
   #   module: plateCrane
-  #   command: transfer
+  #   action: transfer
   #   args:
   #     source: "Stack4"
   #     target: "Solo.Position3"
@@ -27,7 +27,7 @@ flowdef:
 
   # - name: Move deep well plate from Stack3 to Peeler
   #   module: plateCrane
-  #   command: transfer
+  #   action: transfer
   #   args:
   #     source: "Stack3"
   #     target: "PeelerNest"
@@ -39,7 +39,7 @@ flowdef:
 
   # - name: Peel
   #   module: peeler
-  #   command: peel
+  #   action: peel
   #   args:
   #     test: null
   #   checks: null
@@ -47,7 +47,7 @@ flowdef:
   
   # - name: Move deep well plate from Peeler to Solo Position6
   #   module: plateCrane
-  #   command: transfer
+  #   action: transfer
   #   args:
   #     source: "PeelerNest"
   #     target: "Solo.Position6"
@@ -59,7 +59,7 @@ flowdef:
 
   # - name: Move 96 well plate from Stack5 to Solo Position4
   #   module: plateCrane
-  #   command: transfer
+  #   action: transfer
   #   args:
   #     source: "Stack5"
   #     target: "Solo.Position4"
@@ -71,7 +71,7 @@ flowdef:
 
   # - name: Remove lid
   #   module: plateCrane
-  #   command: remove_lid
+  #   action: remove_lid
   #   args:
   #     source: "Solo.Position4"
   #     target: "Stack1"
@@ -81,7 +81,7 @@ flowdef:
   
   - name: Refill Tips
     module: solo
-    command: refill_tips
+    action: refill_tips
     args:
       position: complete_setup_payload.tip_box_position
     checks: null

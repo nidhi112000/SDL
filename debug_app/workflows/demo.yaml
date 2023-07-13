@@ -15,7 +15,7 @@ modules:
 flowdef:
   - name: Move tip bin from Stack4 to Solo Position3
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Stack4"
       target: "Solo.Position3"
@@ -27,7 +27,7 @@ flowdef:
 
   - name: Move plate from Stack5 to Solo Position4
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Stack5"
       target: "Solo.Position4"
@@ -39,7 +39,7 @@ flowdef:
 
   - name: Remove lid
     module: plateCrane
-    command: remove_lid
+    action: remove_lid
     args:
       source: "Solo.Position4"
       target: "LidNest2"
@@ -51,7 +51,7 @@ flowdef:
   # # STEP 1
   # - name: Mix Reactions
   #   module: solo
-  #   command: run_protocol
+  #   action: run_protocol
   #   args:
   #     protocol_path: "C:\\labautomation\\instructions_wei\\Growth_Curve-wei-v1-1683313673\\plate0_step1.hso"
   #   checks: RESOURCE_CHECK
@@ -60,7 +60,7 @@ flowdef:
   #     # STEP 2
   # - name: Mix Reactions
   #   module: solo
-  #   command: run_protocol
+  #   action: run_protocol
   #   args:
   #     protocol_path: "C:\\labautomation\\instructions_wei\\Growth_Curve-wei-v1-1683313673\\plate0_step2.hso"
   #   checks: RESOURCE_CHECK
@@ -69,7 +69,7 @@ flowdef:
   # # STEP 3
   # - name: Mix Reactions
   #   module: solo
-  #   command: run_protocol
+  #   action: run_protocol
   #   args:
   #     protocol_path: "C:\\labautomation\\instructions_wei\\Growth_Curve-wei-v1-1683313673\\plate0_step3.hso"
   #   checks: RESOURCE_CHECK
@@ -78,7 +78,7 @@ flowdef:
   # TEST
   - name: Mix Reactions
     module: solo
-    command: run_protocol
+    action: run_protocol
     args:
       protocol_path: "C:\\Users\\svcaibio\\Dev\\hidex_module\\hidex_driver\\ahk\\test_hso\\test.hso"
     checks: RESOURCE_CHECK
@@ -86,7 +86,7 @@ flowdef:
 
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -94,7 +94,7 @@ flowdef:
 
   - name: Move plate from Solo Position4 to Hidex Nest
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Solo.Position4"
       target: "HidexNest2"
@@ -107,7 +107,7 @@ flowdef:
 
   - name: run Hidex
     module: hidex
-    command: run_protocol
+    action: run_protocol
     args: 
       protocol_path: "C:\\Users\\svcaibio\\Documents\\Hidex Sense\\Campaign2_wei.sensetemplate"
     checks: null
@@ -115,7 +115,7 @@ flowdef:
 
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -123,7 +123,7 @@ flowdef:
 
   - name: Move plate from HidexNest to Sealer
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "HidexNest2"
       target: "SealerNest"
@@ -136,7 +136,7 @@ flowdef:
 
   - name: Close Hidex
     module: hidex
-    command: close
+    action: close
     args: 
       foo: "bar"
     checks: null
@@ -144,7 +144,7 @@ flowdef:
 
   - name: Seal PCR plate
     module: sealer
-    command: seal
+    action: seal
     args:
       time: payload:seal.time
       temperature: 175
@@ -153,7 +153,7 @@ flowdef:
 
   - name: Move plate from Sealer to Liconic
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "SealerNest"
       target: "Liconic.Nest"
@@ -165,7 +165,7 @@ flowdef:
 
   - name: Load Liconic
     module: liconic
-    command: load_plate
+    action: load_plate
     args: 
       stacker: payload.stacker
       slot: payload.slot
@@ -174,7 +174,7 @@ flowdef:
 
   - name: Start shaker at set speed
     module: liconic
-    command: begin_shake
+    action: begin_shake
     args: 
       shaker_speed: payload.shaker_speed
     checks: null
@@ -182,7 +182,7 @@ flowdef:
 
   # - name: Wait
   #   module: local
-  #   command: wait
+  #   action: wait
   #   args: 
   #     wait_time: "12:00:00"
   #   checks: null
@@ -190,7 +190,7 @@ flowdef:
 
   - name: Unload Liconic
     module: liconic
-    command: unload_plate
+    action: unload_plate
     args: 
       stacker: payload.stacker
       slot: payload.slot
@@ -199,7 +199,7 @@ flowdef:
     
   - name: Move plate from Liconic to Peeler
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Liconic.Nest"
       target: "PeelerNest"
@@ -211,7 +211,7 @@ flowdef:
   
   - name: Peel
     module: peeler
-    command: peel
+    action: peel
     args:
       test: null
     checks: null
@@ -219,7 +219,7 @@ flowdef:
     
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -227,7 +227,7 @@ flowdef:
 
   - name: Move plate from PeelerNest to HidexNest
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "PeelerNest"
       target: "HidexNest2"
@@ -240,7 +240,7 @@ flowdef:
 
   - name: Run Protocol Hidex
     module: hidex
-    command: run_protocol
+    action: run_protocol
     args: 
       protocol_path: "C:\\Users\\svcaibio\\Documents\\Hidex Sense\\Campaign2_wei.sensetemplate"
     checks: null  
@@ -248,7 +248,7 @@ flowdef:
 
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null
@@ -256,7 +256,7 @@ flowdef:
 
   - name: Move plate from HidexNest to Stack1
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "HidexNest2"
       target: "Stack1"
@@ -269,7 +269,7 @@ flowdef:
 
   - name: Close Hidex
     module: hidex
-    command: close
+    action: close
     args: 
       foo: "bar"
     checks: null
@@ -277,7 +277,7 @@ flowdef:
 
   # - name: Move to camera_module
   #   module: plateEx
-  #   command: transfer
+  #   action: transfer
   #   args:
   #     source: peeler.positions.default
   #     target: camera_module.positions.plate_station
@@ -286,7 +286,7 @@ flowdef:
 
   # - name: Take Picture
   #   module: camera_module
-  #   command: take_picture
+  #   action: take_picture
   #   args:
   #     save_location: local_run_results
   #     file_name: "final_image.jpg"

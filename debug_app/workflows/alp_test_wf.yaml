@@ -16,7 +16,7 @@ flowdef:
 # 96 Well Plate from Stack 3 to Solo Position 4  
   - name: 96 well plate from Stack 3 to Solo Position 4
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Stack3"
       target: "Solo.Position4"
@@ -29,7 +29,7 @@ flowdef:
 # Remove Lid
   - name: Remove lid
     module: plateCrane
-    command: remove_lid
+    action: remove_lid
     args:
       source: "Solo.Position4"
       target: "LidNest2"
@@ -40,7 +40,7 @@ flowdef:
 # Tip box from Stack 4 to Solo Position 3
   - name: Tip box from Stack 4 to Solo Position 3
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Stack4"
       target: "Solo.Position3"
@@ -53,7 +53,7 @@ flowdef:
     # STEP 2
   - name: Mix Reactions
     module: solo
-    command: run_protocol
+    action: run_protocol
     args:
       hso_contents: payload.hso_2
       hso_num_lines: payload.hso_2_lines
@@ -64,7 +64,7 @@ flowdef:
 # Move to Sealer
   - name: Move 96 well plate from Solo Position 4 to Sealer
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Solo.Position4"
       target: "SealerNest"
@@ -77,7 +77,7 @@ flowdef:
 # Seal
   - name: Seal PCR plate
     module: sealer
-    command: seal
+    action: seal
     args:
       time: 3.0
       temperature: 175
@@ -87,7 +87,7 @@ flowdef:
 # Move to Liconic
   - name: Move plate from Sealer to Liconic
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "SealerNest"
       target: "Liconic.Nest"
@@ -99,7 +99,7 @@ flowdef:
 # Incubate for 10 seconds
   - name: Load Liconic
     module: liconic
-    command: load_plate
+    action: load_plate
     args: 
       stacker: 1
       slot: 1
@@ -108,7 +108,7 @@ flowdef:
 
   - name: Start shaker at set speed
     module: liconic
-    command: begin_shake
+    action: begin_shake
     args: 
       shaker_speed: 30.0
     checks: null
@@ -116,7 +116,7 @@ flowdef:
 
   - name: Unload Liconic
     module: liconic
-    command: unload_plate
+    action: unload_plate
     args: 
       stacker: 1
       slot: 1
@@ -126,7 +126,7 @@ flowdef:
 # Move to Peeler
   - name: Move plate from Liconic to Peeler
     module: plateCrane
-    command: transfer
+    action: transfer
     args:
       source: "Liconic.Nest"
       target: "PeelerNest"
@@ -138,7 +138,7 @@ flowdef:
 #Peel
   - name: Peel
     module: peeler
-    command: peel
+    action: peel
     args:
       test: null
     checks: null
@@ -147,7 +147,7 @@ flowdef:
 # Move to Stack 1
   - name: Move Plate from Peeler to Stack 1
     module: plateCrane
-    command: transfer
+    action: transfer
     args: 
       source: "PeelerNest"
       target: "Stack1"
