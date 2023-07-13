@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from argparse import ArgumentParser
 from rpl_wei.wei_workcell_base import WEI
-from tools.c2_flow import c2_flow
+from BIO_workcell.growth_app.tools.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
 from datetime import datetime
 from workflows.growth_curve.hso_functions import package_hso

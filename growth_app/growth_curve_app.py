@@ -3,7 +3,7 @@
 from pathlib import Path
 
 # from rpl_wei.wei_workcell_base import WEI
-from tools.c2_flow import c2_flow
+from BIO_workcell.growth_app.tools.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
 from workflows.hso_functions import package_hso
 from workflows import solo_step1, solo_step2, solo_step3
