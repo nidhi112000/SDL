@@ -12,7 +12,7 @@ flowdef:
     # STEP 2
   - name: Mix Reactions
     module: solo
-    command: run_protocol
+    action: run_protocol
     args:
       hso_contents: payload.hso_2
       hso_num_lines: payload.hso_2_lines

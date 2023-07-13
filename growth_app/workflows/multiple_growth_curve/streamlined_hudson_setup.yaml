@@ -1,0 +1,38 @@
+name: Multi-Growth Assay Run Workflow - Streamlined Hudson Setup 
+
+metadata:
+  author: Alp Demirtas
+  info: Growth Assay Workflow and all of its individual components called from the multi_growth_curve.py file
+  version: 1.3
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+  - name: Move plate from Stack5 to Solo Position4
+    module: plateCrane
+    command: transfer
+    args:
+      source: "Stack5"
+      target: "Solo.Position4"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate in Solo Position4
+
+  - name: Remove lid
+    module: plateCrane
+    command: remove_lid
+    args:
+      source: "Solo.Position4"
+      target: "Stack1"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate lid on Stack1
+
+  

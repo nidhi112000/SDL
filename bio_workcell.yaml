@@ -12,61 +12,59 @@ config:
 
 modules:
   - name: plateCrane
-    type: wei_ros_node
     model: plateCrane
+    interface: wei_ros_node
     config:
-      ros_node: "/std_ns/PlateCraneNode"
+      ros_node_address: "/std_ns/PlateCraneNode"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
-    positions:
-      stack1: "Stack1"
 
   - name: sealer
-    type: wei_ros_node
-    model: sealer
+    model: a4S_sealer
+    interface: wei_ros_node
     config:
-      ros_node: "/std_ns/SealerNode"
+      ros_node_address: "/std_ns/SealerNode"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
       
   - name: peeler
-    type: wei_ros_node
     model: peeler
+    interface: wei_ros_node
     config:
-      ros_node: "/std_ns/PeelerNode"
+      ros_node_address: "/std_ns/PeelerNode"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: biometra
-    type: wei_ros_node
     model: biometra
+    interface: wei_ros_node
     config:
-      ros_node: "/std_ns/biometraNode"
+      ros_node_address: "/std_ns/biometraNode"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: liconic
-    type: wei_ros_node
     model: liconic
+    interface: wei_ros_node
     config:
-      ros_node: "/std_ns/liconicNode"
+      ros_node_address: "/std_ns/liconicNode"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: hidex
-    type: wei_tcp_node
     model: Hidex
+    interface: wei_tcp_node
     config:
-      tcp_address: "hudson01.cels.anl.gov"
-      tcp_port: "2000"
+      tcp_node_address: "hudson01.cels.anl.gov"
+      tcp_node_port: "2000"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: solo
-    type: wei_zmq_node
     model: Solo
+    interface: wei_zmq_node
     config:
-      tcp_address: "hudson01.cels.anl.gov"
-      tcp_port: "2001"
+      zmq_node_address: "hudson01.cels.anl.gov"
+      zmq_node_port: "2001"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
 locations:
   plateCrane:
-    pos1: 'pos1'
+    stack1: "Stack1"
 
 
 

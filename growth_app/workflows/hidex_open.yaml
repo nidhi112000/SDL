@@ -11,7 +11,7 @@ modules:
 flowdef:
   - name: Open Hidex
     module: hidex
-    command: open
+    action: open
     args: 
       foo: "bar"
     checks: null

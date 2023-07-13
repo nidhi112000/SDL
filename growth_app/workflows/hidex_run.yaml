@@ -11,6 +11,6 @@ modules:
 flowdef:
   - name: run Hidex
     module: hidex
-    command: run_assay
+    action: run_assay
     args: 
       assay_name: "Campaign2_wei_cs"
