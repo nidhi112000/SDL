@@ -18,6 +18,9 @@ def main():
     wf_path_2 = Path(
         "/home/rpl/workspace/BIO_workcell/growth_app/workflows/growth_curve/read_plate_T12.yaml"
     )
+    hidex_run = Path(
+        "/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml"
+    )
     exp = Experiment("127.0.0.1", "8000", "Growth_Curve")
     exp.register_exp()
     payload = {
@@ -25,9 +28,9 @@ def main():
         "humidity": 95.0,
         "shaker_speed": 30,
         "stacker": 1,
-        "slot": 1,
+        "slot": 2,
         "treatment": "col1",  # string of treatment name. Ex. "col1", "col2"
-        "culture_column": 1,  # int of cell culture column. Ex. 1, 2, 3, etc.
+        "culture_column": 3,  # int of cell culture column. Ex. 1, 2, 3, etc.
         "culture_dil_column": 1,  # int of dilution column for 1:10 culture dilutions. Ex. 1, 2, 3, etc.
         "media_start_column": 1,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
         "treatment_dil_half": 1,  #  int of which plate half to use for treatment serial dilutions. Options are 1 or 2.
@@ -59,7 +62,7 @@ def main():
     payload["hso_3_lines"] = hso_3_lines
     payload["hso_3_basename"] = hso_3_basename
 
-    # #run Growth Create Plate
+    #run Growth Create Plate
     flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
 
     flow_status = exp.query_job(flow_info["job_id"])
@@ -83,8 +86,47 @@ def main():
     # time.sleep(43200)
 
     startTime = round(time.time())
+    hidex_test_times = [30, 10800, 21600, 32400]
+    #hidex_test_times = [5, 6, 7, 8]
+    run_globus_test = True
+
     while((round(time.time()) - startTime) < 43200): # change total time in seconds here
         deltaSeconds = int(round(time.time()) - startTime)
+        try:
+            if run_globus_test == True:
+                if len(hidex_test_times) != 0:
+                    if deltaSeconds > hidex_test_times[0]:
+                        hidex_trial_number = 5 - len(hidex_test_times)
+
+                        print("Starting Hidex Trial Run ", hidex_trial_number)
+                        flow_info = exp.run_job(hidex_run.resolve(), payload=None, simulate=False)
+
+                        flow_status = exp.query_job(flow_info["job_id"])
+                        while flow_status["status"] != "finished" and flow_status["status"] != "failure":
+                            flow_status = exp.query_job(flow_info["job_id"])
+                            time.sleep(3)
+
+                        run_info = flow_status["result"]
+                        run_info["run_dir"] = Path(run_info["run_dir"])
+                        print("Finished Hidex Trial Run ", hidex_trial_number)
+                        print(run_info)
+                        hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+                        hidex_file_path = hidex_file_path.replace('\\', '/')
+                        hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+                        flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+                        fname = flow_title.name
+                        flow_title = flow_title.parents[0]
+
+                        print("Uploading Hidex Trial Run " , hidex_trial_number, " Data to Globus")
+                        c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+                        print("Uploading Hidex Trial Run " , hidex_trial_number, " Data to Globus")
+
+
+                        hidex_test_times.pop(0)
+        except:
+            print("Something Went Wrong in Globus Test - Abandoning Test")
+            run_globus_test = False
+            
         hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
         minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
         seconds = deltaSeconds - hours*3600 - minutes * 60
@@ -109,6 +151,7 @@ def main():
     flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
     fname = flow_title.name
     flow_title = flow_title.parents[0]
+    c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
 
 
 if __name__ == "__main__":

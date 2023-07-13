@@ -1,9 +1,9 @@
-name: Growth Curve - Workflow
+name: Multi-Growth Assay Run Workflow - Gather T12 Reading
 
 metadata:
-  author: Casey Stone, Rafael Vescovi
-  info: Initial PCR workflow for RPL workcell
-  version: 0.1
+  author: Rafael Vescovi, Casey Stone, Abraham Stroka, Alp Demirtas
+  info: Growth Assay Workflow and all of its individual components called from the multi_growth_curve.py file
+  version: 1.3
 
 modules:
   - name: solo
@@ -18,7 +18,7 @@ flowdef:
     module: liconic
     command: unload_plate
     args: 
-      plate_id: "1"
+      plate_id: payload.incubation_plate_id
     checks: null
     comment: Stage pcr plates
       
@@ -77,12 +77,12 @@ flowdef:
     checks: null
     comment: Open Hidex Gate
 
-  - name: Move plate from HidexNest to Stack1
+  - name: Move plate from HidexNest to Stack2
     module: plateCrane
     command: transfer
     args:
       source: "HidexNest2"
-      target: "Stack1"
+      target: "Stack2"
       source_type: "module"
       target_type: "stack"   
       height_offset: "650"
