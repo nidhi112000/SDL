@@ -13,26 +13,8 @@ modules:
   - name: camera
 
 flowdef:
-  - name: Move tip bin from Solo Position3 to Stack 4
-    module: plateCrane
-    action: transfer
-    args:
-      source: "Solo.Position3"
-      target: "Stack4"
-      source_type: "stack"
-      target_type: "stack"
-      plate_type: "tip_box_lid_off"
-    checks: null
-    comment: Place plate in Solo Position4
-
-  - name: Move tip bin from Stack 4 to Solo Position 3
-    module: plateCrane
-    action: transfer
-    args:
-      source: "Stack4"
-      target: "Solo.Position3"
-      source_type: "stack"
-      target_type: "stack"
-      plate_type: "tip_box_lid_off"
-    checks: null
-    comment: Place plate in Solo Position4
+  - name: run Hidex
+    module: hidex
+    action: run_assay
+    args: 
+      assay_name: "Campaign2_wei_cs"

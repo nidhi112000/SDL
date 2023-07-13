@@ -17,6 +17,8 @@ def main():
         "/home/rpl/workspace/BIO_workcell/growth_app/workflows/hidex_run.yaml"
     )
 
+    final_test = Path("/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml")
+
 
     exp = Experiment("127.0.0.1", "8000", "Hidex_Test")
     exp.register_exp()
@@ -49,6 +51,19 @@ def main():
 
     # print(run_info)
 
+    # flow_info = exp.run_job(hidex_run.resolve(), payload=None, simulate=False)
+
+    # flow_status = exp.query_job(flow_info["job_id"])
+    # while (
+    #     flow_status["status"] != "finished" and flow_status["status"] != "failure"
+    # ):
+    #     flow_status = exp.query_job(flow_info["job_id"])
+    #     time.sleep(3)
+
+    # run_info = flow_status["result"]
+    # run_info["run_dir"] = Path(run_info["run_dir"])
+    # print(run_info)
+
     flow_info = exp.run_job(hidex_run.resolve(), payload=None, simulate=False)
 
     flow_status = exp.query_job(flow_info["job_id"])
@@ -73,7 +88,7 @@ def main():
     print("Flow Title: ", flow_title)
     print("Fname: ", fname)
     print("Experiment: ", exp)
-    c2_flow(exp_name = "hidex_test_run", plate_n = "4", time = "17:04", local_path=flow_title, fname = fname, exp = exp)
+    c2_flow(exp_name = "hidex_test_run", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
 
 
 
