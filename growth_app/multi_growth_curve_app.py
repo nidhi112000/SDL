@@ -15,15 +15,28 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import os
+import datetime
+import random
+from openpyxl.utils.dataframe import dataframe_to_rows
+from sklearn.model_selection import train_test_split
 
 from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
-ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1]
-ORIGINAL_CELL_CONCENTRATION = [1]
+ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ORIGINAL_CELL_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+TOTAL_CELL_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
+TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
+HIDEX_UPLOADS = []
+COMPLETED_CELL_COLUMNS = []
+COMPLETED_ANTIBIOTIC_COLUMNS = []
+PLATE_BARCODES = []
+CREATED_COMPLETED_FILE = False
+COMPLETED_FILE_NAME = ''
+EXPERIMENT_FILE_PATH = ''
 
 TENSORFLOW_MODEL = None
 AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tensorflow_model"
@@ -79,7 +92,7 @@ def predict_experiment(num_prediction_requests):
     prediction_dataframe = return_combination_data_frame()
      # Make prediction on the combination using the trained model
     prediction = TENSORFLOW_MODEL.predict(prediction_dataframe)
-    prediction_dataframe['Predictions'] = predictions
+    prediction_dataframe['Predictions'] = prediction
 
     prediction_dataframe = prediction_dataframe.sort_values('Predictions')
 
@@ -112,9 +125,8 @@ def return_combination_data_frame():
             treatment_values.append(0)
             treatment_indices.append(6)
 
-    
     for i in range(1,13):
-        cell_concentration_type = ORIGINAL_CELL_CONCENTRATION[i-1]
+        cell_concentration_type = ORIGINAL_CELL_CONCENTRATION[i-1]/10
         if(cell_concentration_type != 0 and antibiotic_concentration_type != None):
             culture_values.append(cell_concentration_type)
             culture_indices.append(i)
@@ -132,6 +144,8 @@ def return_combination_data_frame():
 
     return combinations_df
     
+def delete_experiment_excel_file():
+    os.remove(EXPERIMENT_FILE_PATH)
 
 def determine_payload_from_excel():
     print("Run Log Starts Now")
@@ -141,6 +155,7 @@ def determine_payload_from_excel():
     excel_files = [file for file in files if file.endswith(".xlsx")]
     sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
     path_name = os.path.join(folder_path, sorted_files[0])
+    EXPERIMENT_FILE_PATH = path_name
     print(path_name)
     workbook = openpyxl.load_workbook(filename=path_name)
     worksheet = workbook['Complete_Run_Layout']
@@ -159,21 +174,185 @@ def determine_payload_from_excel():
             added_items = added_items + 1
     if(len(MEDIA_PAYLOAD) != experiment_iterations):
         experiment_iterations = len(MEDIA_PAYLOAD)
+
+    for i in range(0,12):
+        original_concentration = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]/10
+        single_plate_treatment_columns = []
+        for iterations in range(0,2):
+            for j in range (1,6):
+                single_plate_treatment_columns.append(original_concentration/2**j)
+            single_plate_treatment_columns.append(0)
+        TOTAL_TREATMENT_COLUMN_CONCENTRATION.append(single_plate_treatment_columns)
+
+    for i in range(0,12):
+        original_concentration = ORIGINAL_CELL_CONCENTRATION[i]
+        single_plate_cell_columns = []
+        for iterations in range(0,12):
+            single_plate_cell_columns.append(original_concentration/10)
+        TOTAL_CELL_COLUMN_CONCENTRATION.append(single_plate_cell_columns)
     
     return experiment_iterations, incubation_time_seconds
 
 def train_model():
-    WeIGHT = .5
+    training_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate'])
+    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    path_name = folder_path + COMPLETED_FILE_NAME
+    completed_workbook = openpyxl.load_workbook(file_name = path_name)
+    for sheet_name in completed_workbook.sheetnames:
+        current_sheet = completed_workbook[sheet_name]
+        for i in range(2, 98):
+            latest_row = {
+                'Treatment Column': current_sheet["A" + str(int(i))].value, 
+                'Treatment Concentration': current_sheet["B" + str(int(i))].value,
+                'Cell Column': current_sheet["C" + str(int(i))].value,
+                'Cell Concentration': current_sheet["D" + str(int(i))].value,
+                'Growth Rate' : current_sheet["E" + str(int(i))].value,
+            } 
+            training_df = training_df.append(latest_row, ignore_index=True)
+    
+    X = training_df[['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration']]
+    y = training_df['Growth Rate']
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    TENSORFLOW_MODEL.compile(optimizer='adam', loss='mse')
+    TENSORFLOW_MODEL.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 def process_results():
-    t0_results_path = str(pathlib.Path().resolve()) + "/t0reading"
-    files = os.listdir(t0_results_path)
+    results_path = str(pathlib.Path().resolve()) + "path to data"
+    files = os.listdir(results_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
-    sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(t0_results_path, x)))
-    path_name = os.path.join(t0_results_path, sorted_files[0])
+    recent_files = sorted(excel_files, key=os.path.getmtime)[:len(HIDEX_UPLOADS)]
+    t0_run_ids = []
+    t12_run_ids = []
+    t0_excel_files = []
+    t12_excel_files = []
+    for i in range (0, len(HIDEX_UPLOADS)):
+        upload_id = HIDEX_UPLOADS[i]
+        excel_file_id = recent_files[i]
+        if upload_id.startswith("T0_") :
+            run_number = int(upload_id[3:])
+            t0_run_ids.append(run_number)
+            t0_excel_files.append(excel_file_id)
+        elif upload_id.startswith("T12_"):
+            run_number = int(upload_id[4:])
+            t12_run_ids.append(run_number)
+            t12_excel_files.append(excel_file_id)
+
+    old_t0_run_ids = t0_run_ids
+    t0_run_ids, t0_excel_files = zip(*sorted(zip(t0_run_ids, t0_excel_files)))
+    t12_run_ids, t12_excel_files = zip(*sorted(zip(t12_run_ids, t12_excel_files)))
+
+    if set(t0_run_ids) != set(t12_run_ids):
+        mismatched_ids = set(t0_run_ids) ^ set(t12_run_ids)
+
+        t0_run_ids, t0_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t0_run_ids, t0_excel_files) if run_id not in mismatched_ids])
+        t12_run_ids, t12_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t12_run_ids, t12_excel_files) if run_id not in mismatched_ids])
+
+    t0_run_ids = list(t0_run_ids)
+    t0_excel_files = list(t0_excel_files)
+    t12_run_ids = list(t12_run_ids)
+    t12_excel_files = list(t12_excel_files)
+
+    cell_columns = []
+    antibiotic_columns = []
+    barcodes = []
+
+    for run_id in t0_run_ids:
+        info_index = old_t0_run_ids.index(run_id)
+        cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
+        antibiotic_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
+        barcodes.append(PLATE_BARCODES[info_index])
+
+    antibiotic_concentrations_list = []
+    for antibiotic_column in antibiotic_columns:
+        antibioitic_index = antibiotic_column - 1
+        single_column_antibiotic_concentration_list = TOTAL_TREATMENT_COLUMN_CONCENTRATION[antibioitic_index]
+        single_plate_all_antibiotic_concentrations = []
+        for i in range(0,12):
+            for j in range(0,8):
+                single_plate_all_antibiotic_concentrations.append(single_column_antibiotic_concentration_list[i])
+        antibiotic_concentrations_list.append(single_plate_all_antibiotic_concentrations)
+
+    cell_concentrations_list = []
+    for cell_column in cell_columns:
+        cell_index = cell_column - 1
+        single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
+        single_plate_all_cell_concentrations = []
+        for i in range(0,12):
+            for j in range(0,8):
+                single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
+        cell_concentrations_list.append(single_plate_all_antibiotic_concentrations)
+
+
+    completed_workbook 
+    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs"
+    current_sheet_index = 1
+    if CREATED_COMPLETED_FILE:
+        path_name = folder_path + COMPLETED_FILE_NAME
+        completed_workbook = openpyxl.load_workbook(file_name = path_name)
+        num_sheets = len(completed_workbook.worksheets)
+        current_sheet_index = num_sheets + 1
+
+    else:
+        current_date = datetime.date.today()
+        formatted_date = current_date.strftime("%m/%d/%Y")
+        file_name = formatted_date + " Completed Run"
+        COMPLETED_FILE_NAME = file_name
+        completed_workbook = openpyxl.Workbook() 
+        completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
+        default_sheet = completed_workbook.active
+        completed_workbook.remove(default_sheet)
+
+    for i in range(0, len(t0_run_ids)):
+        sheet_name = "Run " + str(int(current_sheet_index))
+        current_sheet = completed_workbook.create_sheet(sheet_name)
+        t0_path_name = os.path.join(results_path, t0_excel_files[i])
+        t0_workbook = openpyxl.load_workbook(filename=t0_path_name)
+        t0_worksheet = t0_workbook['Raw OD(590)']
+        t12_path_name = os.path.join(results_path, t12_excel_files[i])
+        t12_workbook = openpyxl.load_workbook(filename=t12_path_name)
+        t12_worksheet = t12_workbook['Raw OD(590)']
+        runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
+        for j in range(10,106):
+            hidex_data_index = "D" + str(int(j))
+            t0_growth_value = t0_worksheet[hidex_data_index].value
+            t12_growth_value = t12_worksheet[hidex_data_index].value
+            growth_rate = t12_growth_value - t0_growth_value
+            latest_row = {
+                'Treatment Column': antibiotic_columns[i], 
+                'Treatment Concentration': antibiotic_concentrations_list[i][j],
+                'Cell Column': cell_columns[i],
+                'Cell Concentration': cell_concentrations_list[i][j],
+                'Growth Rate' : growth_rate,
+                'T0 Reading' : t0_growth_value,
+                'T12 Reading' : t12_growth_value
+            }
+
+            runs_df = runs_df.append(latest_row, ignore_index=True)
+    
+            for row in dataframe_to_rows(runs_df, index=False, header=True):
+                current_sheet.append(row)
+
+            current_sheet['I1'] = "Barcode Number"
+            current_sheet['J1'] = barcodes[i]
+
+    completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
 
 def save_model():
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
+
+def assign_barcode():
+    current_barcode = return_barcode()
+    PLATE_BARCODES.append(current_barcode)
+
+def return_barcode():
+    barcode = ""
+    for _ in range(13):
+        digit = random.randint(0, 9)
+        barcode += str(digit)
+    return barcode
 
 def run_experiment(total_iterations, incubation_time_sec): 
     iterations = 0
@@ -193,9 +372,10 @@ def run_experiment(total_iterations, incubation_time_sec):
             #Calculate the ID of the plate needed for incubation based on the number of iterations that have passed
             liconic_id = iterations + 1
             #Run the experiment from the Hudson Solo step to the incubation step at a specified Liconic ID
-            print("Starting T0 Readnig")
+            print("Starting T0 Reading")
             T0_Reading(liconic_id)
             print("Finished T0 Reading")
+            assign_barcode()
             #Add the time of the incubation start to the array of 96 well plates that are currently in the incubator
             incubation_start_times.append(round(time.time()))
             #Since an iteration has now passed (the plate is in the incubator), increase the index of incubation iterations
@@ -221,7 +401,6 @@ def run_experiment(total_iterations, incubation_time_sec):
             incubation_start_times.pop(0)
             #Increase the total number of removals that have now occurred.
             removals = removals + 1
-
 
 def dispose(completed_iterations):
     #Set the default disposal index of the serial dilution plate to Stack 2.
@@ -318,6 +497,11 @@ def T0_Reading(liconic_plate_id):
     #run Growth Create Plate
     run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, True)
 
+    hidex_upload_id = "T0_" + str(int(liconic_plate_id))
+
+    HIDEX_UPLOADS.append(hidex_upload_id)
+    COMPLETED_ANTIBIOTIC_COLUMNS.append(treatment_col_id)
+    COMPLETED_CELL_COLUMNS.append(culture_col_id)
 
 def T12_Reading(liconic_plate_id):
     plate_id = '' + str(int(liconic_plate_id))
@@ -356,6 +540,9 @@ def T12_Reading(liconic_plate_id):
 
     # #run Growth Create Plate
     run_WEI(READ_PLATE_T12_FILE_PATH, payload, True)
+    
+    hidex_upload_id = "T12_" + str(int(liconic_plate_id))
+    HIDEX_UPLOADS.append(hidex_upload_id)
 
 def run_WEI(file_location, payload_class, Hidex_Used):
     flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
