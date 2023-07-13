@@ -3,11 +3,11 @@
 import logging
 from argparse import ArgumentParser
 import time
-from tools.c2_flow import c2_flow
+# from tools.c2_flow import c2_flow
 from pathlib import Path
-from workflows.hso_functions import package_hso
-from workflows import solo_step1, solo_step2, solo_step3
-from workflows import solo_multi_step1, solo_multi_step2, solo_multi_step3
+# from workflows.hso_functions import package_hso
+# from workflows import solo_step1, solo_step2, solo_step3
+# from workflows import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -20,7 +20,7 @@ import random
 from openpyxl.utils.dataframe import dataframe_to_rows
 from sklearn.model_selection import train_test_split
 
-from rpl_wei import Experiment
+# from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
@@ -54,22 +54,31 @@ DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/wo
 
 HIDEX_OPEN_CLOSE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml'
 
-exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-exp.register_exp() 
+# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+# exp.register_exp() 
 print("Registered Experiment")
-exp.events.log_local_compute("package_hso")
+# exp.events.log_local_compute("package_hso")
 
 def main():
-    if AI_MODEL_IN_USE:
+    load_model()
+    iteration_runs, incubation_time = determine_payload_from_excel()
+    run_experiment(iteration_runs, incubation_time)
+    process_results()
+    train_model()
+    save_model()
+    #Find a way to calculate possible remaining runs
+    for i in range(0, 8):
         load_model()
-        predict_experiment()
-    determine_payload_from_excel()
-    run_experiment()
-    if AI_MODEL_IN_USE:
+        predict_experiment(1)
+        #Need a way to transfer things here to experiment
+        run_experiment(iteration_runs)
+        process_results()
         train_model()
         save_model()
+    delete_experiment_excel_file()
 
 def load_model():
+    global TENSORFLOW_MODEL
     if os.path.exists(AI_MODEL_FILE_PATH):
         TENSORFLOW_MODEL = tf.keras.models.load_model(AI_MODEL_FILE_PATH)
     else:
@@ -83,32 +92,40 @@ def load_model():
         ])
 
         TENSORFLOW_MODEL.compile(optimizer='adam', loss='mean_squared_error')
-        TENSORFLOW_MODEL.summary()
+        print(TENSORFLOW_MODEL.summary())
     
 def predict_experiment(num_prediction_requests):
+    global TENSORFLOW_MODEL
     #Predict the Model on the Data frame
     #Sort the combinations and output the one/two/three/...twelve that need AI modeling
     predictions = []
-    prediction_dataframe = return_combination_data_frame()
+    prediction_df = return_combination_data_frame()
      # Make prediction on the combination using the trained model
-    prediction = TENSORFLOW_MODEL.predict(prediction_dataframe)
-    prediction_dataframe['Predictions'] = prediction
+    numeric_columns = ['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration']
+    prediction_df[numeric_columns] = prediction_df[numeric_columns].apply(pd.to_numeric, errors='coerce')
 
-    prediction_dataframe = prediction_dataframe.sort_values('Predictions')
+    prediction = TENSORFLOW_MODEL.predict(prediction_df)
+    prediction_df['Predictions'] = prediction
+
+    prediction_df = prediction_df.sort_values('Predictions')
 
     # Select the set of smallest values defined by num_prediction_requests
-    selected_rows = prediction_dataframe.head(num_prediction_requests)
+    selected_rows = prediction_df.head(num_prediction_requests)
 
     treatment_column = selected_rows['Treatment Column'].values
     treatment_concentration = selected_rows['Treatment Concentration'].values
     cell_column = selected_rows['Cell Column'].values
     cell_concentration = selected_rows['Cell Concentration'].values
     predictions = selected_rows['Predictions'].values
+    print(treatment_column)
+    print(treatment_concentration)
+    print(cell_column)
+    print(cell_concentration)
+    print(predictions)
 
     return treatment_column, treatment_concentration, cell_column, cell_concentration, predictions
 
 def return_combination_data_frame():
-
     combinations_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration'])
 
     treatment_values = []
@@ -139,8 +156,8 @@ def return_combination_data_frame():
                 'Cell Column': culture_indices[y],
                 'Cell Concentration': culture_values[y] 
             }
-
-            combinations_df = combinations_df.append(latest_row, ignore_index=True)
+            latest_row_df = pd.DataFrame(latest_row, index=[0])
+            combinations_df = pd.concat([combinations_df, latest_row_df], ignore_index=True)
 
     return combinations_df
     
@@ -149,8 +166,8 @@ def delete_experiment_excel_file():
 
 def determine_payload_from_excel():
     print("Run Log Starts Now")
-    #folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\active_runs"
-    folder_path = str(pathlib.Path().resolve()) + "/active_runs"
+    folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\active_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "/active_runs"
     files = os.listdir(folder_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
     sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
@@ -194,10 +211,12 @@ def determine_payload_from_excel():
     return experiment_iterations, incubation_time_seconds
 
 def train_model():
+    global TENSORFLOW_MODEL
     training_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate'])
-    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
     path_name = folder_path + COMPLETED_FILE_NAME
-    completed_workbook = openpyxl.load_workbook(file_name = path_name)
+    completed_workbook = openpyxl.load_workbook(path_name)
     for sheet_name in completed_workbook.sheetnames:
         current_sheet = completed_workbook[sheet_name]
         for i in range(2, 98):
@@ -208,8 +227,14 @@ def train_model():
                 'Cell Concentration': current_sheet["D" + str(int(i))].value,
                 'Growth Rate' : current_sheet["E" + str(int(i))].value,
             } 
-            training_df = training_df.append(latest_row, ignore_index=True)
-    
+            latest_row_df = pd.DataFrame(latest_row, index=[0])
+            training_df = pd.concat([training_df, latest_row_df], ignore_index=True)
+
+    numeric_columns = ['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate']
+    training_df[numeric_columns] = training_df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+
+    training_df = training_df.dropna()  # Drop rows with missing or non-numeric values
+
     X = training_df[['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration']]
     y = training_df['Growth Rate']
 
@@ -219,10 +244,13 @@ def train_model():
     TENSORFLOW_MODEL.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 def process_results():
-    results_path = str(pathlib.Path().resolve()) + "path to data"
+    results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
     files = os.listdir(results_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
-    recent_files = sorted(excel_files, key=os.path.getmtime)[:len(HIDEX_UPLOADS)]
+    print(excel_files)
+    print(HIDEX_UPLOADS)
+    recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
+    print(recent_files)
     t0_run_ids = []
     t12_run_ids = []
     t0_excel_files = []
@@ -255,14 +283,19 @@ def process_results():
     t12_excel_files = list(t12_excel_files)
 
     cell_columns = []
-    antibiotic_columns = []
+    antibiotic_string_columns = []
     barcodes = []
 
     for run_id in t0_run_ids:
         info_index = old_t0_run_ids.index(run_id)
         cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
-        antibiotic_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
+        antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
         barcodes.append(PLATE_BARCODES[info_index])
+
+    antibiotic_columns = []
+    for string_column in antibiotic_string_columns:
+        integer_value = int(string_column[3:])
+        antibiotic_columns.append(integer_value)
 
     antibiotic_concentrations_list = []
     for antibiotic_column in antibiotic_columns:
@@ -285,25 +318,34 @@ def process_results():
         cell_concentrations_list.append(single_plate_all_antibiotic_concentrations)
 
 
-    completed_workbook 
-    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
-    #folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs"
+    #completed_workbook =
+    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
     current_sheet_index = 1
+
+    global CREATED_COMPLETED_FILE
+    global COMPLETED_FILE_NAME
+
     if CREATED_COMPLETED_FILE:
+        print("Completed File Name ", COMPLETED_FILE_NAME)
         path_name = folder_path + COMPLETED_FILE_NAME
         completed_workbook = openpyxl.load_workbook(file_name = path_name)
         num_sheets = len(completed_workbook.worksheets)
         current_sheet_index = num_sheets + 1
 
     else:
+        print("Creating Excel Object")
         current_date = datetime.date.today()
-        formatted_date = current_date.strftime("%m/%d/%Y")
-        file_name = formatted_date + " Completed Run"
+        formatted_date = current_date.strftime("%m-%d-%Y")
+        file_name = formatted_date + " Completed Run" + ".xlsx"
         COMPLETED_FILE_NAME = file_name
         completed_workbook = openpyxl.Workbook() 
-        completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
+        CREATED_COMPLETED_FILE = True
+        os.makedirs(folder_path, exist_ok=True)
+        completed_workbook.save(os.path.join(folder_path, COMPLETED_FILE_NAME))
         default_sheet = completed_workbook.active
         completed_workbook.remove(default_sheet)
+
 
     for i in range(0, len(t0_run_ids)):
         sheet_name = "Run " + str(int(current_sheet_index))
@@ -320,17 +362,20 @@ def process_results():
             t0_growth_value = t0_worksheet[hidex_data_index].value
             t12_growth_value = t12_worksheet[hidex_data_index].value
             growth_rate = t12_growth_value - t0_growth_value
+            print("antibiotic concentrations ", antibiotic_concentrations_list)
+            print("cell concdentrations ", cell_concentrations_list)
             latest_row = {
                 'Treatment Column': antibiotic_columns[i], 
-                'Treatment Concentration': antibiotic_concentrations_list[i][j],
+                'Treatment Concentration': antibiotic_concentrations_list[i][j-10],
                 'Cell Column': cell_columns[i],
-                'Cell Concentration': cell_concentrations_list[i][j],
+                'Cell Concentration': cell_concentrations_list[i][j-10],
                 'Growth Rate' : growth_rate,
                 'T0 Reading' : t0_growth_value,
                 'T12 Reading' : t12_growth_value
             }
 
-            runs_df = runs_df.append(latest_row, ignore_index=True)
+            latest_row_df = pd.DataFrame(latest_row, index=[0])
+            runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
     
             for row in dataframe_to_rows(runs_df, index=False, header=True):
                 current_sheet.append(row)
@@ -363,10 +408,10 @@ def run_experiment(total_iterations, incubation_time_sec):
     print("Total Iterations: ", incubation_time_sec)
     # The experiment will run until all of the plates are used (indicated by iterations < total_iterations) and there are no more plates in the incubator (indicated by len(incubation_start_times) != 0)
     while(iterations < total_iterations or len(incubation_start_times) != 0):
-        #Debug Log
-        print("Starting Experiment ", iterations, ": Started Loop")
         #Check to see if there are any more plates to run, indicated by total_iterations
         if(iterations < total_iterations):
+            #Debug Log
+            print("Starting Experiment ", iterations, ": Started Loop")
             #Set up the experiment based on the number of iterations passed.
             setup(iterations)
             #Calculate the ID of the plate needed for incubation based on the number of iterations that have passed
@@ -477,25 +522,25 @@ def T0_Reading(liconic_plate_id):
         }
 
     # from somewhere import create_hso? or directly the solo script
-    hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
-    hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
-    hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
+    # hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
+    # hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
+    # hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
 
-    # update payload with solo hso details
-    payload['hso_1'] = hso_1
-    payload['hso_1_lines'] = hso_1_lines
-    payload['hso_1_basename'] = hso_1_basename
+    # # update payload with solo hso details
+    # payload['hso_1'] = hso_1
+    # payload['hso_1_lines'] = hso_1_lines
+    # payload['hso_1_basename'] = hso_1_basename
 
-    payload['hso_2'] = hso_2
-    payload['hso_2_lines'] = hso_2_lines
-    payload['hso_2_basename'] = hso_2_basename
+    # payload['hso_2'] = hso_2
+    # payload['hso_2_lines'] = hso_2_lines
+    # payload['hso_2_basename'] = hso_2_basename
 
-    payload['hso_3'] = hso_3
-    payload['hso_3_lines'] = hso_3_lines
-    payload['hso_3_basename'] = hso_3_basename
+    # payload['hso_3'] = hso_3
+    # payload['hso_3_lines'] = hso_3_lines
+    # payload['hso_3_basename'] = hso_3_basename
 
-    #run Growth Create Plate
-    run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, True)
+    # #run Growth Create Plate
+    # run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, True)
 
     hidex_upload_id = "T0_" + str(int(liconic_plate_id))
 
@@ -521,57 +566,57 @@ def T12_Reading(liconic_plate_id):
         }
 
     # from somewhere import create_hso? or directly the solo script
-    hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
-    hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
-    hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
+    # hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
+    # hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
+    # hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
 
-    # update payload with solo hso details
-    payload['hso_1'] = hso_1
-    payload['hso_1_lines'] = hso_1_lines
-    payload['hso_1_basename'] = hso_1_basename
+    # # update payload with solo hso details
+    # payload['hso_1'] = hso_1
+    # payload['hso_1_lines'] = hso_1_lines
+    # payload['hso_1_basename'] = hso_1_basename
 
-    payload['hso_2'] = hso_2
-    payload['hso_2_lines'] = hso_2_lines
-    payload['hso_2_basename'] = hso_2_basename
+    # payload['hso_2'] = hso_2
+    # payload['hso_2_lines'] = hso_2_lines
+    # payload['hso_2_basename'] = hso_2_basename
 
-    payload['hso_3'] = hso_3
-    payload['hso_3_lines'] = hso_3_lines
-    payload['hso_3_basename'] = hso_3_basename
+    # payload['hso_3'] = hso_3
+    # payload['hso_3_lines'] = hso_3_lines
+    # payload['hso_3_basename'] = hso_3_basename
 
-    # #run Growth Create Plate
-    run_WEI(READ_PLATE_T12_FILE_PATH, payload, True)
+    # # #run Growth Create Plate
+    # run_WEI(READ_PLATE_T12_FILE_PATH, payload, True)
     
     hidex_upload_id = "T12_" + str(int(liconic_plate_id))
     HIDEX_UPLOADS.append(hidex_upload_id)
 
 def run_WEI(file_location, payload_class, Hidex_Used):
-    flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
+    print(file_location)
+    # flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
 
-    flow_status = exp.query_job(flow_info["job_id"])
-    while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
-        flow_status = exp.query_job(flow_info["job_id"])
-        time.sleep(3)
+    # flow_status = exp.query_job(flow_info["job_id"])
+    # while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
+    #     flow_status = exp.query_job(flow_info["job_id"])
+    #     time.sleep(3)
 
-    run_info = flow_status["result"]
-    run_info["run_dir"] = Path(run_info["run_dir"])
-    print(run_info)
+    # run_info = flow_status["result"]
+    # run_info["run_dir"] = Path(run_info["run_dir"])
+    # print(run_info)
 
-    if Hidex_Used:
-        print("Starting Up Hidex")
-        hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-        hidex_file_path = hidex_file_path.replace('\\', '/')
-        hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-        flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-        fname = flow_title.name
-        flow_title = flow_title.parents[0]
+    # if Hidex_Used:
+    #     print("Starting Up Hidex")
+    #     hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    #     hidex_file_path = hidex_file_path.replace('\\', '/')
+    #     hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    #     flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    #     fname = flow_title.name
+    #     flow_title = flow_title.parents[0]
 
-        c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
-        print("Finished Uplodaing to Globus")
+    #     c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+    #     print("Finished Uplodaing to Globus")
 
 if __name__ == "__main__":
-    #main()
-    iteration_runs, incubation_time = determine_payload_from_excel()
-    run_experiment(iteration_runs, incubation_time)
+    main()
+
 
 #!/usr/bin/env python3
 
