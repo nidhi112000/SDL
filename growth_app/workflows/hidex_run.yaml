@@ -14,5 +14,3 @@ flowdef:
     command: run_assay
     args: 
       assay_name: "Campaign2_wei_cs"
-    checks: null
-    comment: Run protocol at hidex
