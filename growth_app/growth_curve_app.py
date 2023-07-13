@@ -81,6 +81,7 @@ def main():
     fname = flow_title.name
     flow_title = flow_title.parents[0]
 
+    # def c2_flow(exp_name, plate_n,time, local_path, fname, exp):
     c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
     #wait while incubating
     # time.sleep(43200)

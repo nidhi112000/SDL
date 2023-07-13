@@ -1,10 +1,10 @@
 from gladier import GladierBaseClient, generate_flow_definition, GladierBaseTool
 
-from tools.c2_read_hidex import C2_read_hidex
-from tools.c2_check_contam import C2_check_contam
-from tools.c2_blank_adjust import C2_blank_adjust
-from tools.c2_gen_graphs import C2_gen_graphs
-from tools.gather_data import GatherMetaData
+from c2_read_hidex import C2_read_hidex
+from c2_check_contam import C2_check_contam
+from c2_blank_adjust import C2_blank_adjust
+from c2_gen_graphs import C2_gen_graphs
+from gather_data import GatherMetaData
 import os
 
 @generate_flow_definition(modifiers={'publishv2_gather_metadata' : {'payload': '$.GatherMetadata.details.result[0]'}})
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     plate_n = "plate"
     time = "time"
 
-    c2_flow(exp_name, plate_n, time, local_path, fname)
+    c2_flow(exp_name, plate_n, time, local_path, fname, None)
