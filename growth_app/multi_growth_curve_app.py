@@ -19,6 +19,8 @@ import datetime
 import random
 from openpyxl.utils.dataframe import dataframe_to_rows
 from sklearn.model_selection import train_test_split
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 # from rpl_wei import Experiment
 
@@ -67,14 +69,15 @@ def main():
     train_model()
     save_model()
     #Find a way to calculate possible remaining runs
-    for i in range(0, 8):
-        load_model()
-        predict_experiment(1)
-        #Need a way to transfer things here to experiment
-        run_experiment(iteration_runs)
-        process_results()
-        train_model()
-        save_model()
+    # for i in range(0, 8):
+    #     print("AI Iteation ", str(int(i)))
+    #     load_model()
+    #     predict_experiment(1)
+    #     #Need a way to transfer things here to experiment
+    #     run_experiment(1, incubation_time)
+    #     process_results()
+    #     train_model()
+    #     save_model()
     delete_experiment_excel_file()
 
 def load_model():
@@ -162,9 +165,13 @@ def return_combination_data_frame():
     return combinations_df
     
 def delete_experiment_excel_file():
+    global EXPERIMENT_FILE_PATH
     os.remove(EXPERIMENT_FILE_PATH)
+    print(EXPERIMENT_FILE_PATH)
 
 def determine_payload_from_excel():
+    global EXPERIMENT_FILE_PATH
+
     print("Run Log Starts Now")
     folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\active_runs"
     #folder_path = str(pathlib.Path().resolve()) + "/active_runs"
@@ -244,6 +251,11 @@ def train_model():
     TENSORFLOW_MODEL.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 def process_results():
+    global HIDEX_UPLOADS
+    global COMPLETED_CELL_COLUMNS
+    global COMPLETED_ANTIBIOTIC_COLUMNS
+    global PLATE_BARCODES
+
     results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
     files = os.listdir(results_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
@@ -317,7 +329,6 @@ def process_results():
                 single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
         cell_concentrations_list.append(single_plate_all_antibiotic_concentrations)
 
-
     #completed_workbook =
     #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
     folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
@@ -329,7 +340,7 @@ def process_results():
     if CREATED_COMPLETED_FILE:
         print("Completed File Name ", COMPLETED_FILE_NAME)
         path_name = folder_path + COMPLETED_FILE_NAME
-        completed_workbook = openpyxl.load_workbook(file_name = path_name)
+        completed_workbook = openpyxl.load_workbook(path_name)
         num_sheets = len(completed_workbook.worksheets)
         current_sheet_index = num_sheets + 1
 
@@ -384,6 +395,42 @@ def process_results():
             current_sheet['J1'] = barcodes[i]
 
     completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
+
+    CULTURE_PAYLOAD = []
+    MEDIA_PAYLOAD = []
+    HIDEX_UPLOADS = []
+    COMPLETED_CELL_COLUMNS = []
+    COMPLETED_ANTIBIOTIC_COLUMNS = []
+    PLATE_BARCODES = []
+
+def process_globus_data():
+    driver = webdriver.Chrome()
+    driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
+    print("I did it!")
+    link_element = driver.find_element(By.LINK_TEXT, "hidex_test_run_1_17:19:35")
+    link_element.click()
+
+    parent_element = driver.find_element("css selector", ".col-md-6")
+    table_elements = parent_element.find_elements(By.TAG_NAME, "table")
+    desired_table_element = table_elements[1]
+
+    rows = desired_table_element.find_elements(By.TAG_NAME, "tr")
+    table_data = []
+    for row in rows:
+        cells = row.find_elements(By.TAG_NAME, "td")
+        row_data = [cell.text for cell in cells]
+        table_data.append(row_data)
+
+    # Convert table data to pandas DataFrame
+    df = pd.DataFrame(table_data)
+
+    print(df)
+
+
+    print(desired_table_element)
+
+
+    driver.quit()
 
 def save_model():
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
@@ -615,7 +662,8 @@ def run_WEI(file_location, payload_class, Hidex_Used):
     #     print("Finished Uplodaing to Globus")
 
 if __name__ == "__main__":
-    main()
+    #main()
+    process_globus_data()
 
 
 #!/usr/bin/env python3
