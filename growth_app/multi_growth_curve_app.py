@@ -406,7 +406,6 @@ def process_results():
 def process_globus_data():
     driver = webdriver.Chrome()
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
-    print("I did it!")
     link_element = driver.find_element(By.LINK_TEXT, "hidex_test_run_1_17:19:35")
     link_element.click()
 
@@ -420,17 +419,14 @@ def process_globus_data():
         cells = row.find_elements(By.TAG_NAME, "td")
         row_data = [cell.text for cell in cells]
         table_data.append(row_data)
-
-    # Convert table data to pandas DataFrame
-    df = pd.DataFrame(table_data)
-
-    print(df)
-
-
-    print(desired_table_element)
-
-
+    
     driver.quit()
+
+    globus_df = pd.DataFrame(table_data)
+    globus_df.columns = globus_df.iloc[0]
+    globus_df = globus_df[1:]
+    globus_df = globus_df.reset_index(drop=True)
+    globus_df.iloc[:, 2] = "T0"
 
 def save_model():
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
@@ -658,7 +654,7 @@ def run_WEI(file_location, payload_class, Hidex_Used):
     #     fname = flow_title.name
     #     flow_title = flow_title.parents[0]
 
-    #     c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+    #     c2_flow(exp_name = "Intermittent Test", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
     #     print("Finished Uplodaing to Globus")
 
 if __name__ == "__main__":

@@ -82,7 +82,7 @@ def main():
     flow_title = flow_title.parents[0]
 
     # def c2_flow(exp_name, plate_n,time, local_path, fname, exp):
-    c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+    c2_flow(exp_name = "T0_Reading", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
     #wait while incubating
     # time.sleep(43200)
 
@@ -119,7 +119,7 @@ def main():
                         flow_title = flow_title.parents[0]
 
                         print("Uploading Hidex Trial Run " , hidex_trial_number, " Data to Globus")
-                        c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+                        c2_flow(exp_name = "Intermittent Test", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
                         print("Uploading Hidex Trial Run " , hidex_trial_number, " Data to Globus")
 
 
@@ -152,7 +152,8 @@ def main():
     flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
     fname = flow_title.name
     flow_title = flow_title.parents[0]
-    c2_flow("hidex_test", str(fname.split('.')[0]), hidex_file_path, flow_title, fname, exp)
+    c2_flow(exp_name = "T12_Reading", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+
 
 
 if __name__ == "__main__":
