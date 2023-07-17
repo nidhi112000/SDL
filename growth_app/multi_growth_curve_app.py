@@ -256,43 +256,50 @@ def process_results():
     global COMPLETED_ANTIBIOTIC_COLUMNS
     global PLATE_BARCODES
 
-    results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
-    files = os.listdir(results_path)
-    excel_files = [file for file in files if file.endswith(".xlsx")]
-    print(excel_files)
-    print(HIDEX_UPLOADS)
-    recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
-    print(recent_files)
+    #results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
+    #files = os.listdir(results_path)
+    #excel_files = [file for file in files if file.endswith(".xlsx")]
+    #print(excel_files)
+    #print(HIDEX_UPLOADS)
+    #recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
+    #print(recent_files)
     t0_run_ids = []
     t12_run_ids = []
     t0_excel_files = []
     t12_excel_files = []
-    for i in range (0, len(HIDEX_UPLOADS)):
-        upload_id = HIDEX_UPLOADS[i]
-        excel_file_id = recent_files[i]
+
+    globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Start time (s)', 'Result'])
+
+    #Here, we are uploading all of the
+    for upload_id in HIDEX_UPLOADS:
+        is_t0_run = False
         if upload_id.startswith("T0_") :
-            run_number = int(upload_id[3:])
-            t0_run_ids.append(run_number)
-            t0_excel_files.append(excel_file_id)
+            is_t0_run = True
         elif upload_id.startswith("T12_"):
-            run_number = int(upload_id[4:])
-            t12_run_ids.append(run_number)
-            t12_excel_files.append(excel_file_id)
+            is_t0_run = False
+        single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run)
+        globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
+    
+    globus_runs_df['Plate #'] = globus_runs_df['Plate #'].astype(int)
+    globus_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
+    globus_runs_df.reset_index(drop=True, inplace=True)
 
-    old_t0_run_ids = t0_run_ids
-    t0_run_ids, t0_excel_files = zip(*sorted(zip(t0_run_ids, t0_excel_files)))
-    t12_run_ids, t12_excel_files = zip(*sorted(zip(t12_run_ids, t12_excel_files)))
+    #Filtering runs without a t0 or t12 variable
+    plates_to_remove = []
+    prev_start_time = None
+    for index, row in globus_runs_df.iterrows():
+        current_start_time = row['Start time (s)']
+        if prev_start_time is None:
+            prev_start_time = current_start_time
+        elif prev_start_time == current_start_time:
+            plates_to_remove.append(row['Plate #'])
+        else:
+            prev_start_time = current_start_time
 
-    if set(t0_run_ids) != set(t12_run_ids):
-        mismatched_ids = set(t0_run_ids) ^ set(t12_run_ids)
+    globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
 
-        t0_run_ids, t0_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t0_run_ids, t0_excel_files) if run_id not in mismatched_ids])
-        t12_run_ids, t12_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t12_run_ids, t12_excel_files) if run_id not in mismatched_ids])
-
-    t0_run_ids = list(t0_run_ids)
-    t0_excel_files = list(t0_excel_files)
-    t12_run_ids = list(t12_run_ids)
-    t12_excel_files = list(t12_excel_files)
+    removed_plate_numbers = set(plates_to_remove)
+    num_removed_plates = len(removed_plate_numbers)
 
     cell_columns = []
     antibiotic_string_columns = []
@@ -403,10 +410,10 @@ def process_results():
     COMPLETED_ANTIBIOTIC_COLUMNS = []
     PLATE_BARCODES = []
 
-def process_globus_data():
+def read_globus_data(title_name = '', t0_reading = True):
     driver = webdriver.Chrome()
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
-    link_element = driver.find_element(By.LINK_TEXT, "hidex_test_run_1_17:19:35")
+    link_element = driver.find_element(By.LINK_TEXT, title_name)
     link_element.click()
 
     parent_element = driver.find_element("css selector", ".col-md-6")
@@ -422,11 +429,17 @@ def process_globus_data():
     
     driver.quit()
 
+    #Need to make sure that column 4 row 1 is titled Result
     globus_df = pd.DataFrame(table_data)
     globus_df.columns = globus_df.iloc[0]
     globus_df = globus_df[1:]
     globus_df = globus_df.reset_index(drop=True)
-    globus_df.iloc[:, 2] = "T0"
+    if t0_reading == True:
+        globus_df.iloc[:, 2] = "T0"
+    else: 
+        globus_df.iloc[:, 2] = "T0"
+
+    return globus_df
 
 def save_model():
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
@@ -659,7 +672,7 @@ def run_WEI(file_location, payload_class, Hidex_Used):
 
 if __name__ == "__main__":
     #main()
-    process_globus_data()
+    read_globus_data(title_name = "hidex_test_run_1_17:19:35", t0_reading = True)
 
 
 #!/usr/bin/env python3
@@ -759,3 +772,155 @@ if __name__ == "__main__":
 #             T12_Reading()
 #             incubation_start_times.pop(0)
 
+def process_results_locally():
+    global HIDEX_UPLOADS
+    global COMPLETED_CELL_COLUMNS
+    global COMPLETED_ANTIBIOTIC_COLUMNS
+    global PLATE_BARCODES
+
+    results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
+    files = os.listdir(results_path)
+    excel_files = [file for file in files if file.endswith(".xlsx")]
+    print(excel_files)
+    print(HIDEX_UPLOADS)
+    recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
+    print(recent_files)
+    t0_run_ids = []
+    t12_run_ids = []
+    t0_excel_files = []
+    t12_excel_files = []
+    for i in range (0, len(HIDEX_UPLOADS)):
+        upload_id = HIDEX_UPLOADS[i]
+        excel_file_id = recent_files[i]
+        if upload_id.startswith("T0_") :
+            run_number = int(upload_id[3:])
+            t0_run_ids.append(run_number)
+            t0_excel_files.append(excel_file_id)
+        elif upload_id.startswith("T12_"):
+            run_number = int(upload_id[4:])
+            t12_run_ids.append(run_number)
+            t12_excel_files.append(excel_file_id)
+
+    old_t0_run_ids = t0_run_ids
+    t0_run_ids, t0_excel_files = zip(*sorted(zip(t0_run_ids, t0_excel_files)))
+    t12_run_ids, t12_excel_files = zip(*sorted(zip(t12_run_ids, t12_excel_files)))
+
+    if set(t0_run_ids) != set(t12_run_ids):
+        mismatched_ids = set(t0_run_ids) ^ set(t12_run_ids)
+
+        t0_run_ids, t0_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t0_run_ids, t0_excel_files) if run_id not in mismatched_ids])
+        t12_run_ids, t12_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t12_run_ids, t12_excel_files) if run_id not in mismatched_ids])
+
+    t0_run_ids = list(t0_run_ids)
+    t0_excel_files = list(t0_excel_files)
+    t12_run_ids = list(t12_run_ids)
+    t12_excel_files = list(t12_excel_files)
+
+    cell_columns = []
+    antibiotic_string_columns = []
+    barcodes = []
+
+    for run_id in t0_run_ids:
+        info_index = old_t0_run_ids.index(run_id)
+        cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
+        antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
+        barcodes.append(PLATE_BARCODES[info_index])
+
+    antibiotic_columns = []
+    for string_column in antibiotic_string_columns:
+        integer_value = int(string_column[3:])
+        antibiotic_columns.append(integer_value)
+
+    antibiotic_concentrations_list = []
+    for antibiotic_column in antibiotic_columns:
+        antibioitic_index = antibiotic_column - 1
+        single_column_antibiotic_concentration_list = TOTAL_TREATMENT_COLUMN_CONCENTRATION[antibioitic_index]
+        single_plate_all_antibiotic_concentrations = []
+        for i in range(0,12):
+            for j in range(0,8):
+                single_plate_all_antibiotic_concentrations.append(single_column_antibiotic_concentration_list[i])
+        antibiotic_concentrations_list.append(single_plate_all_antibiotic_concentrations)
+
+    cell_concentrations_list = []
+    for cell_column in cell_columns:
+        cell_index = cell_column - 1
+        single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
+        single_plate_all_cell_concentrations = []
+        for i in range(0,12):
+            for j in range(0,8):
+                single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
+        cell_concentrations_list.append(single_plate_all_antibiotic_concentrations)
+
+    #completed_workbook =
+    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
+    current_sheet_index = 1
+
+    global CREATED_COMPLETED_FILE
+    global COMPLETED_FILE_NAME
+
+    if CREATED_COMPLETED_FILE:
+        print("Completed File Name ", COMPLETED_FILE_NAME)
+        path_name = folder_path + COMPLETED_FILE_NAME
+        completed_workbook = openpyxl.load_workbook(path_name)
+        num_sheets = len(completed_workbook.worksheets)
+        current_sheet_index = num_sheets + 1
+
+    else:
+        print("Creating Excel Object")
+        current_date = datetime.date.today()
+        formatted_date = current_date.strftime("%m-%d-%Y")
+        file_name = formatted_date + " Completed Run" + ".xlsx"
+        COMPLETED_FILE_NAME = file_name
+        completed_workbook = openpyxl.Workbook() 
+        CREATED_COMPLETED_FILE = True
+        os.makedirs(folder_path, exist_ok=True)
+        completed_workbook.save(os.path.join(folder_path, COMPLETED_FILE_NAME))
+        default_sheet = completed_workbook.active
+        completed_workbook.remove(default_sheet)
+
+
+    for i in range(0, len(t0_run_ids)):
+        sheet_name = "Run " + str(int(current_sheet_index))
+        current_sheet = completed_workbook.create_sheet(sheet_name)
+        t0_path_name = os.path.join(results_path, t0_excel_files[i])
+        t0_workbook = openpyxl.load_workbook(filename=t0_path_name)
+        t0_worksheet = t0_workbook['Raw OD(590)']
+        t12_path_name = os.path.join(results_path, t12_excel_files[i])
+        t12_workbook = openpyxl.load_workbook(filename=t12_path_name)
+        t12_worksheet = t12_workbook['Raw OD(590)']
+        runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
+        for j in range(10,106):
+            hidex_data_index = "D" + str(int(j))
+            t0_growth_value = t0_worksheet[hidex_data_index].value
+            t12_growth_value = t12_worksheet[hidex_data_index].value
+            growth_rate = t12_growth_value - t0_growth_value
+            print("antibiotic concentrations ", antibiotic_concentrations_list)
+            print("cell concdentrations ", cell_concentrations_list)
+            latest_row = {
+                'Treatment Column': antibiotic_columns[i], 
+                'Treatment Concentration': antibiotic_concentrations_list[i][j-10],
+                'Cell Column': cell_columns[i],
+                'Cell Concentration': cell_concentrations_list[i][j-10],
+                'Growth Rate' : growth_rate,
+                'T0 Reading' : t0_growth_value,
+                'T12 Reading' : t12_growth_value
+            }
+
+            latest_row_df = pd.DataFrame(latest_row, index=[0])
+            runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
+    
+            for row in dataframe_to_rows(runs_df, index=False, header=True):
+                current_sheet.append(row)
+
+            current_sheet['I1'] = "Barcode Number"
+            current_sheet['J1'] = barcodes[i]
+
+    completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
+
+    CULTURE_PAYLOAD = []
+    MEDIA_PAYLOAD = []
+    HIDEX_UPLOADS = []
+    COMPLETED_CELL_COLUMNS = []
+    COMPLETED_ANTIBIOTIC_COLUMNS = []
+    PLATE_BARCODES = []
