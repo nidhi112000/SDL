@@ -263,10 +263,6 @@ def process_results():
     #print(HIDEX_UPLOADS)
     #recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
     #print(recent_files)
-    t0_run_ids = []
-    t12_run_ids = []
-    t0_excel_files = []
-    t12_excel_files = []
 
     globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Start time (s)', 'Result'])
 
@@ -279,6 +275,8 @@ def process_results():
             is_t0_run = False
         single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run)
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
+
+    old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
     
     globus_runs_df['Plate #'] = globus_runs_df['Plate #'].astype(int)
     globus_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
@@ -296,7 +294,8 @@ def process_results():
         else:
             prev_start_time = current_start_time
 
-    globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
+    filtered_globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
+    filtered_t0_run_ids = filtered_globus_runs_df['Plate #'].drop_duplicates().values
 
     removed_plate_numbers = set(plates_to_remove)
     num_removed_plates = len(removed_plate_numbers)
@@ -305,16 +304,16 @@ def process_results():
     antibiotic_string_columns = []
     barcodes = []
 
-    for run_id in t0_run_ids:
-        info_index = old_t0_run_ids.index(run_id)
-        cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
-        antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
-        barcodes.append(PLATE_BARCODES[info_index])
-
     antibiotic_columns = []
     for string_column in antibiotic_string_columns:
         integer_value = int(string_column[3:])
         antibiotic_columns.append(integer_value)
+
+    for run_id in filtered_t0_run_ids:
+        info_index = old_t0_run_ids.index(run_id)
+        cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
+        antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
+        barcodes.append(PLATE_BARCODES[info_index])
 
     antibiotic_concentrations_list = []
     for antibiotic_column in antibiotic_columns:
@@ -364,29 +363,26 @@ def process_results():
         default_sheet = completed_workbook.active
         completed_workbook.remove(default_sheet)
 
-
-    for i in range(0, len(t0_run_ids)):
+    for i in range(0, len(filtered_t0_run_ids)):
         sheet_name = "Run " + str(int(current_sheet_index))
         current_sheet = completed_workbook.create_sheet(sheet_name)
-        t0_path_name = os.path.join(results_path, t0_excel_files[i])
-        t0_workbook = openpyxl.load_workbook(filename=t0_path_name)
-        t0_worksheet = t0_workbook['Raw OD(590)']
-        t12_path_name = os.path.join(results_path, t12_excel_files[i])
-        t12_workbook = openpyxl.load_workbook(filename=t12_path_name)
-        t12_worksheet = t12_workbook['Raw OD(590)']
+        t0_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Start time (s)'] == 'T0')].copy()
+        t0_specific_run_df.reset_index(drop=True, inplace=True)
+        t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Start time (s)'] == 'T12')].copy()
+        t12_specific_run_df.reset_index(drop=True, inplace=True)
         runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
-        for j in range(10,106):
+        for j in range(0,96):
             hidex_data_index = "D" + str(int(j))
-            t0_growth_value = t0_worksheet[hidex_data_index].value
-            t12_growth_value = t12_worksheet[hidex_data_index].value
+            t0_growth_value = t0_specific_run_df.loc[j, 'Result']
+            t12_growth_value = t12_specific_run_df.loc[j, 'Result']
             growth_rate = t12_growth_value - t0_growth_value
             print("antibiotic concentrations ", antibiotic_concentrations_list)
             print("cell concdentrations ", cell_concentrations_list)
             latest_row = {
                 'Treatment Column': antibiotic_columns[i], 
-                'Treatment Concentration': antibiotic_concentrations_list[i][j-10],
+                'Treatment Concentration': antibiotic_concentrations_list[i][j],
                 'Cell Column': cell_columns[i],
-                'Cell Concentration': cell_concentrations_list[i][j-10],
+                'Cell Concentration': cell_concentrations_list[i][j],
                 'Growth Rate' : growth_rate,
                 'T0 Reading' : t0_growth_value,
                 'T12 Reading' : t12_growth_value
@@ -437,7 +433,7 @@ def read_globus_data(title_name = '', t0_reading = True):
     if t0_reading == True:
         globus_df.iloc[:, 2] = "T0"
     else: 
-        globus_df.iloc[:, 2] = "T0"
+        globus_df.iloc[:, 2] = "T12"
 
     return globus_df
 
@@ -599,7 +595,7 @@ def T0_Reading(liconic_plate_id):
     # run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, True)
 
     hidex_upload_id = "T0_" + str(int(liconic_plate_id))
-
+    #Need to fix HIDEX_UPLOADS
     HIDEX_UPLOADS.append(hidex_upload_id)
     COMPLETED_ANTIBIOTIC_COLUMNS.append(treatment_col_id)
     COMPLETED_CELL_COLUMNS.append(culture_col_id)
