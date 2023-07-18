@@ -516,10 +516,10 @@ def dispose(completed_iterations):
         'disposal_location':  disposal_index,    
         }
     #Run the despose Yaml File with the dedicated disposal location
-    run_WEI(DISPOSE_BOX_PLATE_FILE_PATH, payload, False)
+    run_WEI(DISPOSE_BOX_PLATE_FILE_PATH, payload)
     if(stack_type % 3 == 0):
     #If the Stack Type is a multiple of 3 (6 complete iterations of the Hudson experiment have occurred), dispose of the growth media deep well plate
-        run_WEI(DISPOSE_GROWTH_MEDIA_FILE_PATH, None, False)
+        run_WEI(DISPOSE_GROWTH_MEDIA_FILE_PATH, None)
 
 def setup(iteration_number):
     #If currently on an even number of iterations, add a tip box, serial dilution plate, and 96 well plate to the experiment.
@@ -530,7 +530,7 @@ def setup(iteration_number):
             }
         #Run the Yaml file that outlines the setup procedure for the tip box, serial dilution plate, and 96 well plate.
         print("Starting Complete Hudson Setup")
-        run_WEI(COMPLETE_HUDSON_SETUP_FILE_PATH, payload, False)
+        run_WEI(COMPLETE_HUDSON_SETUP_FILE_PATH, payload)
         print("Finished Complete Setup")
         #If currently on a number of iterations that is a factor of 6, add a growth media plate to the experiment as well
         if(iteration_number % 6 == 0):
@@ -545,15 +545,15 @@ def setup(iteration_number):
             }
             #Run the Yaml file that outlines the setup procedure for the growth media plate
             print("Starting Growth Media Setup")
-            run_WEI(SETUP_GROWTH_MEDIA_FILE_PATH, payload, False)
+            run_WEI(SETUP_GROWTH_MEDIA_FILE_PATH, payload)
             print("Finished Growth Media Setup!")
     #If currently on an even number of iterations, add a 96 well plate to the experiment.
     else: 
         #Run the Yaml file that outlines the setup procedure for ONLY the 96 well plate
-        run_WEI(STREAMLINED_HUDSON_SETUP_FILE_PATH, None, False)
+        run_WEI(STREAMLINED_HUDSON_SETUP_FILE_PATH, None)
         
 def refreshHidex():
-    run_WEI(HIDEX_OPEN_CLOSE_FILE_PATH, None, False)
+    run_WEI(HIDEX_OPEN_CLOSE_FILE_PATH, None)
 
 def T0_Reading(liconic_plate_id):
     plate_id = '' + str(int(liconic_plate_id))
@@ -592,10 +592,8 @@ def T0_Reading(liconic_plate_id):
     # payload['hso_3_basename'] = hso_3_basename
 
     # #run Growth Create Plate
-    # run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, True)
+    hidex_upload_id=run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id)
 
-    hidex_upload_id = "T0_" + str(int(liconic_plate_id))
-    #Need to fix HIDEX_UPLOADS
     HIDEX_UPLOADS.append(hidex_upload_id)
     COMPLETED_ANTIBIOTIC_COLUMNS.append(treatment_col_id)
     COMPLETED_CELL_COLUMNS.append(culture_col_id)
@@ -636,35 +634,44 @@ def T12_Reading(liconic_plate_id):
     # payload['hso_3_basename'] = hso_3_basename
 
     # # #run Growth Create Plate
-    # run_WEI(READ_PLATE_T12_FILE_PATH, payload, True)
-    
-    hidex_upload_id = "T12_" + str(int(liconic_plate_id))
+    hidex_upload_id=run_WEI(READ_PLATE_T12_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id)
     HIDEX_UPLOADS.append(hidex_upload_id)
 
-def run_WEI(file_location, payload_class, Hidex_Used):
-    print(file_location)
-    # flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
+def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
+    flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
 
-    # flow_status = exp.query_job(flow_info["job_id"])
-    # while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
-    #     flow_status = exp.query_job(flow_info["job_id"])
-    #     time.sleep(3)
+    flow_status = exp.query_job(flow_info["job_id"])
+    while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
+        flow_status = exp.query_job(flow_info["job_id"])
+        time.sleep(3)
 
-    # run_info = flow_status["result"]
-    # run_info["run_dir"] = Path(run_info["run_dir"])
-    # print(run_info)
+    run_info = flow_status["result"]
+    run_info["run_dir"] = Path(run_info["run_dir"])
+    print(run_info)
 
-    # if Hidex_Used:
-    #     print("Starting Up Hidex")
-    #     hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    #     hidex_file_path = hidex_file_path.replace('\\', '/')
-    #     hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    #     flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    #     fname = flow_title.name
-    #     flow_title = flow_title.parents[0]
+    if Hidex_Used:
+        t0_reading = False
+        if file_location == CREATE_PLATE_T0_FILE_PATH:
+            t0_reading = True
+        else:
+            t0_reading = False
+        print("Starting Up Hidex")
+        hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+        hidex_file_path = hidex_file_path.replace('\\', '/')
+        hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+        flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+        fname = flow_title.name
+        flow_title = flow_title.parents[0]
+        experiment_time = str(time.strftime("%H:%M:%S", time.localtime()))
+        experiment_name = ''
+        if t0_reading:
+            experiment_name = "T0_Run"
+        else:
+            experiment_name = "T12_Run"
 
-    #     c2_flow(exp_name = "Intermittent Test", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
-    #     print("Finished Uplodaing to Globus")
+        c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, exp = exp)
+        print("Finished Uplodaing to Globus")
+        return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
 
 if __name__ == "__main__":
     #main()
