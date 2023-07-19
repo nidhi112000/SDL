@@ -35,8 +35,8 @@ TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, ea
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
 HIDEX_UPLOADS = ["T0_Reading_1_17:03:54", "T12_Reading_1_04:17:00"]
-COMPLETED_CELL_COLUMNS = []
-COMPLETED_ANTIBIOTIC_COLUMNS = []
+COMPLETED_CELL_COLUMNS = [1]
+COMPLETED_ANTIBIOTIC_COLUMNS = [1]
 PLATE_BARCODES = []
 CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
@@ -283,7 +283,9 @@ def process_results():
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
 
     old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
-    
+    old_t0_run_ids = old_t0_run_ids.astype(int)
+    print("old t0 runs" , old_t0_run_ids)
+
     globus_runs_df['Plate #'] = globus_runs_df['Plate #'].astype(int)
     globus_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
     globus_runs_df.reset_index(drop=True, inplace=True)
@@ -302,6 +304,8 @@ def process_results():
 
     filtered_globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
     filtered_t0_run_ids = filtered_globus_runs_df['Plate #'].drop_duplicates().values
+    filtered_t0_run_ids = filtered_t0_run_ids.astype(int)
+
 
     removed_plate_numbers = set(plates_to_remove)
     num_removed_plates = len(removed_plate_numbers)
@@ -316,7 +320,8 @@ def process_results():
         antibiotic_columns.append(integer_value)
 
     for run_id in filtered_t0_run_ids:
-        info_index = old_t0_run_ids.index(run_id)
+        info_index = old_t0_run_ids.tolist().index(run_id)
+        print(info_index)
         cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
         antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
         barcodes.append(PLATE_BARCODES[info_index])
@@ -834,7 +839,7 @@ def process_results_locally():
     barcodes = []
 
     for run_id in t0_run_ids:
-        info_index = old_t0_run_ids.index(run_id)
+        info_index = old_t0_run_ids.tolist().index(run_id)
         cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
         antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
         barcodes.append(PLATE_BARCODES[info_index])
