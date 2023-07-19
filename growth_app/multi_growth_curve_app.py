@@ -21,6 +21,8 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from sklearn.model_selection import train_test_split
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # from rpl_wei import Experiment
 
@@ -32,7 +34,7 @@ TOTAL_CELL_COLUMN_CONCENTRATION = [] #Each row represents another plate, each va
 TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
-HIDEX_UPLOADS = []
+HIDEX_UPLOADS = ["T0_Reading_1_17:03:54", "T12_Reading_1_04:17:00"]
 COMPLETED_CELL_COLUMNS = []
 COMPLETED_ANTIBIOTIC_COLUMNS = []
 PLATE_BARCODES = []
@@ -251,10 +253,13 @@ def train_model():
     TENSORFLOW_MODEL.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 def process_results():
+    print("Starting")
     global HIDEX_UPLOADS
     global COMPLETED_CELL_COLUMNS
     global COMPLETED_ANTIBIOTIC_COLUMNS
     global PLATE_BARCODES
+    global CREATED_COMPLETED_FILE
+    global COMPLETED_FILE_NAME
 
     #results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
     #files = os.listdir(results_path)
@@ -263,9 +268,9 @@ def process_results():
     #print(HIDEX_UPLOADS)
     #recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
     #print(recent_files)
-
+    print("YUH")
     globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Start time (s)', 'Result'])
-
+    print(HIDEX_UPLOADS)
     #Here, we are uploading all of the
     for upload_id in HIDEX_UPLOADS:
         is_t0_run = False
@@ -274,6 +279,7 @@ def process_results():
         elif upload_id.startswith("T12_"):
             is_t0_run = False
         single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run)
+        print("Reading Data")
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
 
     old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
@@ -340,9 +346,6 @@ def process_results():
     folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
     current_sheet_index = 1
 
-    global CREATED_COMPLETED_FILE
-    global COMPLETED_FILE_NAME
-
     if CREATED_COMPLETED_FILE:
         print("Completed File Name ", COMPLETED_FILE_NAME)
         path_name = folder_path + COMPLETED_FILE_NAME
@@ -372,7 +375,6 @@ def process_results():
         t12_specific_run_df.reset_index(drop=True, inplace=True)
         runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
         for j in range(0,96):
-            hidex_data_index = "D" + str(int(j))
             t0_growth_value = t0_specific_run_df.loc[j, 'Result']
             t12_growth_value = t12_specific_run_df.loc[j, 'Result']
             growth_rate = t12_growth_value - t0_growth_value
@@ -397,7 +399,8 @@ def process_results():
             current_sheet['I1'] = "Barcode Number"
             current_sheet['J1'] = barcodes[i]
 
-    completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
+    save_path = folder_path + COMPLETED_FILE_NAME
+    completed_workbook.save(COMPLETED_FILE_NAME)
 
     CULTURE_PAYLOAD = []
     MEDIA_PAYLOAD = []
@@ -409,6 +412,12 @@ def process_results():
 def read_globus_data(title_name = '', t0_reading = True):
     driver = webdriver.Chrome()
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
+    search_bar = driver.find_element(By.ID, "search-input")
+    search_query = "\"" + title_name + "\""
+    print(search_bar)
+    search_bar.send_keys(search_query)
+    search_bar.submit()
+
     link_element = driver.find_element(By.LINK_TEXT, title_name)
     link_element.click()
 
@@ -675,7 +684,8 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
 
 if __name__ == "__main__":
     #main()
-    read_globus_data(title_name = "hidex_test_run_1_17:19:35", t0_reading = True)
+    #read_globus_data(title_name = "hidex_test_run_1_17:19:35", t0_reading = True)
+    process_results()
 
 
 #!/usr/bin/env python3
