@@ -30,13 +30,13 @@ from selenium.webdriver.support import expected_conditions as EC
 
 ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ORIGINAL_CELL_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-TOTAL_CELL_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
-TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
+TOTAL_CELL_COLUMN_CONCENTRATION = [[.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1]] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
+TOTAL_TREATMENT_COLUMN_CONCENTRATION = [[.5,.25,.125,.0625,0.03125,0, .5,.25,.125,.0625,0.03125,0]] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
 HIDEX_UPLOADS = ["T0_Reading_1_17:03:54", "T12_Reading_1_04:17:00"]
 COMPLETED_CELL_COLUMNS = [1]
-COMPLETED_ANTIBIOTIC_COLUMNS = [1]
+COMPLETED_ANTIBIOTIC_COLUMNS = ["col1"]
 PLATE_BARCODES = ["1"]
 CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
@@ -202,7 +202,7 @@ def determine_payload_from_excel():
         experiment_iterations = len(MEDIA_PAYLOAD)
 
     for i in range(0,12):
-        original_concentration = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]/10
+        original_concentration = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]
         single_plate_treatment_columns = []
         for iterations in range(0,2):
             for j in range (1,6):
@@ -313,18 +313,18 @@ def process_results():
     cell_columns = []
     antibiotic_string_columns = []
     barcodes = []
-
-    antibiotic_columns = []
-    for string_column in antibiotic_string_columns:
-        integer_value = int(string_column[3:])
-        antibiotic_columns.append(integer_value)
-
+    
     for run_id in filtered_t0_run_ids:
         info_index = old_t0_run_ids.tolist().index(run_id)
         print(info_index)
         cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
         antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
         barcodes.append(PLATE_BARCODES[info_index])
+
+    antibiotic_columns = []
+    for string_column in antibiotic_string_columns:
+        integer_value = int(string_column[3:])
+        antibiotic_columns.append(integer_value)
 
     antibiotic_concentrations_list = []
     for antibiotic_column in antibiotic_columns:
@@ -339,12 +339,13 @@ def process_results():
     cell_concentrations_list = []
     for cell_column in cell_columns:
         cell_index = cell_column - 1
+        print("cell index ", cell_index)
         single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
         single_plate_all_cell_concentrations = []
         for i in range(0,12):
             for j in range(0,8):
                 single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
-        cell_concentrations_list.append(single_plate_all_antibiotic_concentrations)
+        cell_concentrations_list.append(single_plate_all_cell_concentrations)
 
     #completed_workbook =
     #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
@@ -378,13 +379,14 @@ def process_results():
         t0_specific_run_df.reset_index(drop=True, inplace=True)
         t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Start time (s)'] == 'T12')].copy()
         t12_specific_run_df.reset_index(drop=True, inplace=True)
+        print("antibiotic column ", antibiotic_columns)
         runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
         for j in range(0,96):
             t0_growth_value = t0_specific_run_df.loc[j, 'Result']
             t12_growth_value = t12_specific_run_df.loc[j, 'Result']
             growth_rate = t12_growth_value - t0_growth_value
-            print("antibiotic concentrations ", antibiotic_concentrations_list)
-            print("cell concdentrations ", cell_concentrations_list)
+            print("antibiotic column ", antibiotic_columns)
+            print("cell column ", cell_columns)
             latest_row = {
                 'Treatment Column': antibiotic_columns[i], 
                 'Treatment Concentration': antibiotic_concentrations_list[i][j],
@@ -862,12 +864,13 @@ def process_results_locally():
     cell_concentrations_list = []
     for cell_column in cell_columns:
         cell_index = cell_column - 1
+        print("cell index", cell_index)
         single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
         single_plate_all_cell_concentrations = []
         for i in range(0,12):
             for j in range(0,8):
                 single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
-        cell_concentrations_list.append(single_plate_all_antibiotic_concentrations)
+        cell_concentrations_list.append(single_plate_all_cell_concentrations)
 
     #completed_workbook =
     #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
