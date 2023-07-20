@@ -34,7 +34,7 @@ TOTAL_CELL_COLUMN_CONCENTRATION = [[.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1]] #Each 
 TOTAL_TREATMENT_COLUMN_CONCENTRATION = [[.5,.25,.125,.0625,0.03125,0, .5,.25,.125,.0625,0.03125,0]] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
-HIDEX_UPLOADS = ["T0_Reading_1_17:03:54", "T12_Reading_1_04:17:00"]
+HIDEX_UPLOADS = ["T0_Reading_1_16_57_20", "T12_Reading_1_05_08_21"]
 COMPLETED_CELL_COLUMNS = [1]
 COMPLETED_ANTIBIOTIC_COLUMNS = ["col1"]
 PLATE_BARCODES = ["1"]
@@ -253,7 +253,6 @@ def train_model():
     TENSORFLOW_MODEL.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
 def process_results():
-    print("Starting")
     global HIDEX_UPLOADS
     global COMPLETED_CELL_COLUMNS
     global COMPLETED_ANTIBIOTIC_COLUMNS
@@ -261,51 +260,43 @@ def process_results():
     global CREATED_COMPLETED_FILE
     global COMPLETED_FILE_NAME
 
-    #results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
-    #files = os.listdir(results_path)
-    #excel_files = [file for file in files if file.endswith(".xlsx")]
-    #print(excel_files)
-    #print(HIDEX_UPLOADS)
-    #recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
-    #print(recent_files)
-    print("YUH")
-    globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Start time (s)', 'Result'])
-    print(HIDEX_UPLOADS)
+    globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour', 'Result'])
     #Here, we are uploading all of the
     for upload_id in HIDEX_UPLOADS:
         is_t0_run = False
+        run_number = 0
         if upload_id.startswith("T0_") :
             is_t0_run = True
+            run_number = int(upload_id[11:-9])
         elif upload_id.startswith("T12_"):
             is_t0_run = False
-        single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run)
-        print("Reading Data")
+            run_number = int(upload_id[12:-9])
+        single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run, plate_number=run_number)
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
 
     old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
     old_t0_run_ids = old_t0_run_ids.astype(int)
-    print("old t0 runs" , old_t0_run_ids)
 
     globus_runs_df['Plate #'] = globus_runs_df['Plate #'].astype(int)
-    globus_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
-    globus_runs_df.reset_index(drop=True, inplace=True)
+    filter_check_runs_df = globus_runs_df.copy()
+    filter_check_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
+    filter_check_runs_df.reset_index(drop=True, inplace=True)
 
     #Filtering runs without a t0 or t12 variable
     plates_to_remove = []
     prev_start_time = None
-    for index, row in globus_runs_df.iterrows():
-        current_start_time = row['Start time (s)']
+    for index, row in filter_check_runs_df.iterrows():
+        current_start_time = row['Reading Hour']
         if prev_start_time is None:
             prev_start_time = current_start_time
         elif prev_start_time == current_start_time:
             plates_to_remove.append(row['Plate #'])
         else:
             prev_start_time = current_start_time
-
     filtered_globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
+
     filtered_t0_run_ids = filtered_globus_runs_df['Plate #'].drop_duplicates().values
     filtered_t0_run_ids = filtered_t0_run_ids.astype(int)
-
 
     removed_plate_numbers = set(plates_to_remove)
     num_removed_plates = len(removed_plate_numbers)
@@ -316,7 +307,6 @@ def process_results():
     
     for run_id in filtered_t0_run_ids:
         info_index = old_t0_run_ids.tolist().index(run_id)
-        print(info_index)
         cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
         antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
         barcodes.append(PLATE_BARCODES[info_index])
@@ -331,20 +321,19 @@ def process_results():
         antibioitic_index = antibiotic_column - 1
         single_column_antibiotic_concentration_list = TOTAL_TREATMENT_COLUMN_CONCENTRATION[antibioitic_index]
         single_plate_all_antibiotic_concentrations = []
-        for i in range(0,12):
-            for j in range(0,8):
-                single_plate_all_antibiotic_concentrations.append(single_column_antibiotic_concentration_list[i])
+        for i in range(0,8):
+            for j in range(0,12):
+                single_plate_all_antibiotic_concentrations.append(single_column_antibiotic_concentration_list[j])
         antibiotic_concentrations_list.append(single_plate_all_antibiotic_concentrations)
 
     cell_concentrations_list = []
     for cell_column in cell_columns:
         cell_index = cell_column - 1
-        print("cell index ", cell_index)
         single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
         single_plate_all_cell_concentrations = []
-        for i in range(0,12):
-            for j in range(0,8):
-                single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
+        for i in range(0,8):
+            for j in range(0,12):
+                single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[j])
         cell_concentrations_list.append(single_plate_all_cell_concentrations)
 
     #completed_workbook =
@@ -363,7 +352,8 @@ def process_results():
         print("Creating Excel Object")
         current_date = datetime.date.today()
         formatted_date = current_date.strftime("%m-%d-%Y")
-        file_name = formatted_date + " Completed Run" + ".xlsx"
+        formatted_time = str(time.strftime("%H.%M.%S", time.localtime()))
+        file_name = formatted_date + " at " + formatted_time +  " Completed Run" + ".xlsx"
         COMPLETED_FILE_NAME = file_name
         completed_workbook = openpyxl.Workbook() 
         CREATED_COMPLETED_FILE = True
@@ -375,19 +365,21 @@ def process_results():
     for i in range(0, len(filtered_t0_run_ids)):
         sheet_name = "Run " + str(int(current_sheet_index))
         current_sheet = completed_workbook.create_sheet(sheet_name)
-        t0_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Start time (s)'] == 'T0')].copy()
+        t0_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Reading Hour'] == 'T0')].copy()
         t0_specific_run_df.reset_index(drop=True, inplace=True)
-        t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Start time (s)'] == 'T12')].copy()
+        print(t0_specific_run_df)
+        t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Reading Hour'] == 'T12')].copy()
         t12_specific_run_df.reset_index(drop=True, inplace=True)
+        print(t12_specific_run_df)
         print("antibiotic column ", antibiotic_columns)
-        runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
+        runs_df = pd.DataFrame(columns=['Well', 'Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
         for j in range(0,96):
-            t0_growth_value = t0_specific_run_df.loc[j, 'Result']
-            t12_growth_value = t12_specific_run_df.loc[j, 'Result']
+            t0_growth_value = float(t0_specific_run_df.loc[j, 'Result'])
+            t12_growth_value = float(t12_specific_run_df.loc[j, 'Result'])
             growth_rate = t12_growth_value - t0_growth_value
-            print("antibiotic column ", antibiotic_columns)
-            print("cell column ", cell_columns)
+            well_index = chr(65 + int((j - j % 12)/12)) + str(int(j % 12 + 1))
             latest_row = {
+                'Well' : well_index,
                 'Treatment Column': antibiotic_columns[i], 
                 'Treatment Concentration': antibiotic_concentrations_list[i][j],
                 'Cell Column': cell_columns[i],
@@ -396,15 +388,14 @@ def process_results():
                 'T0 Reading' : t0_growth_value,
                 'T12 Reading' : t12_growth_value
             }
-
             latest_row_df = pd.DataFrame(latest_row, index=[0])
             runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
     
-            for row in dataframe_to_rows(runs_df, index=False, header=True):
-                current_sheet.append(row)
+        for row in dataframe_to_rows(runs_df, index=False, header=True):
+            current_sheet.append(row)
 
-            current_sheet['I1'] = "Barcode Number"
-            current_sheet['J1'] = barcodes[i]
+        current_sheet['I1'] = "Barcode Number"
+        current_sheet['J1'] = barcodes[i]
 
     save_path = folder_path + COMPLETED_FILE_NAME
     completed_workbook.save(COMPLETED_FILE_NAME)
@@ -416,12 +407,11 @@ def process_results():
     COMPLETED_ANTIBIOTIC_COLUMNS = []
     PLATE_BARCODES = []
 
-def read_globus_data(title_name = '', t0_reading = True):
+def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
     driver = webdriver.Chrome()
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
     search_bar = driver.find_element(By.ID, "search-input")
     search_query = "\"" + title_name + "\""
-    print(search_bar)
     search_bar.send_keys(search_query)
     search_bar.submit()
 
@@ -441,15 +431,35 @@ def read_globus_data(title_name = '', t0_reading = True):
     
     driver.quit()
 
-    #Need to make sure that column 4 row 1 is titled Result
-    globus_df = pd.DataFrame(table_data)
-    globus_df.columns = globus_df.iloc[0]
-    globus_df = globus_df[1:]
-    globus_df = globus_df.reset_index(drop=True)
+    globus_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour'])
+    plate_array = [plate_number] * 96
+    globus_df['Plate #'] = plate_array
     if t0_reading == True:
-        globus_df.iloc[:, 2] = "T0"
+        times_array = ["T0"] * 96
+        globus_df['Reading Hour'] = times_array
     else: 
-        globus_df.iloc[:, 2] = "T12"
+        times_array = ["T12"] * 96
+        globus_df['Reading Hour'] = times_array
+    well_indices =[]
+    for i in range (0, 96):
+        well_index = chr(65 + int((i - i % 12)/12)) + str(int(i % 12 + 1))
+        well_indices.append(well_index)
+    globus_df["Well"] = well_indices
+    results_list = table_data[0]
+    results_list[0] = results_list[0][1:]
+    results_list[len(results_list)-1] = results_list[len(results_list)-1][:-1]
+    globus_df['Result'] = results_list
+
+
+    # globus_df = pd.DataFrame(table_data)
+    # globus_df.iloc[0][3] = 'Result'
+    # globus_df.columns = globus_df.iloc[0]
+    # globus_df = globus_df[1:]
+    # globus_df = globus_df.reset_index(drop=True)
+    # if t0_reading == True:
+    #     globus_df.iloc[:, 2] = "T0"
+    # else: 
+    #     globus_df.iloc[:, 2] = "T12"
 
     return globus_df
 
