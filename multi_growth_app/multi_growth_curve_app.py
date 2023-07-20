@@ -3,11 +3,10 @@
 import logging
 from argparse import ArgumentParser
 import time
-# from tools.c2_flow import c2_flow
+from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-# from workflows.hso_functions import package_hso
-# from workflows import solo_step1, solo_step2, solo_step3
-# from workflows import solo_multi_step1, solo_multi_step2, solo_multi_step3
+from tools.hudson_solo_auxillary.hso_functions import package_hso
+from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -25,39 +24,37 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import scipy.stats as stats
 
-# from rpl_wei import Experiment
+from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
 ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ORIGINAL_CELL_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-TOTAL_CELL_COLUMN_CONCENTRATION = [[.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1,.1]] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
-TOTAL_TREATMENT_COLUMN_CONCENTRATION = [[.5,.25,.125,.0625,0.03125,0, .5,.25,.125,.0625,0.03125,0]] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
+TOTAL_CELL_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
+TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
-HIDEX_UPLOADS = ["T0_Reading_1_16_57_20", "T12_Reading_1_05_08_21"]
-COMPLETED_CELL_COLUMNS = [1]
-COMPLETED_ANTIBIOTIC_COLUMNS = ["col1"]
-PLATE_BARCODES = ["1"]
+HIDEX_UPLOADS = []
+COMPLETED_CELL_COLUMNS = []
+COMPLETED_ANTIBIOTIC_COLUMNS = []
+PLATE_BARCODES = []
 CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
 EXPERIMENT_FILE_PATH = ''
 
 TENSORFLOW_MODEL = None
-AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tensorflow_model"
-AI_MODEL_IN_USE = True
+AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tools/tensorflow_model"
+AI_MODEL_IN_USE = False
 
-COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/complete_hudson_setup.yaml'
-STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/streamlined_hudson_setup.yaml'
-SETUP_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/setup_growth_media.yaml'
+COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/complete_hudson_setup.yaml'
+STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/streamlined_hudson_setup.yaml'
+SETUP_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/setup_growth_media.yaml'
 
-CREATE_PLATE_T0_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/create_plate_T0.yaml'
-READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/read_plate_T12.yaml'
+CREATE_PLATE_T0_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/create_plate_T0.yaml'
+READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/read_plate_T12.yaml'
 
-DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/dispose_box_plate.yaml'
-DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/dispose_growth_media.yaml'
-
-HIDEX_OPEN_CLOSE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml'
+DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_box_plate.yaml'
+DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_growth_media.yaml'
 
 exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
 exp.register_exp() 
@@ -134,8 +131,8 @@ def return_combination_data_frame():
 def train_model():
     global TENSORFLOW_MODEL
     training_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate'])
-    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
-    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
+    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
     path_name = folder_path + COMPLETED_FILE_NAME
     completed_workbook = openpyxl.load_workbook(path_name)
     for sheet_name in completed_workbook.sheetnames:
@@ -193,6 +190,8 @@ def process_results():
     global PLATE_BARCODES
     global CREATED_COMPLETED_FILE
     global COMPLETED_FILE_NAME
+    global CULTURE_PAYLOAD
+    global MEDIA_PAYLOAD
 
     globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour', 'Result'])
     #Here, we are uploading all of the
@@ -270,9 +269,8 @@ def process_results():
                 single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[j])
         cell_concentrations_list.append(single_plate_all_cell_concentrations)
 
-    #completed_workbook =
-    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
-    folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\completed_runs\\"
+    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
     current_sheet_index = 1
 
     if CREATED_COMPLETED_FILE:
@@ -395,35 +393,35 @@ def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
     
     driver.quit()
 
-    globus_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour'])
-    plate_array = [plate_number] * 96
-    globus_df['Plate #'] = plate_array
-    if t0_reading == True:
-        times_array = ["T0"] * 96
-        globus_df['Reading Hour'] = times_array
-    else: 
-        times_array = ["T12"] * 96
-        globus_df['Reading Hour'] = times_array
-    well_indices =[]
-    for i in range (0, 96):
-        well_index = chr(65 + int((i - i % 12)/12)) + str(int(i % 12 + 1))
-        well_indices.append(well_index)
-    globus_df["Well"] = well_indices
-    results_list = table_data[0]
-    results_list[0] = results_list[0][1:]
-    results_list[len(results_list)-1] = results_list[len(results_list)-1][:-1]
-    globus_df['Result'] = results_list
-
-
-    # globus_df = pd.DataFrame(table_data)
-    # globus_df.iloc[0][3] = 'Result'
-    # globus_df.columns = globus_df.iloc[0]
-    # globus_df = globus_df[1:]
-    # globus_df = globus_df.reset_index(drop=True)
+    # globus_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour'])
+    # plate_array = [plate_number] * 96
+    # globus_df['Plate #'] = plate_array
     # if t0_reading == True:
-    #     globus_df.iloc[:, 2] = "T0"
+    #     times_array = ["T0"] * 96
+    #     globus_df['Reading Hour'] = times_array
     # else: 
-    #     globus_df.iloc[:, 2] = "T12"
+    #     times_array = ["T12"] * 96
+    #     globus_df['Reading Hour'] = times_array
+    # well_indices =[]
+    # for i in range (0, 96):
+    #     well_index = chr(65 + int((i - i % 12)/12)) + str(int(i % 12 + 1))
+    #     well_indices.append(well_index)
+    # globus_df["Well"] = well_indices
+    # results_list = table_data[0]
+    # results_list[0] = results_list[0][1:]
+    # results_list[len(results_list)-1] = results_list[len(results_list)-1][:-1]
+    # globus_df['Result'] = results_list
+
+
+    globus_df = pd.DataFrame(table_data)
+    globus_df.iloc[0][3] = 'Result'
+    globus_df.columns = globus_df.iloc[0]
+    globus_df = globus_df[1:]
+    globus_df = globus_df.reset_index(drop=True)
+    if t0_reading == True:
+        globus_df.iloc[:, 2] = "T0"
+    else: 
+        globus_df.iloc[:, 2] = "T12"
 
     return globus_df
 
@@ -448,8 +446,8 @@ def determine_payload_from_excel():
     global EXPERIMENT_FILE_PATH
 
     print("Run Log Starts Now")
-    folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\active_runs"
-    #folder_path = str(pathlib.Path().resolve()) + "/active_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs"
+    folder_path = str(pathlib.Path().resolve()) + "/active_runs"
     files = os.listdir(folder_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
     sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
@@ -489,6 +487,9 @@ def determine_payload_from_excel():
         for iterations in range(0,12):
             single_plate_cell_columns.append(original_concentration/10)
         TOTAL_CELL_COLUMN_CONCENTRATION.append(single_plate_cell_columns)
+    
+    print(CULTURE_PAYLOAD)
+    print(MEDIA_PAYLOAD)
     
     return experiment_iterations, incubation_time_seconds
 
@@ -613,22 +614,22 @@ def T0_Reading(liconic_plate_id):
         }
 
     # from somewhere import create_hso? or directly the solo script
-    # hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
-    # hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
-    # hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
+    hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
+    hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
+    hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
 
-    # # update payload with solo hso details
-    # payload['hso_1'] = hso_1
-    # payload['hso_1_lines'] = hso_1_lines
-    # payload['hso_1_basename'] = hso_1_basename
+    # update payload with solo hso details
+    payload['hso_1'] = hso_1
+    payload['hso_1_lines'] = hso_1_lines
+    payload['hso_1_basename'] = hso_1_basename
 
-    # payload['hso_2'] = hso_2
-    # payload['hso_2_lines'] = hso_2_lines
-    # payload['hso_2_basename'] = hso_2_basename
+    payload['hso_2'] = hso_2
+    payload['hso_2_lines'] = hso_2_lines
+    payload['hso_2_basename'] = hso_2_basename
 
-    # payload['hso_3'] = hso_3
-    # payload['hso_3_lines'] = hso_3_lines
-    # payload['hso_3_basename'] = hso_3_basename
+    payload['hso_3'] = hso_3
+    payload['hso_3_lines'] = hso_3_lines
+    payload['hso_3_basename'] = hso_3_basename
 
     # #run Growth Create Plate
     hidex_upload_id=run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id)
@@ -655,22 +656,22 @@ def T12_Reading(liconic_plate_id):
         }
 
     # from somewhere import create_hso? or directly the solo script
-    # hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
-    # hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
-    # hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
+    hso_1, hso_1_lines, hso_1_basename = package_hso(solo_multi_step1.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso") 
+    hso_2, hso_2_lines, hso_2_basename = package_hso(solo_multi_step2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso")  
+    hso_3, hso_3_lines, hso_3_basename = package_hso(solo_multi_step3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso")  
 
-    # # update payload with solo hso details
-    # payload['hso_1'] = hso_1
-    # payload['hso_1_lines'] = hso_1_lines
-    # payload['hso_1_basename'] = hso_1_basename
+    # update payload with solo hso details
+    payload['hso_1'] = hso_1
+    payload['hso_1_lines'] = hso_1_lines
+    payload['hso_1_basename'] = hso_1_basename
 
-    # payload['hso_2'] = hso_2
-    # payload['hso_2_lines'] = hso_2_lines
-    # payload['hso_2_basename'] = hso_2_basename
+    payload['hso_2'] = hso_2
+    payload['hso_2_lines'] = hso_2_lines
+    payload['hso_2_basename'] = hso_2_basename
 
-    # payload['hso_3'] = hso_3
-    # payload['hso_3_lines'] = hso_3_lines
-    # payload['hso_3_basename'] = hso_3_basename
+    payload['hso_3'] = hso_3
+    payload['hso_3_lines'] = hso_3_lines
+    payload['hso_3_basename'] = hso_3_basename
 
     # # #run Growth Create Plate
     hidex_upload_id=run_WEI(READ_PLATE_T12_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id)
@@ -701,12 +702,12 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
         flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
         fname = flow_title.name
         flow_title = flow_title.parents[0]
-        experiment_time = str(time.strftime("%H:%M:%S", time.localtime()))
+        experiment_time = str(time.strftime("%H_%M_%S", time.localtime()))
         experiment_name = ''
         if t0_reading:
-            experiment_name = "T0_Run"
+            experiment_name = "T0_Reading"
         else:
-            experiment_name = "T12_Run"
+            experiment_name = "T12_Reading"
 
         c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, exp = exp)
         print("Finished Uplodaing to Globus")
@@ -725,12 +726,13 @@ def return_barcode():
 
 #Experiment Run
 def main():
-    load_model()
     iteration_runs, incubation_time = determine_payload_from_excel()
     run_experiment(iteration_runs, incubation_time)
-    process_results()
-    train_model()
-    save_model()
+    try:
+        process_results()
+    except:
+        print("Process Keep Trying")
+
     #Find a way to calculate possible remaining runs
     # for i in range(0, 8):
     #     print("AI Iteation ", str(int(i)))
@@ -744,8 +746,6 @@ def main():
     delete_experiment_excel_file()
 
 if __name__ == "__main__":
-    #main()
-    #read_globus_data(title_name = "hidex_test_run_1_17:19:35", t0_reading = True)
-    process_results()
+    main()
 
 #!/usr/bin/env python3

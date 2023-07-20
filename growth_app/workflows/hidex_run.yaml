@@ -9,11 +9,38 @@ modules:
   - name: hidex
 
 flowdef:
-  - name: run Hidex
+  - name: Close Hidex
     module: hidex
-    action: run_assay
+    action: close
     args: 
-      assay_name: "Campaign2_wei_cs"
+      foo: "bar"
+    checks: null
+    comment: Close Hidex Gate
+ 
+  # - name: Open Hidex
+  #   module: hidex
+  #   action: open
+  #   args: 
+  #     foo: "bar"
+  #   checks: null
+  #   comment: Open Hidex Gate
+
+  # - name: Move plate from Solo Position4 to Hidex Nest
+  #   module: plateCrane
+  #   action: transfer
+  #   args:
+  #     source: "Solo.Position4"
+  #     target: "HidexNest2"
+  #     source_type: "module"
+  #     target_type: "module"      
+  #     height_offset: "700"
+  #   checks: null
+  #   comment: Place plate to Hidex Nest
+  # - name: run Hidex
+  #   module: hidex
+  #   action: run_assay
+  #   args: 
+  #     assay_name: "Campaign2_wei_cs"
 
   # - name: Move tip bin from Solo Position3 to Stack 4
   #   module: plateCrane

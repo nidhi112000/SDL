@@ -3,7 +3,7 @@
 from pathlib import Path
 
 # from rpl_wei.wei_workcell_base import WEI
-from BIO_workcell.growth_app.tools.growth_curve_gladier_flow import c2_flow
+from tools.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
 from workflows.hso_functions import package_hso
 from workflows import solo_step1, solo_step2, solo_step3
@@ -30,7 +30,7 @@ def main():
         "stacker": 1,
         "slot": 2,
         "treatment": "col1",  # string of treatment name. Ex. "col1", "col2"
-        "culture_column": 3,  # int of cell culture column. Ex. 1, 2, 3, etc.
+        "culture_column": 4,  # int of cell culture column. Ex. 1, 2, 3, etc.
         "culture_dil_column": 1,  # int of dilution column for 1:10 culture dilutions. Ex. 1, 2, 3, etc.
         "media_start_column": 1,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
         "treatment_dil_half": 1,  #  int of which plate half to use for treatment serial dilutions. Options are 1 or 2.
@@ -82,14 +82,14 @@ def main():
     flow_title = flow_title.parents[0]
 
     # def c2_flow(exp_name, plate_n,time, local_path, fname, exp):
-    c2_flow(exp_name = "T0_Reading", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+    c2_flow(exp_name = "T0_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
     #wait while incubating
     # time.sleep(43200)
 
     startTime = round(time.time())
     hidex_test_times = [30, 10800, 21600, 32400]
     #hidex_test_times = [5, 6, 7, 8]
-    run_globus_test = True
+    run_globus_test = False
 
     while((round(time.time()) - startTime) < 43200): # change total time in seconds here
         deltaSeconds = int(round(time.time()) - startTime)
@@ -119,7 +119,7 @@ def main():
                         flow_title = flow_title.parents[0]
 
                         print("Uploading Hidex Trial Run " , hidex_trial_number, " Data to Globus")
-                        c2_flow(exp_name = "Intermittent Test", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+                        c2_flow(exp_name = "Intermittent Test", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
                         print("Uploading Hidex Trial Run " , hidex_trial_number, " Data to Globus")
 
 
@@ -152,7 +152,7 @@ def main():
     flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
     fname = flow_title.name
     flow_title = flow_title.parents[0]
-    c2_flow(exp_name = "T12_Reading", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+    c2_flow(exp_name = "T12_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
 
 
 

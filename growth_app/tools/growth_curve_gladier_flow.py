@@ -32,6 +32,7 @@ def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
                 'transfer_destination_endpoint_id': local_gcp, #biopotts ep
                 'transfer_destination_path': os.path.join(remote_folder,fname),
                 'transfer_recursive': False,
+                'compute_endpoint': local_funcx, #biopotts funcx
                 'funcx_endpoint_compute': local_funcx, #biopotts funcx
                 'funcx_endpoint_non_compute': local_funcx, #biopotts funcx
                 'exp_name':exp_name,
@@ -59,17 +60,19 @@ def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
 
         # Create the Client
         publishFlow = C2Flow()
-        label = 'BioTestFlow'
+        #label = 'BioTestFlow'
+        label = fname
         # Run the flow
-        print(publishFlow.flows_manager)
         flow = publishFlow.run_flow(flow_input=flow_input,label=label)
         
         # Track progress
         action_id = flow['action_id']
-        publishFlow.progress(action_id)
-        exp.events.log_gladier(label, flow['action_id'])
-     
-        
+        print("started flow with run ID : "+ action_id)
+        # publishFlow.progress(action_id)
+        if exp:
+            exp.events.log_gladier(label, action_id)
+
+
 if __name__ == "__main__":
 
     local_path = "/C/labautomation/data_wei/proc/" #location on hudson

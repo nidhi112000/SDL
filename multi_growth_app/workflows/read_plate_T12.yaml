@@ -13,7 +13,6 @@ modules:
   - name: camera
 
 flowdef:
-
   - name: Unload Liconic
     module: liconic
     action: unload_plate
