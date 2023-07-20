@@ -23,6 +23,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import scipy.stats as stats
 
 # from rpl_wei import Experiment
 
@@ -58,47 +59,11 @@ DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/wo
 
 HIDEX_OPEN_CLOSE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/growth_app/workflows/multiple_growth_curve/open_close_hidex.yaml'
 
-# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-# exp.register_exp() 
-print("Registered Experiment")
-# exp.events.log_local_compute("package_hso")
+exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+exp.register_exp() 
+exp.events.log_local_compute("package_hso")
 
-def main():
-    load_model()
-    iteration_runs, incubation_time = determine_payload_from_excel()
-    run_experiment(iteration_runs, incubation_time)
-    process_results()
-    train_model()
-    save_model()
-    #Find a way to calculate possible remaining runs
-    # for i in range(0, 8):
-    #     print("AI Iteation ", str(int(i)))
-    #     load_model()
-    #     predict_experiment(1)
-    #     #Need a way to transfer things here to experiment
-    #     run_experiment(1, incubation_time)
-    #     process_results()
-    #     train_model()
-    #     save_model()
-    delete_experiment_excel_file()
-
-def load_model():
-    global TENSORFLOW_MODEL
-    if os.path.exists(AI_MODEL_FILE_PATH):
-        TENSORFLOW_MODEL = tf.keras.models.load_model(AI_MODEL_FILE_PATH)
-    else:
-        input_dim = 4 #Cell type, Antibiotic Type, Concentration 1, Concentration 2
-        num_classes = 1 #Growth Rate
-
-        TENSORFLOW_MODEL = keras.Sequential([
-            keras.layers.Dense(64, activation='relu', input_shape=(input_dim,)),
-            keras.layers.Dense(64, activation='relu'),
-            keras.layers.Dense(num_classes, activation='softmax')
-        ])
-
-        TENSORFLOW_MODEL.compile(optimizer='adam', loss='mean_squared_error')
-        print(TENSORFLOW_MODEL.summary())
-    
+#Artificial Intelligence Modeling Functions
 def predict_experiment(num_prediction_requests):
     global TENSORFLOW_MODEL
     #Predict the Model on the Data frame
@@ -166,59 +131,6 @@ def return_combination_data_frame():
 
     return combinations_df
     
-def delete_experiment_excel_file():
-    global EXPERIMENT_FILE_PATH
-    os.remove(EXPERIMENT_FILE_PATH)
-    print(EXPERIMENT_FILE_PATH)
-
-def determine_payload_from_excel():
-    global EXPERIMENT_FILE_PATH
-
-    print("Run Log Starts Now")
-    folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\active_runs"
-    #folder_path = str(pathlib.Path().resolve()) + "/active_runs"
-    files = os.listdir(folder_path)
-    excel_files = [file for file in files if file.endswith(".xlsx")]
-    sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
-    path_name = os.path.join(folder_path, sorted_files[0])
-    EXPERIMENT_FILE_PATH = path_name
-    print(path_name)
-    workbook = openpyxl.load_workbook(filename=path_name)
-    worksheet = workbook['Complete_Run_Layout']
-    experiment_iterations = worksheet['B1'].value
-    incubation_time_hours = worksheet['E1'].value
-    incubation_time_seconds = incubation_time_hours * 3600
-    added_items = 0
-    for i in range(2,13):
-        column_letter = chr(ord('@')+i)
-        run_number_cell_id = column_letter + "3"
-        media_type_cell_id = column_letter + "4"
-        culture_type_cell_id = column_letter + "5"
-        if(worksheet[run_number_cell_id].value != None and worksheet[media_type_cell_id].value != None and worksheet[culture_type_cell_id].value != None):      
-            MEDIA_PAYLOAD.append(worksheet[media_type_cell_id].value)
-            CULTURE_PAYLOAD.append(worksheet[culture_type_cell_id].value) 
-            added_items = added_items + 1
-    if(len(MEDIA_PAYLOAD) != experiment_iterations):
-        experiment_iterations = len(MEDIA_PAYLOAD)
-
-    for i in range(0,12):
-        original_concentration = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]
-        single_plate_treatment_columns = []
-        for iterations in range(0,2):
-            for j in range (1,6):
-                single_plate_treatment_columns.append(original_concentration/2**j)
-            single_plate_treatment_columns.append(0)
-        TOTAL_TREATMENT_COLUMN_CONCENTRATION.append(single_plate_treatment_columns)
-
-    for i in range(0,12):
-        original_concentration = ORIGINAL_CELL_CONCENTRATION[i]
-        single_plate_cell_columns = []
-        for iterations in range(0,12):
-            single_plate_cell_columns.append(original_concentration/10)
-        TOTAL_CELL_COLUMN_CONCENTRATION.append(single_plate_cell_columns)
-    
-    return experiment_iterations, incubation_time_seconds
-
 def train_model():
     global TENSORFLOW_MODEL
     training_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate'])
@@ -252,6 +164,28 @@ def train_model():
     TENSORFLOW_MODEL.compile(optimizer='adam', loss='mse')
     TENSORFLOW_MODEL.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
+def load_model():
+    #Bring in Global Tensorflow Model
+    global TENSORFLOW_MODEL
+    #Load a Tensorflow Model if a model exists at the file path. If one does not exist, it creates a new model to use
+    if os.path.exists(AI_MODEL_FILE_PATH):
+        TENSORFLOW_MODEL = tf.keras.models.load_model(AI_MODEL_FILE_PATH)
+    else:
+        input_dim = 4 #Cell type, Antibiotic Type, Concentration 1, Concentration 2
+        num_classes = 1 #Growth Rate
+
+        TENSORFLOW_MODEL = keras.Sequential([
+            keras.layers.Dense(64, activation='relu', input_shape=(input_dim,)),
+            keras.layers.Dense(64, activation='relu'),
+            keras.layers.Dense(num_classes, activation='softmax')
+        ])
+
+        TENSORFLOW_MODEL.compile(optimizer='adam', loss='mean_squared_error')
+    
+def save_model():
+    TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
+
+#Data Processing Functions
 def process_results():
     global HIDEX_UPLOADS
     global COMPLETED_CELL_COLUMNS
@@ -338,7 +272,7 @@ def process_results():
 
     #completed_workbook =
     #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
-    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
+    folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\completed_runs\\"
     current_sheet_index = 1
 
     if CREATED_COMPLETED_FILE:
@@ -358,7 +292,8 @@ def process_results():
         completed_workbook = openpyxl.Workbook() 
         CREATED_COMPLETED_FILE = True
         os.makedirs(folder_path, exist_ok=True)
-        completed_workbook.save(os.path.join(folder_path, COMPLETED_FILE_NAME))
+        path_name = folder_path + COMPLETED_FILE_NAME
+        completed_workbook.save(os.path.join(path_name))
         default_sheet = completed_workbook.active
         completed_workbook.remove(default_sheet)
 
@@ -373,32 +308,61 @@ def process_results():
         print(t12_specific_run_df)
         print("antibiotic column ", antibiotic_columns)
         runs_df = pd.DataFrame(columns=['Well', 'Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
+        control_df = pd.DataFrame(columns=['Well', 'Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Blank Growth Rate', 'Blank T0 Reading', 'Blank T12 Reading'])
         for j in range(0,96):
             t0_growth_value = float(t0_specific_run_df.loc[j, 'Result'])
             t12_growth_value = float(t12_specific_run_df.loc[j, 'Result'])
             growth_rate = t12_growth_value - t0_growth_value
             well_index = chr(65 + int((j - j % 12)/12)) + str(int(j % 12 + 1))
-            latest_row = {
-                'Well' : well_index,
-                'Treatment Column': antibiotic_columns[i], 
-                'Treatment Concentration': antibiotic_concentrations_list[i][j],
-                'Cell Column': cell_columns[i],
-                'Cell Concentration': cell_concentrations_list[i][j],
-                'Growth Rate' : growth_rate,
-                'T0 Reading' : t0_growth_value,
-                'T12 Reading' : t12_growth_value
-            }
-            latest_row_df = pd.DataFrame(latest_row, index=[0])
-            runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
+            if((j-j%12)/12)%2 == 0:
+                latest_row = {
+                    'Well' : well_index,
+                    'Treatment Column': antibiotic_columns[i], 
+                    'Treatment Concentration': antibiotic_concentrations_list[i][j],
+                    'Cell Column': cell_columns[i],
+                    'Cell Concentration': cell_concentrations_list[i][j],
+                    'Growth Rate' : growth_rate,
+                    'T0 Reading' : t0_growth_value,
+                    'T12 Reading' : t12_growth_value
+                }
+                latest_row_df = pd.DataFrame(latest_row, index=[0])
+                runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
+            else:
+                blank_latest_row = {
+                    'Well' : well_index,
+                    'Treatment Column': 0.0, 
+                    'Treatment Concentration': 0.0,
+                    'Cell Column': 0.0,
+                    'Cell Concentration': 0.0,
+                    'Blank Growth Rate' : growth_rate,
+                    'Blank T0 Reading' : t0_growth_value,
+                    'Blank T12 Reading' : t12_growth_value
+                }
+                blank_latest_row = pd.DataFrame(blank_latest_row, index=[0])
+                control_df = pd.concat([control_df, blank_latest_row], ignore_index=True)
+        
+        for _ in range (0,3):
+            current_sheet.append([])
     
         for row in dataframe_to_rows(runs_df, index=False, header=True):
             current_sheet.append(row)
+        
+        current_sheet.append([])
 
-        current_sheet['I1'] = "Barcode Number"
-        current_sheet['J1'] = barcodes[i]
+        for row in dataframe_to_rows(control_df, index=False, header=True):
+            current_sheet.append(row)
+
+        current_sheet['A1'] = "Barcode Number"
+        current_sheet['B1'] = barcodes[i]
+
+        current_sheet['A2'] = "Slope (Best-Fit Line)"
+        slope,intercept = return_line_of_best_fit(current_sheet)
+        current_sheet['B2'] = slope
+        current_sheet['C2'] = "Y-Intercept (Best-Fit Line)"
+        current_sheet['D2'] = intercept
 
     save_path = folder_path + COMPLETED_FILE_NAME
-    completed_workbook.save(COMPLETED_FILE_NAME)
+    completed_workbook.save(save_path)
 
     CULTURE_PAYLOAD = []
     MEDIA_PAYLOAD = []
@@ -463,20 +427,72 @@ def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
 
     return globus_df
 
-def save_model():
-    TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
+def return_line_of_best_fit(worksheet):
+    x_data = []
+    y_data = []
+    for i in range(5,53):
+        x_data_index = "C" + str(int(i))
+        x_data.append(worksheet[x_data_index].value)
 
-def assign_barcode():
-    current_barcode = return_barcode()
-    PLATE_BARCODES.append(current_barcode)
+        y_data_index = "F" + str(int(i))
+        y_data.append(worksheet[y_data_index].value)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x_data, y_data)
+    return slope, intercept
 
-def return_barcode():
-    barcode = ""
-    for _ in range(13):
-        digit = random.randint(0, 9)
-        barcode += str(digit)
-    return barcode
+def delete_experiment_excel_file():
+    global EXPERIMENT_FILE_PATH
+    os.remove(EXPERIMENT_FILE_PATH)
+    print(EXPERIMENT_FILE_PATH)
 
+def determine_payload_from_excel():
+    global EXPERIMENT_FILE_PATH
+
+    print("Run Log Starts Now")
+    folder_path = str(pathlib.Path().resolve()) + "\\growth_app\\active_runs"
+    #folder_path = str(pathlib.Path().resolve()) + "/active_runs"
+    files = os.listdir(folder_path)
+    excel_files = [file for file in files if file.endswith(".xlsx")]
+    sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
+    path_name = os.path.join(folder_path, sorted_files[0])
+    EXPERIMENT_FILE_PATH = path_name
+    print(path_name)
+    workbook = openpyxl.load_workbook(filename=path_name)
+    worksheet = workbook['Complete_Run_Layout']
+    experiment_iterations = worksheet['B1'].value
+    incubation_time_hours = worksheet['E1'].value
+    incubation_time_seconds = incubation_time_hours * 3600
+    added_items = 0
+    for i in range(2,13):
+        column_letter = chr(ord('@')+i)
+        run_number_cell_id = column_letter + "3"
+        media_type_cell_id = column_letter + "4"
+        culture_type_cell_id = column_letter + "5"
+        if(worksheet[run_number_cell_id].value != None and worksheet[media_type_cell_id].value != None and worksheet[culture_type_cell_id].value != None):      
+            MEDIA_PAYLOAD.append(worksheet[media_type_cell_id].value)
+            CULTURE_PAYLOAD.append(worksheet[culture_type_cell_id].value) 
+            added_items = added_items + 1
+    if(len(MEDIA_PAYLOAD) != experiment_iterations):
+        experiment_iterations = len(MEDIA_PAYLOAD)
+
+    for i in range(0,12):
+        original_concentration = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]
+        single_plate_treatment_columns = []
+        for iterations in range(0,2):
+            for j in range (1,6):
+                single_plate_treatment_columns.append(original_concentration/2**j)
+            single_plate_treatment_columns.append(0)
+        TOTAL_TREATMENT_COLUMN_CONCENTRATION.append(single_plate_treatment_columns)
+
+    for i in range(0,12):
+        original_concentration = ORIGINAL_CELL_CONCENTRATION[i]
+        single_plate_cell_columns = []
+        for iterations in range(0,12):
+            single_plate_cell_columns.append(original_concentration/10)
+        TOTAL_CELL_COLUMN_CONCENTRATION.append(single_plate_cell_columns)
+    
+    return experiment_iterations, incubation_time_seconds
+
+#BIO Workflow Functions
 def run_experiment(total_iterations, incubation_time_sec): 
     iterations = 0
     removals = 0
@@ -577,9 +593,6 @@ def setup(iteration_number):
     else: 
         #Run the Yaml file that outlines the setup procedure for ONLY the 96 well plate
         run_WEI(STREAMLINED_HUDSON_SETUP_FILE_PATH, None)
-        
-def refreshHidex():
-    run_WEI(HIDEX_OPEN_CLOSE_FILE_PATH, None)
 
 def T0_Reading(liconic_plate_id):
     plate_id = '' + str(int(liconic_plate_id))
@@ -699,259 +712,40 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
         print("Finished Uplodaing to Globus")
         return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
 
+def assign_barcode():
+    current_barcode = return_barcode()
+    PLATE_BARCODES.append(current_barcode)
+
+def return_barcode():
+    barcode = ""
+    for _ in range(13):
+        digit = random.randint(0, 9)
+        barcode += str(digit)
+    return barcode
+
+#Experiment Run
+def main():
+    load_model()
+    iteration_runs, incubation_time = determine_payload_from_excel()
+    run_experiment(iteration_runs, incubation_time)
+    process_results()
+    train_model()
+    save_model()
+    #Find a way to calculate possible remaining runs
+    # for i in range(0, 8):
+    #     print("AI Iteation ", str(int(i)))
+    #     load_model()
+    #     predict_experiment(1)
+    #     #Need a way to transfer things here to experiment
+    #     run_experiment(1, incubation_time)
+    #     process_results()
+    #     train_model()
+    #     save_model()
+    delete_experiment_excel_file()
+
 if __name__ == "__main__":
     #main()
     #read_globus_data(title_name = "hidex_test_run_1_17:19:35", t0_reading = True)
     process_results()
 
-
 #!/usr/bin/env python3
-
-
-
-# Previous Functions/Workflows
-# HIDEX_IDLE_THRESHOLD_SECONDS = 3600
-
-# def two():
-#     iterations = 0
-#     removals = 0
-#     incubation_start_times = []
-
-#     hidex_refresh_time = round(time.time())
-#     EXPERIMENT_ITERATIONS = 2
-#     while(iterations < EXPERIMENT_ITERATIONS or len(incubation_start_times) == 0):
-#         if(iterations < EXPERIMENT_ITERATIONS):
-#             setup(iterations)
-#             liconic_id = iterations + 1
-#             T0_Reading(liconic_id)
-#             incubation_start_times.append(round(time.time()))
-#             iterations = iterations + 1
-#             if(iterations % 2 == 0):
-#                 dispose()
-#             #hidex_refresh_time = round(time.time())
-#         if(round(time.time()) - incubation_start_times[0] > INCUBATION_TIME_SECONDS):
-#             liconic_id = removals + 1
-#             T12_Reading(liconic_id)
-#             incubation_start_times.pop(0)
-#             removals = removals + 1
-#             #hidex_refresh_time = round(time.time())
-#         #if(round(time.time()) - hidex_refresh_time < (HIDEX_IDLE_THRESHOLD_SECONDS - 20*60)):
-#             #refreshHidex()
-
-# def six():
-#     iterations = 0
-#     removals = 0
-#     incubation_start_times = []
-
-#     EXPERIMENT_ITERATIONS = 6
-#     hidex_refresh_time = round(time.time())
-#     EXPERIMENT_ITERATIONS = 2
-#     while(iterations < EXPERIMENT_ITERATIONS or len(incubation_start_times) == 0):
-#         if(iterations < EXPERIMENT_ITERATIONS):
-#             setup(iterations)
-#             liconic_id = iterations + 1
-#             T0_Reading(liconic_id)
-#             incubation_start_times.append(round(time.time()))
-#             iterations = iterations + 1
-#             if(iterations % 2 == 0):
-#                 dispose()
-#             #hidex_refresh_time = round(time.time())
-#         if(round(time.time()) - incubation_start_times[0] > INCUBATION_TIME_SECONDS):
-#             liconic_id = removals + 1
-#             T12_Reading(liconic_id)
-#             incubation_start_times.pop(0)
-#             removals = removals + 1
-#             #hidex_refresh_time = round(time.time())
-#         #if(round(time.time()) - hidex_refresh_time < (HIDEX_IDLE_THRESHOLD_SECONDS - 20*60)):
-#             #refreshHidex()
-
-# def twelve():
-#     iterations = 0
-#     removals = 0
-#     incubation_start_times = []
-
-#     while(iterations < EXPERIMENT_ITERATIONS or len(incubation_start_times) == 0):
-#         if(iterations < EXPERIMENT_ITERATIONS):
-#             setup(iterations)
-#             liconic_id = iterations + 1
-#             T0_Reading(liconic_id)
-#             incubation_start_times.append(round(time.time()))
-#             iterations = iterations + 1
-#             if(iterations % 2 == 0):
-#                 dispose(iterations)
-#             #hidex_refresh_time = round(time.time())
-#         if(round(time.time()) - incubation_start_times[0] > INCUBATION_TIME_SECONDS):
-#             liconic_id = removals + 1
-#             T12_Reading(liconic_id)
-#             incubation_start_times.pop(0)
-#             removals = removals + 1
-#             #hidex_refresh_time = round(time.time())
-#         #if(round(time.time()) - hidex_refresh_time < (HIDEX_IDLE_THRESHOLD_SECONDS - 20*60)):
-#             #refreshHidex()
-
-# def base():
-#     iterations = 0
-#     removals = 0
-#     incubation_start_times = []
-#     while(iterations < EXPERIMENT_ITERATIONS or len(incubation_start_times) == 0):
-#         if(iterations < EXPERIMENT_ITERATIONS):   
-#             T0_Reading()
-#             incubation_start_times.append(round(time.time()))
-#             iterations = iterations + 1
-#         if(round(time.time()) - incubation_start_times[0] > INCUBATION_TIME_SECONDS):
-#             T12_Reading()
-#             incubation_start_times.pop(0)
-
-def process_results_locally():
-    global HIDEX_UPLOADS
-    global COMPLETED_CELL_COLUMNS
-    global COMPLETED_ANTIBIOTIC_COLUMNS
-    global PLATE_BARCODES
-
-    results_path = str(pathlib.Path().resolve()) + "\\growth_app\\demo_data"
-    files = os.listdir(results_path)
-    excel_files = [file for file in files if file.endswith(".xlsx")]
-    print(excel_files)
-    print(HIDEX_UPLOADS)
-    recent_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(results_path, x)))[:len(HIDEX_UPLOADS)]
-    print(recent_files)
-    t0_run_ids = []
-    t12_run_ids = []
-    t0_excel_files = []
-    t12_excel_files = []
-    for i in range (0, len(HIDEX_UPLOADS)):
-        upload_id = HIDEX_UPLOADS[i]
-        excel_file_id = recent_files[i]
-        if upload_id.startswith("T0_") :
-            run_number = int(upload_id[3:])
-            t0_run_ids.append(run_number)
-            t0_excel_files.append(excel_file_id)
-        elif upload_id.startswith("T12_"):
-            run_number = int(upload_id[4:])
-            t12_run_ids.append(run_number)
-            t12_excel_files.append(excel_file_id)
-
-    old_t0_run_ids = t0_run_ids
-    t0_run_ids, t0_excel_files = zip(*sorted(zip(t0_run_ids, t0_excel_files)))
-    t12_run_ids, t12_excel_files = zip(*sorted(zip(t12_run_ids, t12_excel_files)))
-
-    if set(t0_run_ids) != set(t12_run_ids):
-        mismatched_ids = set(t0_run_ids) ^ set(t12_run_ids)
-
-        t0_run_ids, t0_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t0_run_ids, t0_excel_files) if run_id not in mismatched_ids])
-        t12_run_ids, t12_excel_files = zip(*[(run_id, excel_file) for run_id, excel_file in zip(t12_run_ids, t12_excel_files) if run_id not in mismatched_ids])
-
-    t0_run_ids = list(t0_run_ids)
-    t0_excel_files = list(t0_excel_files)
-    t12_run_ids = list(t12_run_ids)
-    t12_excel_files = list(t12_excel_files)
-
-    cell_columns = []
-    antibiotic_string_columns = []
-    barcodes = []
-
-    for run_id in t0_run_ids:
-        info_index = old_t0_run_ids.tolist().index(run_id)
-        cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
-        antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
-        barcodes.append(PLATE_BARCODES[info_index])
-
-    antibiotic_columns = []
-    for string_column in antibiotic_string_columns:
-        integer_value = int(string_column[3:])
-        antibiotic_columns.append(integer_value)
-
-    antibiotic_concentrations_list = []
-    for antibiotic_column in antibiotic_columns:
-        antibioitic_index = antibiotic_column - 1
-        single_column_antibiotic_concentration_list = TOTAL_TREATMENT_COLUMN_CONCENTRATION[antibioitic_index]
-        single_plate_all_antibiotic_concentrations = []
-        for i in range(0,12):
-            for j in range(0,8):
-                single_plate_all_antibiotic_concentrations.append(single_column_antibiotic_concentration_list[i])
-        antibiotic_concentrations_list.append(single_plate_all_antibiotic_concentrations)
-
-    cell_concentrations_list = []
-    for cell_column in cell_columns:
-        cell_index = cell_column - 1
-        print("cell index", cell_index)
-        single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
-        single_plate_all_cell_concentrations = []
-        for i in range(0,12):
-            for j in range(0,8):
-                single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[i])
-        cell_concentrations_list.append(single_plate_all_cell_concentrations)
-
-    #completed_workbook =
-    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
-    folder_path = str(pathlib.Path().resolve()) + "\\bio_workcell\\completed_runs\\"
-    current_sheet_index = 1
-
-    global CREATED_COMPLETED_FILE
-    global COMPLETED_FILE_NAME
-
-    if CREATED_COMPLETED_FILE:
-        print("Completed File Name ", COMPLETED_FILE_NAME)
-        path_name = folder_path + COMPLETED_FILE_NAME
-        completed_workbook = openpyxl.load_workbook(path_name)
-        num_sheets = len(completed_workbook.worksheets)
-        current_sheet_index = num_sheets + 1
-
-    else:
-        print("Creating Excel Object")
-        current_date = datetime.date.today()
-        formatted_date = current_date.strftime("%m-%d-%Y")
-        file_name = formatted_date + " Completed Run" + ".xlsx"
-        COMPLETED_FILE_NAME = file_name
-        completed_workbook = openpyxl.Workbook() 
-        CREATED_COMPLETED_FILE = True
-        os.makedirs(folder_path, exist_ok=True)
-        completed_workbook.save(os.path.join(folder_path, COMPLETED_FILE_NAME))
-        default_sheet = completed_workbook.active
-        completed_workbook.remove(default_sheet)
-
-
-    for i in range(0, len(t0_run_ids)):
-        sheet_name = "Run " + str(int(current_sheet_index))
-        current_sheet = completed_workbook.create_sheet(sheet_name)
-        t0_path_name = os.path.join(results_path, t0_excel_files[i])
-        t0_workbook = openpyxl.load_workbook(filename=t0_path_name)
-        t0_worksheet = t0_workbook['Raw OD(590)']
-        t12_path_name = os.path.join(results_path, t12_excel_files[i])
-        t12_workbook = openpyxl.load_workbook(filename=t12_path_name)
-        t12_worksheet = t12_workbook['Raw OD(590)']
-        runs_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
-        for j in range(10,106):
-            hidex_data_index = "D" + str(int(j))
-            t0_growth_value = t0_worksheet[hidex_data_index].value
-            t12_growth_value = t12_worksheet[hidex_data_index].value
-            growth_rate = t12_growth_value - t0_growth_value
-            print("antibiotic concentrations ", antibiotic_concentrations_list)
-            print("cell concdentrations ", cell_concentrations_list)
-            latest_row = {
-                'Treatment Column': antibiotic_columns[i], 
-                'Treatment Concentration': antibiotic_concentrations_list[i][j-10],
-                'Cell Column': cell_columns[i],
-                'Cell Concentration': cell_concentrations_list[i][j-10],
-                'Growth Rate' : growth_rate,
-                'T0 Reading' : t0_growth_value,
-                'T12 Reading' : t12_growth_value
-            }
-
-            latest_row_df = pd.DataFrame(latest_row, index=[0])
-            runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
-    
-            for row in dataframe_to_rows(runs_df, index=False, header=True):
-                current_sheet.append(row)
-
-            current_sheet['I1'] = "Barcode Number"
-            current_sheet['J1'] = barcodes[i]
-
-    completed_workbook.save(folder_path + COMPLETED_FILE_NAME)
-
-    CULTURE_PAYLOAD = []
-    MEDIA_PAYLOAD = []
-    HIDEX_UPLOADS = []
-    COMPLETED_CELL_COLUMNS = []
-    COMPLETED_ANTIBIOTIC_COLUMNS = []
-    PLATE_BARCODES = []
