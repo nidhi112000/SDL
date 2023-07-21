@@ -3,10 +3,11 @@
 import logging
 from argparse import ArgumentParser
 import time
-from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+#from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+from tools.ai_model.actions import load_model, predict_experiment, train_model, save_model
 from pathlib import Path
-from tools.hudson_solo_auxillary.hso_functions import package_hso
-from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+#from tools.hudson_solo_auxillary.hso_functions import package_hso
+#from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -22,9 +23,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from tools.ai_model import actions
 import scipy.stats as stats
 
-from rpl_wei import Experiment
+# from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
@@ -42,8 +44,6 @@ CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
 EXPERIMENT_FILE_PATH = ''
 
-TENSORFLOW_MODEL = None
-AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tools/tensorflow_model"
 AI_MODEL_IN_USE = False
 
 COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/complete_hudson_setup.yaml'
@@ -56,9 +56,16 @@ READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/wo
 DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_box_plate.yaml'
 DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_growth_media.yaml'
 
-exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-exp.register_exp() 
-exp.events.log_local_compute("package_hso")
+# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+# exp.register_exp() 
+# exp.events.log_local_compute("package_hso")
+
+def ai_test():
+    actions.load_model()
+    actions.train_model("07-20-2023 at 13.19.40 Completed Run")
+    actions.predict_experiment(3)
+    actions.save_model()
+    print("BALLS")
 
 #Artificial Intelligence Modeling Functions
 def predict_experiment(num_prediction_requests):
@@ -137,13 +144,13 @@ def train_model():
     completed_workbook = openpyxl.load_workbook(path_name)
     for sheet_name in completed_workbook.sheetnames:
         current_sheet = completed_workbook[sheet_name]
-        for i in range(2, 98):
+        for i in range(5, 53):
             latest_row = {
-                'Treatment Column': current_sheet["A" + str(int(i))].value, 
-                'Treatment Concentration': current_sheet["B" + str(int(i))].value,
-                'Cell Column': current_sheet["C" + str(int(i))].value,
-                'Cell Concentration': current_sheet["D" + str(int(i))].value,
-                'Growth Rate' : current_sheet["E" + str(int(i))].value,
+                'Treatment Column': current_sheet["B" + str(int(i))].value, 
+                'Treatment Concentration': current_sheet["C" + str(int(i))].value,
+                'Cell Column': current_sheet["D" + str(int(i))].value,
+                'Cell Concentration': current_sheet["E" + str(int(i))].value,
+                'Growth Rate' : current_sheet["F" + str(int(i))].value,
             } 
             latest_row_df = pd.DataFrame(latest_row, index=[0])
             training_df = pd.concat([training_df, latest_row_df], ignore_index=True)
@@ -746,6 +753,7 @@ def main():
     delete_experiment_excel_file()
 
 if __name__ == "__main__":
-    main()
+    #main()
+    ai_test()
 
 #!/usr/bin/env python3
