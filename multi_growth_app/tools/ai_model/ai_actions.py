@@ -13,14 +13,15 @@ from sklearn.model_selection import train_test_split
 import scipy.stats as stats
 
 TENSORFLOW_MODEL = None
-AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tensorflow_model"
+AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "\\multi_growth_app\\tools\\ai_model\\tensorflow_model"
+#AI_MODEL_FILE_PATH = str(pathlib.Path().resolve()) + "/tensorflow_model"
 
-def predict_experiment(num_prediction_requests):
+def predict_experiment(num_prediction_requests, original_antibiotic_concentration, original_cell_concentration):
     global TENSORFLOW_MODEL
     #Predict the Model on the Data frame
     #Sort the combinations and output the one/two/three/...twelve that need AI modeling
     predictions = []
-    prediction_df = return_combination_data_frame()
+    prediction_df = return_combination_data_frame(original_antibiotic_concentration, original_cell_concentration)
      # Make prediction on the combination using the trained model
     numeric_columns = ['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration']
     prediction_df[numeric_columns] = prediction_df[numeric_columns].apply(pd.to_numeric, errors='coerce')
@@ -38,11 +39,6 @@ def predict_experiment(num_prediction_requests):
     cell_column = selected_rows['Cell Column'].values
     cell_concentration = selected_rows['Cell Concentration'].values
     predictions = selected_rows['Predictions'].values
-    print(treatment_column)
-    print(treatment_concentration)
-    print(cell_column)
-    print(cell_concentration)
-    print(predictions)
 
     return treatment_column, treatment_concentration, cell_column, cell_concentration, predictions
 
@@ -82,22 +78,19 @@ def return_combination_data_frame(original_antibiotic_concentration, original_ce
 
     return combinations_df
     
-def train_model(completed_file_name):
+def train_model(complete_file_path):
     global TENSORFLOW_MODEL
     training_df = pd.DataFrame(columns=['Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate'])
-    #folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
-    folder_path = str(pathlib.Path().resolve()) + "\\ai_model\\"
-    path_name = folder_path + completed_file_name
-    completed_workbook = openpyxl.load_workbook(path_name)
+    completed_workbook = openpyxl.load_workbook(complete_file_path)
     for sheet_name in completed_workbook.sheetnames:
         current_sheet = completed_workbook[sheet_name]
-        for i in range(2, 98):
+        for i in range(5, 53):
             latest_row = {
-                'Treatment Column': current_sheet["A" + str(int(i))].value, 
-                'Treatment Concentration': current_sheet["B" + str(int(i))].value,
-                'Cell Column': current_sheet["C" + str(int(i))].value,
-                'Cell Concentration': current_sheet["D" + str(int(i))].value,
-                'Growth Rate' : current_sheet["E" + str(int(i))].value,
+                'Treatment Column': current_sheet["B" + str(int(i))].value, 
+                'Treatment Concentration': current_sheet["C" + str(int(i))].value,
+                'Cell Column': current_sheet["D" + str(int(i))].value,
+                'Cell Concentration': current_sheet["E" + str(int(i))].value,
+                'Growth Rate' : current_sheet["F" + str(int(i))].value,
             } 
             latest_row_df = pd.DataFrame(latest_row, index=[0])
             training_df = pd.concat([training_df, latest_row_df], ignore_index=True)
@@ -118,6 +111,7 @@ def train_model(completed_file_name):
 def load_model():
     #Bring in Global Tensorflow Model
     global TENSORFLOW_MODEL
+    global AI_MODEL_FILE_PATH
     #Load a Tensorflow Model if a model exists at the file path. If one does not exist, it creates a new model to use
     if os.path.exists(AI_MODEL_FILE_PATH):
         TENSORFLOW_MODEL = tf.keras.models.load_model(AI_MODEL_FILE_PATH)
@@ -134,4 +128,5 @@ def load_model():
         TENSORFLOW_MODEL.compile(optimizer='adam', loss='mean_squared_error')
     
 def save_model():
+    global AI_MODEL_FILE_PATH
     TENSORFLOW_MODEL.save(AI_MODEL_FILE_PATH)
