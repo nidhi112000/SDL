@@ -15,10 +15,8 @@ import os
 import datetime
 import random
 from openpyxl.utils.dataframe import dataframe_to_rows
-from sklearn.model_selection import train_test_split
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
@@ -40,8 +38,6 @@ PLATE_BARCODES = []
 CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
 EXPERIMENT_FILE_PATH = ''
-
-AI_MODEL_IN_USE = False
 
 COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/complete_hudson_setup.yaml'
 STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/streamlined_hudson_setup.yaml'
@@ -577,7 +573,6 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
             t0_reading = True
         else:
             t0_reading = False
-        print("Starting Up Hidex")
         hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
         hidex_file_path = hidex_file_path.replace('\\', '/')
         hidex_file_path = hidex_file_path.replace("C:/", "/C/")
