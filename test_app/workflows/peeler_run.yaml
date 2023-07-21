@@ -1,0 +1,22 @@
+name: Peeler Run
+
+metadata:
+  author: Alp Demirtas
+  info: Workflow for Running Peeler Individualy
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+  - name: Peel
+    module: peeler
+    action: peel
+    args:
+      test: null
+    checks: null
+    comment: null

@@ -1,0 +1,25 @@
+name: Sealer Run
+
+metadata:
+  author: Alp Demirtas
+  info: Workflow for Running Sealer Individually
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+
+  - name: Seal PCR plate
+    module: sealer
+    action: seal
+    args:
+      time: payload:seal.time #3.0 
+      temperature: 175
+    checks: null
+    comment: nullassay_name
+

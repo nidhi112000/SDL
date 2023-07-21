@@ -1,0 +1,36 @@
+name: Hidex Run
+
+metadata:
+  author: Alp Demirtas
+  info: Workflow for Running Hidex Individually
+  version: 0.1
+
+modules:
+  - name: hidex
+
+flowdef:
+  - name: Open Hidex
+    module: hidex
+    action: open
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Open Hidex Gate
+
+  - name: Close Hidex
+    module: hidex
+    action: close
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Close Hidex Gate
+  
+  - name: run Hidex
+    module: hidex
+    action: run_assay
+    args: 
+      assay_name: "Campaign2_wei_cs"
+
+
+
+

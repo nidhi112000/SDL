@@ -3,10 +3,10 @@
 import logging
 from argparse import ArgumentParser
 import time
-#from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-#from tools.hudson_solo_auxillary.hso_functions import package_hso
-#from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+from tools.hudson_solo_auxillary.hso_functions import package_hso
+from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -21,12 +21,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-# from rpl_wei import Experiment
+from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
-ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-ORIGINAL_CELL_CONCENTRATION = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+ORIGINAL_CELL_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 TOTAL_CELL_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
 CULTURE_PAYLOAD = []
@@ -49,9 +49,9 @@ READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/wo
 DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_box_plate.yaml'
 DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_growth_media.yaml'
 
-# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-# exp.register_exp() 
-# exp.events.log_local_compute("package_hso")
+exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+exp.register_exp() 
+exp.events.log_local_compute("package_hso")
 
 def sample_method_implementing_ai():
     ai_actions.load_model()
@@ -85,6 +85,8 @@ def process_results():
         single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run, plate_number=run_number)
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
 
+    print(globus_runs_df)
+
     old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
     old_t0_run_ids = old_t0_run_ids.astype(int)
 
@@ -105,6 +107,8 @@ def process_results():
         else:
             prev_start_time = current_start_time
     filtered_globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
+
+    print(filtered_globus_runs_df)
 
     filtered_t0_run_ids = filtered_globus_runs_df['Plate #'].drop_duplicates().values
     filtered_t0_run_ids = filtered_t0_run_ids.astype(int)
@@ -127,6 +131,9 @@ def process_results():
         integer_value = int(string_column[3:])
         antibiotic_columns.append(integer_value)
 
+    print(antibiotic_columns)
+    print(cell_columns)
+
     antibiotic_concentrations_list = []
     for antibiotic_column in antibiotic_columns:
         antibioitic_index = antibiotic_column - 1
@@ -147,7 +154,10 @@ def process_results():
                 single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[j])
         cell_concentrations_list.append(single_plate_all_cell_concentrations)
 
-    folder_path = str(pathlib.Path().resolve()) + "/completed_runs"
+    print(antibiotic_concentrations_list)
+    print(cell_concentrations_list)
+
+    folder_path = str(pathlib.Path().resolve()) + "/completed_runs/"
     #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
     current_sheet_index = 1
 
@@ -174,7 +184,7 @@ def process_results():
         completed_workbook.remove(default_sheet)
 
     for i in range(0, len(filtered_t0_run_ids)):
-        sheet_name = "Run " + str(int(current_sheet_index))
+        sheet_name = "Run " + str(int(i + 1))
         current_sheet = completed_workbook.create_sheet(sheet_name)
         t0_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Reading Hour'] == 'T0')].copy()
         t0_specific_run_df.reset_index(drop=True, inplace=True)
@@ -248,6 +258,7 @@ def process_results():
     PLATE_BARCODES = []
 
 def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
+    print("Reading Globus Data -- Accessed Chrome")
     driver = webdriver.Chrome()
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
     search_bar = driver.find_element(By.ID, "search-input")
@@ -293,9 +304,11 @@ def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
 
     globus_df = pd.DataFrame(table_data)
     globus_df.iloc[0][3] = 'Result'
+    globus_df.iloc[0][2] = 'Reading Hour'
     globus_df.columns = globus_df.iloc[0]
     globus_df = globus_df[1:]
     globus_df = globus_df.reset_index(drop=True)
+    globus_df['Plate #'] = plate_number
     if t0_reading == True:
         globus_df.iloc[:, 2] = "T0"
     else: 
@@ -428,6 +441,7 @@ def dispose(completed_iterations):
     #For the first two serial dilution plates, define the disposal index as LidNest 1 for the first serial dilution plate and LidNest 2 for the second serial dilution plate
     if(stack_type <= 2):
         disposal_index = "LidNest" + str(int(stack_type))
+
     #For the fourth serial dilution plate, define the disposal index as LidNest 3.
     #We are not defining the disposal index as LidNest 3 for the third serial dilution plate because there will already be a growth media plate on LidNest 3. This growth media plate will be removed in the subsequent setup function
     if(stack_type == 4):
@@ -477,6 +491,11 @@ def T0_Reading(liconic_plate_id):
     plate_id = '' + str(int(liconic_plate_id))
     treatment_col_id = "col" + str(int(MEDIA_PAYLOAD[liconic_plate_id-1]))
     culture_col_id = int(CULTURE_PAYLOAD[liconic_plate_id-1])
+    treatment_dilution = 1
+    if liconic_plate_id % 2 == 0:
+        treatment_dilution = 2
+    else: 
+        treatment_dilution = 1
     payload={
         'temp': 37.0, 
         'humidity': 95.0,
@@ -485,9 +504,9 @@ def T0_Reading(liconic_plate_id):
         "slot": 1,
         "treatment": treatment_col_id, # string of treatment name. Ex. "col1", "col2"
         "culture_column": culture_col_id,  # int of cell culture column. Ex. 1, 2, 3, etc.
-        "culture_dil_column": 1, # int of dilution column for 1:10 culture dilutions. Ex. 1, 2, 3, etc.
-        "media_start_column": 1,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
-        "treatment_dil_half": 1,  #  int of which plate half to use for treatment serial dilutions. Options are 1 or 2. 
+        "culture_dil_column": liconic_plate_id % 12, # int of dilution column for 1:10 culture dilutions. Ex. 1, 2, 3, etc.
+        "media_start_column": (2*liconic_plate_id-1)%12,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
+        "treatment_dil_half": treatment_dilution,  #  int of which plate half to use for treatment serial dilutions. Options are 1 or 2. 
         "incubation_plate_id" : plate_id,        
         }
 
@@ -624,6 +643,6 @@ def main():
 
 if __name__ == "__main__":
     #main()
-    sample_method_implementing_ai()
+    main()
 
 #!/usr/bin/env python3
