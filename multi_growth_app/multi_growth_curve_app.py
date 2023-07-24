@@ -61,7 +61,7 @@ def sample_method_implementing_ai():
     ai_actions.save_model()
 
 #Data Processing Functions
-def process_results():
+def process_experimental_results():
     global HIDEX_UPLOADS
     global COMPLETED_CELL_COLUMNS
     global COMPLETED_ANTIBIOTIC_COLUMNS
@@ -625,20 +625,9 @@ def main():
     iteration_runs, incubation_time = determine_payload_from_excel()
     run_experiment(iteration_runs, incubation_time)
     try:
-        process_results()
+        process_experimental_results()
     except:
         print("Process Keep Trying")
-
-    #Find a way to calculate possible remaining runs
-    # for i in range(0, 8):
-    #     print("AI Iteation ", str(int(i)))
-    #     load_model()
-    #     predict_experiment(1)
-    #     #Need a way to transfer things here to experiment
-    #     run_experiment(1, incubation_time)
-    #     process_results()
-    #     train_model()
-    #     save_model()
     delete_experiment_excel_file()
 
 if __name__ == "__main__":
