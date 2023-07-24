@@ -38,7 +38,7 @@ def c2_hidex_ext(**data):
                 continue
             if DATA == True:
                 df.loc[len(df.index) + 1] = row
-
+    
     timestamp_list = df.columns[3:].to_list()
 
     # extract file basename 

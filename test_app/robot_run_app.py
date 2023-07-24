@@ -91,14 +91,14 @@ def main():
     
     #Uncomment if Hidex is being Run
     
-    # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    # hidex_file_path = hidex_file_path.replace('\\', '/')
-    # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    # fname = flow_title.name
-    # flow_title = flow_title.parents[0]
+    hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    hidex_file_path = hidex_file_path.replace('\\', '/')
+    hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    fname = flow_title.name
+    flow_title = flow_title.parents[0]
 
-    # c2_flow(exp_name = "hidex_test_run", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+    c2_flow(exp_name = "hidex_test_run", plate_n = "1", time = str(time.strftime("%H:%M:%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
 
 
 

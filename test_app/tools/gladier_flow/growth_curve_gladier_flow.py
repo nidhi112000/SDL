@@ -20,7 +20,7 @@ class C2Flow(GladierBaseClient):
        'gladier_tools.publish.Publishv2'
     ]
 
-def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
+def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None, hour=0):
         exp_label = exp_name + '_' + plate_n + '_' + time
         remote_folder = os.path.join('/home/rpl/wei_runs/',exp_label)
         local_gcp = 'e69053b2-f02f-11ed-ba44-09d6a6f08166'
@@ -36,6 +36,7 @@ def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
                 'funcx_endpoint_non_compute': local_funcx, #biopotts funcx
                 'exp_name':exp_name,
                 'plate_n':plate_n,
+                'run_hour':hour,
                 'proc_folder': remote_folder,
                 'file_name': fname,
                 'csv_file': fname.split('.')[0] +".csv",
