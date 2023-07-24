@@ -1,11 +1,5 @@
-# Picture
-
-Created with `python ../../draw_flow/draw.py -i demo.json -o demo.jpg`
-
-![application, as drawn by draw.py.](demo.jpg)
-
-
 # Multi-Plate Growth Assay Application
+## Alp Demirtas
 
 ## Initial Setup and Finished Run Information
 
@@ -147,7 +141,7 @@ def sample_method_for_growth_assay_run():
     run_experiment(iteration_runs, incubation_time)
 
     process_experimental_results()
-    
+
     delete_experiment_excel_file()
 
 Method for Exploring AI Integration:
