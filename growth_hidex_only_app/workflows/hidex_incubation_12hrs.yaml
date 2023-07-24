@@ -1,0 +1,24 @@
+name: Growth Curve - Workflow
+
+metadata:
+  author: Casey Stone, Rafael Vescovi
+  info: Growth Curve App modified to use Hidex Sense for overnight incubation
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+# Incubate Assay plate in Hidex for 12 hours
+  - name: run Hidex
+    module: hidex
+    action: run_assay
+    args: 
+      assay_name: "Growth_one_plate_incubate"
+    checks: null
+    comment: Run protocol at hidex
+
