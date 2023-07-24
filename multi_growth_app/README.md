@@ -12,12 +12,19 @@ Created with `python ../../draw_flow/draw.py -i demo.json -o demo.jpg`
 The setup for the multiple plate growth assay application should be as follows:
 
 Stack 1: At the beginning of the script, Stack 1 will remain empty. It is the disposal location for used tip boxes and 96 well plate covers.
+
 Stack 2: At the beginning of the script, Stack 2 will remain empty. It is the disposal location for both used 96 well plates and 96 deep well plates 
+
 Stack 3: At the beginning of the script, Stack 3 will store sealed serial dilution plates (96 deep well). One serial dilution plate will be needed for every 2 runs of the experiment. At the end of the script, Stack 3 will remain empty.
+
 Stack 4: At the beginning of the script, Stack 4 will store tip boxes without a cover. One tip box will be needed for every 2 runs of the experiment. At the end of the script, Stack 4 will remain empty.
+
 Stack 5: At the beginning of the script, Stack 5 will store 96 well plates with their plate cover. One 96 well plate will be needed for every run of the experiment. At the end of the script, Stack 5 will remain empty.
+
 Lid Nest 1: At the beginning of the script, Lid Nest 1 will remain empty. At the end of the script, Lid Nest 1 will hold the first disposed serial dilution plate. 
+
 Lid Nest 2: At the beginning of the script, Lid Nest 2 will hold the first-used sealed growth media plate (96 deep well). One growth media plate will be needed for every 6 runs of the experiment. At the end of the script, Lid Nest 2 will hold the second disposed serial dilution plate. 
+
 Lid Nest 3: At the beginning of the script, Lid Nest 3 will hold the second-used sealed growth media plate (96 deep well). One growth media plate will be needed for every 6 runs of the experiment. At the end of the script, Lid Nest 3 will hold the fourth disposed serial dilution plate. It will not be able to hold the third disposed serial dilution plate because the sealed-growth media plate will not be used until after the first 6 runs of the experiment have been completed.
 
 *Due to space allocations, the current experimental setup is configured to accomodate at most 12 well plates. At the end of 12 runs, a new cell culture serial dilution plate will be needed on the Hudson Solo, which the PlateCrane will not be able to reach.  
@@ -56,17 +63,29 @@ In the third terminal window, navigate to home/workspace/BIO_workcell/multi_grow
 
 ## Global Variables
 ORIGINAL_ANTIBIOTIC_CONCENTRATION - Specifies the original concentration of each antibiotic type in its respective column
+
 ORIGINAL_CELL_CONCENTRATION - Specifies the original concentration of each antibiotic type in its respective column
+
 TOTAL_CELL_COLUMN_CONCENTRATION - An 8 row x 12 column array detailing the cell concentration across each row of a 96 deep well plate for each row
+
 TOTAL_TREATMENT_COLUMN_CONCENTRATION - An 8 row x 12 column array detailing the antibiotic concentration across each row of a 96 deep well plate for each row
+
 CULTURE_PAYLOAD - An array that details which cell culture column the Hudson Solo should use for each liquid handling run
+
 MEDIA_PAYLOAD - An array that details which antibiotic treatment column the Hudson Solo should use for each liquid handling run
+
 HIDEX_UPLOADS - An array that holds the titles for the readings uploaded to Globus
+
 COMPLETED_CELL_COLUMNS - An array that keeps track of which cell columns were used for which plate number each run during the experiment
+
 COMPLETED_ANTIBIOTIC_COLUMNS - An array that keeps track of which cell columns were used for which plate number each run during the experiment
+
 PLATE_BARCODES - An array that keeps track of the plate barcode for its specific plate number
+
 CREATED_COMPLETED_FILE - A Boolean that keeps track of whether the completed_run Excel document has been completed
+
 COMPLETED_FILE_NAME - A string that keeps track of the name of the completed_run  Excel document
+
 EXPERIMENT_FILE_PATH - A string that keeps track of the file path for the Excel document containing the experimental outline
 
 ## Functions
@@ -120,18 +139,30 @@ hudson_solo_auxillary - This folder provides the capabilities to translate liqui
 ## Sample Code Workflows to Implement in main() Script
 
 Method for Running Experiment from Excel:
+
 def sample_method_for_growth_assay_run():
+
     iteration_runs, incubation_time = determine_payload_from_excel()
+
     run_experiment(iteration_runs, incubation_time)
+
     process_experimental_results()
+    
     delete_experiment_excel_file()
 
 Method for Exploring AI Integration:
+
 def sample_method_implementing_ai():
+
     ai_actions.load_model()
+
     path_name = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\" + "07-20-2023 at 13.19.40 Completed Run.xlsx"
+    
     ai_actions.train_model(path_name)
-    treatment_column, treatment_concentration, cell_column, cell_concentration, predictions = ai_actions.predict_experiment(3 ,ORIGINAL_ANTIBIOTIC_CONCENTRATION, ORIGINAL_CELL_CONCENTRATION)
+
+    treatment_column, treatment_concentration, cell_column, cell_concentration, predictions = ai_actions.predict_experiment(3 ,
+    ORIGINAL_ANTIBIOTIC_CONCENTRATION, ORIGINAL_CELL_CONCENTRATION)
+
     ai_actions.save_model()
 
 ## Debugging Guide
