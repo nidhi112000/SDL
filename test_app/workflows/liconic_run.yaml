@@ -13,27 +13,27 @@ modules:
   - name: camera
 
 flowdef:
-  - name: Load Liconic
-    module: liconic
-    action: load_plate
-    args: 
-      plate_id: "1"
-    checks: null
-    comment: Stage pcr plates
+  # - name: Load Liconic
+  #   module: liconic
+  #   action: load_plate
+  #   args: 
+  #     plate_id: "1"
+  #   checks: null
+  #   comment: Stage pcr plates
 
-  - name: Start shaker at set speed
-    module: liconic
-    action: begin_shake
-    args: 
-      shaker_speed: 30
-    checks: null
-    comment: Stage pcr plates
+  # - name: Start shaker at set speed
+  #   module: liconic
+  #   action: begin_shake
+  #   args: 
+  #     shaker_speed: 30
+  #   checks: null
+  #   comment: Stage pcr plates
 
   - name: Unload Liconic
     module: liconic
     action: unload_plate
     args: 
-      plate_id: "1"
+      plate_id: "2"
     checks: null
     comment: Stage pcr plates
 
