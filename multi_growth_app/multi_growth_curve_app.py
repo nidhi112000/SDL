@@ -348,7 +348,7 @@ def determine_payload_from_excel():
     workbook = openpyxl.load_workbook(filename=path_name)
     worksheet = workbook['Complete_Run_Layout']
     experiment_iterations = worksheet['B1'].value
-    incubation_time_hours = worksheet['E1'].value
+    incubation_time_hours = worksheet['B2'].value
     incubation_time_seconds = incubation_time_hours * 3600
     added_items = 0
     for i in range(2,13):
