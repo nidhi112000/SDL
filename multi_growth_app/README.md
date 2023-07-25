@@ -49,6 +49,8 @@ Please ensure that all data in Rows 4 and 5 has an accompanied Row Number in the
 
 To set the incubation time of the cells, modify Cell B2 with a number indicating the hours needed for incubation.
 
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/af0a2d57-c900-4f31-9750-1c991207a794)
+
 If a scientist wanted to have two runs, the first with a cell culture found in column 2 and antibiotic found in column 6 and the second with a cell culture found in column 4 and antibiotic found in column 1, with an incubation time of 12 hours, this is how they would fill out their Excel template.
 
 The other sheets in the Excel file provide a schematic in the shape of a 96 deep well plate of the cell and antibiotic types that will be used in a specific run number. While these sheets are not currently being used, they have the framework for scientists to specify their desired concentrations of cell type and antibiotic at a certain index of the deep well plate.
