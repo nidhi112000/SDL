@@ -30,7 +30,16 @@ The application uses an Excel template to run an experiment. Please download the
 
 The first sheet of the Excel template, titled "Completed_Run_Layout," provides a master framework for the experimental run.
 
-Scientists can indicate the total amount of runs they would like to incorporate in their experiment by using the dropdown arrow in in Cell B1 to select a number 1 through 12. This will autopopulate a series of run numbers in Row 3 that correspond to the experiment plate number. For example, run number 1 is the 1st plate that will be ran, run number 2 is the 2nd plate that will be ran, and so on.
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/ac13c17b-18e3-49c4-9e74-6356ce015b7a)
+
+
+Scientists can indicate the total amount of runs they would like to incorporate in their experiment by using the dropdown arrow in in Cell B1 to select a number 1 through 12.
+
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/a4b49cb8-1136-4a1e-944d-f1698def06c7)
+
+This will autopopulate a series of run numbers in Row 3 that correspond to the experiment plate number. For example, run number 1 is the 1st plate that will be ran, run number 2 is the 2nd plate that will be ran, and so on.
+
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/c303d200-10b5-4292-bd32-596ea9bca96e)
 
 For each run number in the chart, there will need to be a corresponding Antibiotic Type and Cell Culture Type that will be specified by using the dropdown arrow to select a number 1 through 12. This number will indicate the column number on the well plate corresponding to the cell or antibiotic type that the scientist would want to include. 
 
