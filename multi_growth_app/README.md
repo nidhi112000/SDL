@@ -45,7 +45,9 @@ For each run number in the chart, there will need to be a corresponding Antibiot
 
 Please ensure that all data in Rows 4 and 5 has an accompanied Row Number in the Excel file.
 
-To set the incubation time of the cells, modify Cell E1 with a number indicating the hours needed for incubation.
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/785fdfb9-95c4-45d8-92a9-9fa2a0a46347)
+
+To set the incubation time of the cells, modify Cell B2 with a number indicating the hours needed for incubation.
 
 If a scientist wanted to have two runs, the first with a cell culture found in column 2 and antibiotic found in column 6 and the second with a cell culture found in column 4 and antibiotic found in column 1, with an incubation time of 12 hours, this is how they would fill out their Excel template.
 
