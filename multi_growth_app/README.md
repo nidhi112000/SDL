@@ -78,9 +78,9 @@ Switch over to the Windows computer and start the Hudson Solo and Hidex C# clein
 In the third terminal window, navigate to home/workspace/BIO_workcell/multi_growth_app and execute the prompt python multi_growth_app.py. This will run the experiment.
 
 ## Global Variables
-ORIGINAL_ANTIBIOTIC_CONCENTRATION - Specifies the original concentration of each antibiotic type in its respective column
+ORIGINAL_ANTIBIOTIC_CONCENTRATION - Array with length of 12 that specifies the original stock concentration of each antibiotic type in its respective column. Must be filled in at the start of the experiment run. Example: [1, 0, 0, 1, 0, 0, 0, .3, 0, 0, .75, 0] indicates that there is antibiotic concentration of 1 M in column one, 1 M in column four, 0.3 M in column eight, and 0.75 M in column 11 of the stock antibiotic concentration plate.
 
-ORIGINAL_CELL_CONCENTRATION - Specifies the original concentration of each antibiotic type in its respective column
+ORIGINAL_CELL_CONCENTRATION - Array with length of 12 that specifies the original stock concentration of each cell type in its respective column. Must be filled in at the start of the experiment run. Example: [1, 0, 0, 1, 0, 0, 0, .3, 0, 0, .75, 0] indicates that there is cell concentration of 1 M in column one, 1 M in column four, 0.3 M in column eight, and 0.75 M in column 11 of the stock cell concentration plate.
 
 TOTAL_CELL_COLUMN_CONCENTRATION - An 8 row x 12 column array detailing the cell concentration across each row of a 96 deep well plate for each row
 
