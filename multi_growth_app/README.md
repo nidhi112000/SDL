@@ -28,7 +28,7 @@ Lid Nest 3: At the beginning of the script, Lid Nest 3 will hold the second-used
 
 The application uses an Excel template to run an experiment. Please download the template here: 
 
-[Download PDF](https://raw.githubusercontent.com/alpyd/BIO_workcell/main/templates/Template_Excel_Run_Document.xlsx)
+[Download Excel File](https://raw.githubusercontent.com/AD-SDL/BIO_workcell/main/multi_growth_app/user_media/templates/Template%20Experiment%20Run%20Document.xlsx)
 
 The first sheet of the Excel template, titled "Completed_Run_Layout," provides a master framework for the experimental run.
 
