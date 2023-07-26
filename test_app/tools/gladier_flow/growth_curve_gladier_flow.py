@@ -5,6 +5,7 @@ from .c2_check_contam import C2_check_contam
 from .c2_blank_adjust import C2_blank_adjust
 from .c2_gen_graphs import C2_gen_graphs
 from .gather_data import GatherMetaData
+from .c2_best_fit import C2_best_fit
 import os
 
 @generate_flow_definition(modifiers={'publishv2_gather_metadata' : {'payload': '$.GatherMetadata.details.result[0]'}})
@@ -15,6 +16,7 @@ class C2Flow(GladierBaseClient):
         C2_read_hidex,
         C2_check_contam,
         C2_blank_adjust,
+        C2_best_fit,
         C2_gen_graphs,
         GatherMetaData,
        'gladier_tools.publish.Publishv2'
