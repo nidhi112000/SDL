@@ -76,7 +76,7 @@ def c2_flow(exp_name=None, plate_n="1",time=0, local_path="", fname="", exp=None
         
         # Track progress
         action_id = flow['action_id']
-        publishFlow.progress(action_id)
+        # publishFlow.progress(action_id)
         exp.events.log_gladier(label, flow['action_id'])
      
         

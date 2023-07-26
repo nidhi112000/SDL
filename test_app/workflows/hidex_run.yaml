@@ -17,19 +17,19 @@ flowdef:
   #   checks: null
   #   comment: Open Hidex Gate
 
-  # - name: Close Hidex
-  #   module: hidex
-  #   action: close
-  #   args: 
-  #     foo: "bar"
-  #   checks: null
-  #   comment: Close Hidex Gate
-  
-  - name: run Hidex
+  - name: Close Hidex
     module: hidex
-    action: run_assay
+    action: close
     args: 
-      assay_name: "Campaign2_wei_cs"
+      foo: "bar"
+    checks: null
+    comment: Close Hidex Gate
+  
+  # - name: run Hidex
+  #   module: hidex
+  #   action: run_assay
+  #   args: 
+  #     assay_name: "Campaign2_wei_cs"
 
 
 

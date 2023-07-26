@@ -47,7 +47,7 @@ def c2_best_fit(**data):
 
         # determine plot title and file path
         plot_title = f"{data_filename}, timepoint = {timepoint} (seconds)"
-        plot_basename = f"{data_filename}_{str(timepoint).split('.')[0]}.png"
+        plot_basename = "Test_Updates.png"
         
         try:
             plot_file_path = os.path.join(plot_directory_path, plot_basename)

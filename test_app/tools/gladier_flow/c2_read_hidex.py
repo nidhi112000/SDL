@@ -33,7 +33,7 @@ def excel_to_csv(**data):
     for i in range(1, (len(excel_OD_data.iloc[:, 2]))):
         excel_OD_data.at[i][0] = str(data.get('plate_n'))
         excel_OD_data.at[i][2] = str(data.get('run_hour'))
-    excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
+    #excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
     return csv_filepath
 
 

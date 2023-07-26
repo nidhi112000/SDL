@@ -24,15 +24,18 @@ def gather_metadata(**data):
 
     input_path = Path(data['proc_folder']).expanduser()
     datal = {}
+    i = 0
     for file in os.listdir(input_path):
      if re.match(".*csv", file):
        with open(input_path / file) as f:
+          key = "file_path_" + str(int(i))
+          datal[key] = str(input_path) + str(file)
           reader = csv.reader(f)
           vals = []
           for row in reader:
              vals.append(row)
-          vals[0][3] = "Result"
-          vals[0][2] = "Reading Hour"
+          # vals[0][3] = "Result"
+          # vals[0][2] = "Reading Hour"
           y_results = []
           x_concentration = [] # in the future, can directly import the concentrations through data
           # for i in range(1, (len(vals)):
@@ -59,6 +62,8 @@ def gather_metadata(**data):
      elif re.match(".*contam.txt", file):
        with open(input_path / file) as f:
          datal["contam"] =  f.read()
+
+     i = i+1
 
     GENERAL_METADATA.update(datal)
     final_data = data["publishv2"]
