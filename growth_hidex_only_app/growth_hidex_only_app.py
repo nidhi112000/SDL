@@ -71,44 +71,35 @@ def main():
     payload["hso_3_basename"] = hso_3_basename
 
     # Run the T0 Workflow on the Registered WEI Experiment with the payload specified above
-    flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
+    # flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
 
-    # Pinging the status of the T0 Workflow sent to the WEI Experiment - Casey: Why are we doing this?
-    flow_status = exp.query_job(flow_info["job_id"])
-    #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
-    while flow_status["status"] != "finished" and flow_status["status"] != "failure":
-        flow_status = exp.query_job(flow_info["job_id"])
-        time.sleep(3)
+    # # Pinging the status of the T0 Workflow sent to the WEI Experiment - Casey: Why are we doing this?
+    # flow_status = exp.query_job(flow_info["job_id"])
+    # #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
+    # while flow_status["status"] != "finished" and flow_status["status"] != "failure":
+    #     flow_status = exp.query_job(flow_info["job_id"])
+    #     time.sleep(3)
 
-    # Receiving the Results of the now completed T0 Workflow, Creating a Path of the Run Directory, and printing the Run Information
-    run_info = flow_status["result"]
-    run_info["run_dir"] = Path(run_info["run_dir"])
-    print(run_info)
+    # # Receiving the Results of the now completed T0 Workflow, Creating a Path of the Run Directory, and printing the Run Information
+    # run_info = flow_status["result"]
+    # run_info["run_dir"] = Path(run_info["run_dir"])
+    # print(run_info)
 
-    # Accessing the T0 Reading results file path from the Hidex 
-    hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    # Formatting the File Path from Windows to be compatible with Linux file directory settings and creating a Path
-    hidex_file_path = hidex_file_path.replace('\\', '/')
-    hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    # Accessing the File Name
-    fname = flow_title.name
-    # Accessing the File Path
-    flow_title = flow_title.parents[0]
+    # # Accessing the T0 Reading results file path from the Hidex 
+    # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    # # Formatting the File Path from Windows to be compatible with Linux file directory settings and creating a Path
+    # hidex_file_path = hidex_file_path.replace('\\', '/')
+    # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    # # Accessing the File Name
+    # fname = flow_title.name
+    # # Accessing the File Path
+    # flow_title = flow_title.parents[0]
 
-    #Uploading the Hidex Data to the Globus client and portal. The arguments in the function are the strings of the experiment name (exp_name), plate number (plate_n), time uploaded (time), the flow_title (local_path), and file name (fname), and the WEI Experiment Object).
-    c2_flow(exp_name = "T0_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+    # #Uploading the Hidex Data to the Globus client and portal. The arguments in the function are the strings of the experiment name (exp_name), plate number (plate_n), time uploaded (time), the flow_title (local_path), and file name (fname), and the WEI Experiment Object).
+    # c2_flow(exp_name = "T0_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
 
     #Gathers the time after the data to begin waiting before a T12 Reading run
-    startTime = round(time.time())
-    while((round(time.time()) - startTime) < 43200): # The number on the right side of the inequality is the total number of seconds to wait between T0 and T12 readings. 43200 seconds equals 12 hours
-        #Printing Statement for the time since the wait since starts.
-        deltaSeconds = int(round(time.time()) - startTime) 
-        hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
-        minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
-        seconds = deltaSeconds - hours*3600 - minutes * 60
-        #print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
-    print("Time Since Start: 12 Hours")
 
     # Hidex incubation workflow
     flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)
@@ -121,34 +112,34 @@ def main():
         time.sleep(3)
 
     # Run the T12 Workflow on the Registered WEI Experiment with the payload specified above to read the plate after the 12 hour wait
-    flow_info = exp.run_job(wf_path_3.resolve(), payload=payload, simulate=False)
+    # flow_info = exp.run_job(wf_path_3.resolve(), payload=payload, simulate=False)
     
-    # Pinging the status of the T0 Workflow sent to the WEI Experiment
-    flow_status = exp.query_job(flow_info["job_id"])
-    #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
-    while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
-        flow_status = exp.query_job(flow_info["job_id"])
-        time.sleep(3)
+    # # Pinging the status of the T0 Workflow sent to the WEI Experiment
+    # flow_status = exp.query_job(flow_info["job_id"])
+    # #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
+    # while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
+    #     flow_status = exp.query_job(flow_info["job_id"])
+    #     time.sleep(3)
     
-    # Receiving the Results of the now completed T0 Workflow, Creating a Path of the Run Directory, and printing the Run Information
-    run_info = flow_status["result"]
-    run_info["run_dir"] = Path(run_info["run_dir"])
-    print(run_info)
+    # # Receiving the Results of the now completed T0 Workflow, Creating a Path of the Run Directory, and printing the Run Information
+    # run_info = flow_status["result"]
+    # run_info["run_dir"] = Path(run_info["run_dir"])
+    # print(run_info)
 
-    # Accessing the T12 Reading results file path from the Hidex 
-    hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-    # Formatting the File Path from Windows to be compatible with Linux file directory settings and creating a Path
-    hidex_file_path = hidex_file_path.replace('\\', '/')
-    hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-    flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-    # Accessing the File Name
-    fname = flow_title.name
-    # Accessing the File Path
-    flow_title = flow_title.parents[0]
+    # # Accessing the T12 Reading results file path from the Hidex 
+    # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+    # # Formatting the File Path from Windows to be compatible with Linux file directory settings and creating a Path
+    # hidex_file_path = hidex_file_path.replace('\\', '/')
+    # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+    # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+    # # Accessing the File Name
+    # fname = flow_title.name
+    # # Accessing the File Path
+    # flow_title = flow_title.parents[0]
     
     #Uploading the Hidex Data to the Globus client and portal. The arguments in the function are the strings of the experiment name (exp_name), plate number (plate_n), time uploaded (time), the flow_title (local_path), and file name (fname), and the WEI Experiment Object).
     #Experiment name is T12_Reading to easily distinguish from the initial T0 Results in a Globus Portal Search
-    c2_flow(exp_name = "T12_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
+    # c2_flow(exp_name = "T12_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
 
 
 if __name__ == "__main__":

@@ -31,28 +31,29 @@ def gather_metadata(**data):
           vals = []
           for row in reader:
              vals.append(row)
-          vals[0][3] = 'Result'
-          vals[0][2] = 'Reading Hour'
+          vals[0][3] = "Result"
+          vals[0][2] = "Reading Hour"
           y_results = []
           x_concentration = [] # in the future, can directly import the concentrations through data
-          for i in range(1, (len(vals)+1)):
-            vals[i][0] = data.get('plate_n')
-            vals[i][2] = data.get('run_hour')
-            well = vals[i][1]
-            row_index = chr(well[0])
-            if ord(row_index) % 2 == 1:
-                column_index = int(well[1])
-                power_raise = column_index % 6
-                if power_raise == 0:
-                    x_concentration.append(0)
-                else:
-                    x_concentration.append(0.5**power_raise)
-                cell_reading = float(vals[i][3])
-                blank_reading = float(vals[i+12][3])
-                y_results.append(cell_reading-blank_reading)
-          slope, intercept, r_value, p_value, std_err = stats.linregress(x_concentration, y_results)
-          datal["best_fit_slope"] = slope
-          datal["best_fit_intercept"] = intercept
+          for i in range(1, (len(vals))):
+            vals[i][0] = str(data.get('plate_n'))
+            vals[i][2] = str(data.get('run_hour'))
+        #     well = vals[i][1]
+        #     row_index = chr(well[0])
+        #     if ord(row_index) % 2 == 1:
+        #         column_index = int(well[1])
+        #         power_raise = column_index % 6
+        #         if power_raise == 0:
+        #             x_concentration.append(0)
+        #         else:
+        #             x_concentration.append(0.5**power_raise)
+        #         cell_reading = float(vals[i][3])
+        #         blank_reading = float(vals[i+12][3])
+        #         y_results.append(cell_reading-blank_reading)
+        #   slope, intercept, r_value, p_value, std_err = stats.linregress(x_concentration, y_results)
+          datal["vals_component_test"] = vals[0]
+          datal["best_fit_slope"] = '0.05'
+          datal["best_fit_intercept"] = '0.2'
           datal["csvdata"] = vals
           
      elif re.match(".*contam.txt", file):

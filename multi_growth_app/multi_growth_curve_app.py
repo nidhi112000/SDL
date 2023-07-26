@@ -351,7 +351,7 @@ def determine_payload_from_excel():
     incubation_time_hours = worksheet['B2'].value
     incubation_time_seconds = incubation_time_hours * 3600
     added_items = 0
-    for i in range(2,13):
+    for i in range(2,14):
         column_letter = chr(ord('@')+i)
         run_number_cell_id = column_letter + "3"
         media_type_cell_id = column_letter + "4"
@@ -418,7 +418,7 @@ def run_experiment(total_iterations, incubation_time_sec):
                 print("Starting Disposal")
                 dispose(iterations)
                 print("Ending Disposal")
-        #Check to see if delta current time and the time at which the well plate currently incubating longest exceeds the incubation time.
+        # Check to see if delta current time and the time at which the well plate currently incubating longest exceeds the incubation time.
         if(round(time.time()) - incubation_start_times[0] > incubation_time_sec):
             #Debug Log
             print("Finishing Up Experiment ", removals, ": Ending Loop")
@@ -588,26 +588,27 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
 
     if Hidex_Used:
         t0_reading = False
-        if file_location == CREATE_PLATE_T0_FILE_PATH:
-            t0_reading = True
-        else:
-            t0_reading = False
-        hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-        hidex_file_path = hidex_file_path.replace('\\', '/')
-        hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-        flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-        fname = flow_title.name
-        flow_title = flow_title.parents[0]
-        experiment_time = str(time.strftime("%H_%M_%S", time.localtime()))
-        experiment_name = ''
-        if t0_reading:
-            experiment_name = "T0_Reading"
-        else:
-            experiment_name = "T12_Reading"
+        # t0_reading = False
+        # if file_location == CREATE_PLATE_T0_FILE_PATH:
+        #     t0_reading = True
+        # else:
+        #     t0_reading = False
+        # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+        # hidex_file_path = hidex_file_path.replace('\\', '/')
+        # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+        # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+        # fname = flow_title.name
+        # flow_title = flow_title.parents[0]
+        # experiment_time = str(time.strftime("%H_%M_%S", time.localtime()))
+        # experiment_name = ''
+        # if t0_reading:
+        #     experiment_name = "T0_Reading"
+        # else:
+        #     experiment_name = "T12_Reading"
 
-        c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, exp = exp)
-        print("Finished Uplodaing to Globus")
-        return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
+        # c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, exp = exp)
+        # print("Finished Uplodaing to Globus")
+        # return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
 
 def assign_barcode():
     current_barcode = return_barcode()
@@ -628,7 +629,7 @@ def main():
         process_experimental_results()
     except:
         print("Process Keep Trying")
-    delete_experiment_excel_file()
+    # delete_experiment_excel_file()
 
 if __name__ == "__main__":
     #main()

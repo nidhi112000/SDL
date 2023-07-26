@@ -23,7 +23,7 @@ flowdef:
     checks: null
     comment: Open Hidex Gate
 
-   - name: Move plate from Hidex to Peeler
+  - name: Move plate from Hidex to Peeler
     module: plateCrane
     action: transfer
     args:
