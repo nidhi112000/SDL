@@ -24,6 +24,21 @@ def c2_gen_graphs(**data):
 #    blank_adj_df, data_filename, plot_directory_path
     plot_paths = []
 
+    # define x-axis and x-axis ticks
+    x_axis = []
+    x_rep1 = [1,2,3,4,5,6]
+    x_rep2 = [7,8,9,10,11,12]
+
+    x_ticks = x_rep1.copy()
+    for x in x_rep2:
+        x_ticks.append(x)
+
+    for i in range(8): 
+        x_axis.append(x_rep1)
+        x_axis.append(x_rep2)
+    
+    # define plot colors and figure dimensions
+    colors = ["b","g","r","c","m","y",'tab:brown', "k"]
     blank_adj_df = pd.read_csv(ba_csv_file)
     # Graph data from each timepoint
     for timepoint in blank_adj_df.columns[3:]:
