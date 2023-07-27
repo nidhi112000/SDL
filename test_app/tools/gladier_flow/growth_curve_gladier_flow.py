@@ -83,6 +83,6 @@ def c2_flow(exp_name=None, plate_n="1",time=0, local_path="", fname="", exp=None
 if __name__ == "__main__":
     local_path = "/C/labautomation/data_wei/proc/" #location on hudson
     fname = "Campaign1_noIncubate2_20221013_150855.xlsx" #filename on hudson 
-    exp_name = "campaign_1_test"
+    exp_name = "gladier_test_app"
 
     c2_flow(exp_name=exp_name, local_path=local_path, fname=fname, time = "4")
