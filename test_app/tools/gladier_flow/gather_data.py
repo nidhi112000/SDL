@@ -24,25 +24,26 @@ def gather_metadata(**data):
 
     input_path = Path(data['proc_folder']).expanduser()
     datal = {}
-    i = 0
     for file in os.listdir(input_path):
-     if re.match(".*csv", file):
-       with open(input_path / file) as f:
-          key = "file_path_" + str(int(i))
-          datal[key] = str(input_path) + str(file)
-          reader = csv.reader(f)
-          vals = []
-          for row in reader:
-             vals.append(row)
-          datal["best_fit_slope"] = '0.05'
-          datal["best_fit_intercept"] = '0.2'
-          datal["csvdata"] = vals
+        if re.match(".*csv", file):
+            if file.startswith("blank_adj"):
+                with open(input_path / file) as f:
+                    reader = csv.reader(f)
+                    vals = []
+                    for row in reader:
+                        vals.append(row)
+                    datal["csvdata"] = vals
+            elif file.startswith("best_fit"):
+                with open(input_path / file) as f:
+                    reader = csv.reader(f)
+                    vals = []
+                    for row in reader:
+                        vals.append(row)
+                    datal["best_fit_line_data"] = vals
           
-     elif re.match(".*contam.txt", file):
-       with open(input_path / file) as f:
-         datal["contam"] =  f.read()
-
-     i = i+1
+        elif re.match(".*contam.txt", file):
+            with open(input_path / file) as f:
+                datal["contam"] =  f.read()
 
     GENERAL_METADATA.update(datal)
     final_data = data["publishv2"]
