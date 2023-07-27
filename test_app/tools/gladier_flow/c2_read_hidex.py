@@ -28,12 +28,11 @@ def excel_to_csv(**data):
     excel_OD_data = pd.read_excel(filename, sheet_name=sheet_name, index_col=None)
     excel_OD_data.columns = excel_OD_data.iloc[7][:]
     excel_OD_data = excel_OD_data[8:]
-    excel_OD_data.at[0, 3] = "Result"
-    excel_OD_data.at[0, 2] = "Reading Hour"
-    for i in range(1, (len(excel_OD_data.iloc[:, 2]))):
-        excel_OD_data.at[i][0] = str(data.get('plate_n'))
-        excel_OD_data.at[i][2] = str(data.get('run_hour'))
-    #excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
+    excel_OD_data.columns = ["Plate #", "Well", "Reading Hour", 'Result']
+    for i in range(8, len(excel_OD_data)+8):
+        excel_OD_data.loc[i, "Plate #"] = str(int(data.get('plate_n')))
+        excel_OD_data.loc[i, "Reading Hour"] = str(int(data.get('run_hour')))
+    excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
     return csv_filepath
 
 

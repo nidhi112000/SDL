@@ -75,7 +75,7 @@ def main():
     # payload["hso_3_lines"] = hso_3_lines
     # payload["hso_3_basename"] = hso_3_basename
 
-    flow_info = exp.run_job(hidex_run.resolve(), payload=payload, simulate=False)
+    flow_info = exp.run_job(platecrane_run.resolve(), payload=payload, simulate=False)
 
     flow_status = exp.query_job(flow_info["job_id"])
     while (

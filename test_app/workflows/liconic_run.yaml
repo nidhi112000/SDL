@@ -33,7 +33,7 @@ flowdef:
     module: liconic
     action: unload_plate
     args: 
-      plate_id: "2"
+      plate_id: "6"
     checks: null
     comment: Stage pcr plates
 

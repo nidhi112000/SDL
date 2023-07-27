@@ -62,20 +62,8 @@ def c2_blank_adjust(**data):
             adjusted_values_list.append(adjust)
             index+=1
 
-        blank_adj_data_frame.at[0, 3] = "Result"
-        blank_adj_data_frame.at[0, 2] = "Reading Hour"
-        for i in range(1, (len(blank_adj_data_frame.iloc[:, 2]))):
-            blank_adj_data_frame.at[i][0] = str(data.get('plate_n'))
-            blank_adj_data_frame.at[i][2] = str(data.get('run_hour'))
-
-    file_path = "/home/rpl/wei_runs/campaign_1_test_1_4adj_values_Campaign1_noIncubate2_20221013_150855.csv"
-    blank_adj_data_frame.to_csv(file_path, encoding="utf-8", index=False)
-
-    file_path_2 = "/home/rpl/wei_runs/campaign_1_test_1_4adj_values_Campaign1_noIncubate2_20221013_150855.csv"
-
-
-    #blank_adj_data_frame.to_csv( data.get("proc_folder") + "/blank_adj_" + data.get('csv_file'), encoding="utf-8", index=False)
-    with open("/home/rpl/wei_runs/campaign_1_test_1_4adj_values_Campaign1_noIncubate2_20221013_150855.csv", 'w') as f:
+    blank_adj_data_frame.to_csv( data.get("proc_folder") + "/blank_adj_" + data.get('csv_file'), encoding="utf-8", index=False)
+    with open( data.get("proc_folder") + "/adj_values_" + data.get('csv_file'), 'w') as f:
         f.write(str(adjusted_values_list))
     return 
 

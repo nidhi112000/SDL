@@ -4,9 +4,10 @@ def c2_best_fit(**data):
     import matplotlib.pyplot as plt
     import os
     import pandas as pd
-    """generate_graphs
+    import scipy.stats as stats
+    """
 
-    Description: Received a blank adjusted data frame and produces one graph per data timepoint
+    Description: Received a blank adjusted data frame and produces the line of best fit for 6 wells
 
     Parameters: 
         blank_adj_df: blank adjusted data in data frame format
@@ -14,7 +15,7 @@ def c2_best_fit(**data):
         plot_directory_path: path to the directory where all created graphs should be stored 
 
     Returns: 
-        plot_paths: a list of file paths to newly saved graphs in order of increasing data timepoint
+        best_fit_path: the file path of the excel document with the best fit line slopes and intercepts
     
     """
     plot_directory_path = data.get("proc_folder")
@@ -22,70 +23,43 @@ def c2_best_fit(**data):
     ba_csv_file =  os.path.join(plot_directory_path, "blank_adj_" + data.get('csv_file'))
     data_filename = data.get('csv_file').split('.')[0]
 #    blank_adj_df, data_filename, plot_directory_path
-    plot_paths = []
 
-    # define x-axis and x-axis ticks
-    x_axis = []
-    x_rep1 = [1,2,3,4,5,6]
-    x_rep2 = [7,8,9,10,11,12]
-
-    x_ticks = x_rep1.copy()
-    for x in x_rep2:
-        x_ticks.append(x)
-
-    for i in range(8): 
-        x_axis.append(x_rep1)
-        x_axis.append(x_rep2)
-    
-    # define plot colors and figure dimensions
-    colors = ["b","g","r","c","m","y",'tab:brown', "k"]
     blank_adj_df = pd.read_csv(ba_csv_file)
-    # Graph data from each timepoint
-    for timepoint in blank_adj_df.columns[3:]:
-        data_list = blank_adj_df[timepoint].tolist()
-        data_list = [float(x) for x in data_list]
 
-        # determine plot title and file path
-        plot_title = f"{data_filename}, timepoint = {timepoint} (seconds)"
-        plot_basename = "Test_Updates.png"
-        
-        try:
-            plot_file_path = os.path.join(plot_directory_path, plot_basename)
-            plot_paths.append(plot_file_path)
-        except OSError as e: 
-            print(e)
+    best_fit_df = pd.DataFrame(columns=["Rows", "Best Fit Slope", "Best Fit Intercept"])
+    results = blank_adj_df.columns["Result"]
+    best_fit_data = []
+    for i in range(0,16):
+        for j in range(1,7):
+            x_concentration = []
+            y_results = []
+            if j == 0:
+                x_concentration.append(0)
+            else:
+                x_concentration.append(0.5**j)
+            data_frame_index = j + i*6 + 1
+            cell_reading = float(results[1]) #Error
+            y_results.append(cell_reading)
+            slope, intercept, r_value, p_value, std_err = stats.linregress(x_concentration, y_results)
+            row_line = ''
+            reading_type = int((i - i % 2) / 2)
+            row_character = chr(65 + reading_type)
+            if i % 2 == 0:
+                row_line = row_character + "1 - " + row_character + "6"
+            else:
+                row_line = row_character + "7 - " + row_character + "12"
+                
+            new_row_data = {
+                "Rows": str(row_line), 
+                "Best Fit Slope": str(slope),
+                "Best Fit Intercept": str(intercept)
+            }
+            best_fit_data.append(new_row_data)
+            
+    best_fit_df.append(best_fit_data)
+    best_fit_df.to_csv( data.get("proc_folder") + "/best_fit_" + data.get('csv_file'), encoding="utf-8", index=False)
 
-        data_in_sets = []
-        data_rep1 = []
-        data_rep2 = []
-
-        # separate data into replicate 1 and 2
-        while not len(data_list) == 0:  
-            data_in_sets.append(data_list[:6])
-            data_in_sets.append(data_list[6:12])
-            data_rep1.append(data_list[:6])
-            data_rep2.append(data_list[6:12])
-            data_list = data_list[12:]
-
-        plt.figure(figsize=(10, 5))
-
-        # plot each replicate separately (to maintain color across replicates)
-        for i in range(len(data_rep1)): 
-            plt.plot(x_rep1, data_rep1[i], colors[i])
-        for i in range(len(data_rep2)): 
-            plt.plot(x_rep2, data_rep2[i], colors[i])
-
-        plt.legend(["Row A","Row B","Row C","Row D","Row E","Row F","Row G","Row H"], loc='center left', bbox_to_anchor=(1, 0.5), borderaxespad=0.)  #TODO: extract strain names from db
-        plt.title(plot_title)
-        plt.xticks(x_ticks)
-        plt.xlabel("Dilution (1-6) and (7-12) are replicates. 1 is most concentrated, 6 is no treatment")
-        plt.ylabel("Blank-adjusted OD(590)")
-    
-        # save figure to file
-        plt.savefig(plot_file_path)
-        plt.close() 
-
-    return plot_paths
+    return data.get("proc_folder") + "/best_fit_" + data.get('csv_file')
 
 
 @generate_flow_definition
