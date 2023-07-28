@@ -14,29 +14,29 @@ modules:
 
 flowdef:
 
-  # - name: Move tip bin from Solo Position3 to Stack4
-  #   module: plateCrane
-  #   action: transfer
-  #   args:
-  #     source: "Solo.Position3"
-  #     target: "Stack4"
-  #     source_type: "stack"
-  #     target_type: "stack"
-  #     plate_type: "tip_box_lid_off"
-  #   checks: null
-  #   comment: Place plate in Solo Position4
-
-  - name: Move tip bin from Stack4 to Solo Position3
+  - name: Move tip bin from Solo Position3 to Stack4
     module: plateCrane
     action: transfer
     args:
-      source: "Stack5"
-      target: "Solo.Position4"
+      source: "Solo.Position3"
+      target: "Stack4"
       source_type: "stack"
-      target_type: "module"
-      plate_type: "96_well"
+      target_type: "stack"
+      plate_type: "tip_box_lid_off"
     checks: null
     comment: Place plate in Solo Position4
+
+  # - name: Move tip bin from Stack4 to Solo Position3
+  #   module: plateCrane
+  #   action: transfer
+  #   args:
+  #     source: "Stack5"
+  #     target: "Solo.Position4"
+  #     source_type: "stack"
+  #     target_type: "module"
+  #     plate_type: "96_well"
+  #   checks: null
+  #   comment: Place plate in Solo Position4
 
   # - name: Move plate from PeelerNest to HidexNest
   #   module: plateCrane

@@ -1,10 +1,18 @@
 from gladier import GladierBaseClient, generate_flow_definition, GladierBaseTool
 
+# from c2_read_hidex import C2_read_hidex
+# from c2_check_contam import C2_check_contam
+# from c2_blank_adjust import C2_blank_adjust
+# from c2_gen_graphs import C2_gen_graphs
+# from gather_data import GatherMetaData
+# from c2_best_fit import C2_best_fit
+
 from .c2_read_hidex import C2_read_hidex
 from .c2_check_contam import C2_check_contam
 from .c2_blank_adjust import C2_blank_adjust
 from .c2_gen_graphs import C2_gen_graphs
 from .gather_data import GatherMetaData
+from .c2_best_fit import C2_best_fit
 import os
 
 @generate_flow_definition(modifiers={'publishv2_gather_metadata' : {'payload': '$.GatherMetadata.details.result[0]'}})
@@ -15,12 +23,13 @@ class C2Flow(GladierBaseClient):
         C2_read_hidex,
         C2_check_contam,
         C2_blank_adjust,
+        C2_best_fit,
         C2_gen_graphs,
         GatherMetaData,
        'gladier_tools.publish.Publishv2'
     ]
 
-def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
+def c2_flow(exp_name=None, plate_n="1",time=0, local_path="", fname="", exp=None, hour=0):
         exp_label = exp_name + '_' + plate_n + '_' + time
         remote_folder = os.path.join('/home/rpl/wei_runs/',exp_label)
         local_gcp = 'e69053b2-f02f-11ed-ba44-09d6a6f08166'
@@ -36,6 +45,7 @@ def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
                 'funcx_endpoint_non_compute': local_funcx, #biopotts funcx
                 'exp_name':exp_name,
                 'plate_n':plate_n,
+                'run_hour':hour,
                 'proc_folder': remote_folder,
                 'file_name': fname,
                 'csv_file': fname.split('.')[0] +".csv",
@@ -66,14 +76,13 @@ def c2_flow(exp_name=None, plate_n=0,time=0, local_path="", fname="", exp=None):
         
         # Track progress
         action_id = flow['action_id']
-        publishFlow.progress(action_id)
+        # publishFlow.progress(action_id)
         exp.events.log_gladier(label, flow['action_id'])
      
         
 if __name__ == "__main__":
-
     local_path = "/C/labautomation/data_wei/proc/" #location on hudson
     fname = "Campaign1_noIncubate2_20221013_150855.xlsx" #filename on hudson 
-    exp_name = "campaign_1_test"
+    exp_name = "gladier_test_app"
 
-    c2_flow(exp_name=exp_name, local_path=local_path, fname=fname)
+    c2_flow(exp_name=exp_name, local_path=local_path, fname=fname, time = "4")

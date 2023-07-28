@@ -61,6 +61,7 @@ def c2_blank_adjust(**data):
             blank_adj_data_frame[time_point][data_index_num] = adjust
             adjusted_values_list.append(adjust)
             index+=1
+
     blank_adj_data_frame.to_csv( data.get("proc_folder") + "/blank_adj_" + data.get('csv_file'), encoding="utf-8", index=False)
     with open( data.get("proc_folder") + "/adj_values_" + data.get('csv_file'), 'w') as f:
         f.write(str(adjusted_values_list))

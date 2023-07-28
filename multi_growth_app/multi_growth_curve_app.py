@@ -391,7 +391,7 @@ def run_experiment(total_iterations, incubation_time_sec):
     incubation_start_times = []
     print("Total Experimental Runs ", total_iterations)
     print("Current Iteration Variable: ", iterations)
-    print("Total Iterations: ", incubation_time_sec)
+    print("Incubation Time (Seconds): ", incubation_time_sec)
     # The experiment will run until all of the plates are used (indicated by iterations < total_iterations) and there are no more plates in the incubator (indicated by len(incubation_start_times) != 0)
     while(iterations < total_iterations or len(incubation_start_times) != 0):
         #Check to see if there are any more plates to run, indicated by total_iterations
@@ -588,27 +588,29 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
 
     if Hidex_Used:
         t0_reading = False
-        # t0_reading = False
-        # if file_location == CREATE_PLATE_T0_FILE_PATH:
-        #     t0_reading = True
-        # else:
-        #     t0_reading = False
-        # hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
-        # hidex_file_path = hidex_file_path.replace('\\', '/')
-        # hidex_file_path = hidex_file_path.replace("C:/", "/C/")
-        # flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
-        # fname = flow_title.name
-        # flow_title = flow_title.parents[0]
-        # experiment_time = str(time.strftime("%H_%M_%S", time.localtime()))
-        # experiment_name = ''
-        # if t0_reading:
-        #     experiment_name = "T0_Reading"
-        # else:
-        #     experiment_name = "T12_Reading"
+        if file_location == CREATE_PLATE_T0_FILE_PATH:
+            t0_reading = True
+        else:
+            t0_reading = False
+        hidex_file_path = run_info["hist"]["run Hidex"]["action_msg"]
+        hidex_file_path = hidex_file_path.replace('\\', '/')
+        hidex_file_path = hidex_file_path.replace("C:/", "/C/")
+        flow_title = Path(hidex_file_path) #Path(run_info["hist"]["run_assay"]["step_response"])
+        fname = flow_title.name
+        flow_title = flow_title.parents[0]
+        experiment_time = str(time.strftime("%H_%M_%S", time.localtime()))
+        experiment_name = ''
+        hour_read = ''
+        if t0_reading:
+            experiment_name = "T0_Reading"
+            hour_read = '0'
+        else:
+            experiment_name = "T12_Reading"
+            hour_read = '12'
 
-        # c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, exp = exp)
-        # print("Finished Uplodaing to Globus")
-        # return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
+        c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, hour=hour_read, exp = exp)
+        print("Finished Uplodaing to Globus")
+        return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
 
 def assign_barcode():
     current_barcode = return_barcode()
@@ -627,8 +629,8 @@ def main():
     run_experiment(iteration_runs, incubation_time)
     try:
         process_experimental_results()
-    except:
-        print("Process Keep Trying")
+    except Exception as e:
+        print("An exception occurred: ", e)
     # delete_experiment_excel_file()
 
 if __name__ == "__main__":
