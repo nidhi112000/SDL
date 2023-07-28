@@ -2,7 +2,7 @@
 ## Alp Demirtas
 
 ## Initial Setup and Finished Run Information
-![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/1e7b20f2-3f38-4797-a133-181871c163d1)
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/c5542ab6-f90a-49c9-a387-be9c7bfd16d6)
 
 The setup for the multiple plate growth assay application should be as follows:
 
