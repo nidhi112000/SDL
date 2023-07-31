@@ -119,4 +119,7 @@ def generate_hso_file(
         )
 
     soloSoft.shuckTip()
+    #Using last tip column in a half tip box, so tip box can smoothly be disposed.
+    soloSoft.getTip("Position3")  
+    soloSoft.shuckTip()
     soloSoft.savePipeline()

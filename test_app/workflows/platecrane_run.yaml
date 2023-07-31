@@ -26,15 +26,27 @@ flowdef:
     checks: null
     comment: Place plate in Solo Position4
 
+  # - name: Move tip bin from Solo Position3 to Stack 1
+  #   module: plateCrane
+  #   action: transfer
+  #   args:
+  #     source: "Solo.Position3"
+  #     target: "Stack1"
+  #     source_type: "stack"
+  #     target_type: "stack"
+  #     plate_type: "tip_box_lid_off"
+  #   checks: null
+  #   comment: Place plate in Solo Position4
+
   # - name: Move tip bin from Stack4 to Solo Position3
   #   module: plateCrane
   #   action: transfer
   #   args:
-  #     source: "Stack5"
-  #     target: "Solo.Position4"
+  #     source: "Solo.Position3"
+  #     target: "Stack1"
   #     source_type: "stack"
   #     target_type: "module"
-  #     plate_type: "96_well"
+  #     plate_type: "tip_box_lid_off"
   #   checks: null
   #   comment: Place plate in Solo Position4
 
