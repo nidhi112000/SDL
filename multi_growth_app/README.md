@@ -24,6 +24,25 @@ Lid Nest 3: At the beginning of the script, Lid Nest 3 will hold the second-used
 
 *Due to space allocations, the current experimental setup is configured to accomodate at most 12 well plates. At the end of 12 runs, a new cell culture serial dilution plate will be needed on the Hudson Solo, which the PlateCrane will not be able to reach.  
 
+![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/7814d759-1f13-41fd-a583-9d310d3da2dc)
+
+The positions for the Hudson Solo liquid handling steps are as follows:
+
+Position 2: At the beginning of the script, Position 2 will remain empty. It holds the growth media in a 96 deep well plate.
+
+Position 3: At the beginning of the script, Position 3 will remain empty. It holds the tip boxes.
+
+Position 4: At the beginning of the script, Position 4 will remain empty. It holds the 96 well plates.
+
+Position 5: At the beginning of the script, Position 5 will hold the stock cells in a 96 deep well plate. The stock cells remain throughout the run.
+
+Position 6: At the beginning of the script, Position 6 will remain empty. It holds the antibiotic serial dilution 96 well plates.
+
+Position 7: At the beginning of the script, Position 7 will hold the cell serial dilution 96 deep well plate. The cell serial dilution plate will remain throughout the run.
+
+Position 8: At the beginning of the script, Position 8 will hold the stock antibiotics in a 96 deep well plate. The stock antibiotics will remain throughout the run.
+
+
 ## Running the application
 
 The application uses an Excel template to run an experiment. Please download the template here: 
