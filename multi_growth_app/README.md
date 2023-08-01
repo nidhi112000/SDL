@@ -2,6 +2,8 @@
 ## Alp Demirtas
 
 ## Initial Setup and Finished Run Information
+
+### Stack Setup
 ![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/c5542ab6-f90a-49c9-a387-be9c7bfd16d6)
 
 The setup for the multiple plate growth assay application should be as follows:
@@ -24,6 +26,7 @@ Lid Nest 3: At the beginning of the script, Lid Nest 3 will hold the second-used
 
 *Due to space allocations, the current experimental setup is configured to accomodate at most 12 well plates. At the end of 12 runs, a new cell culture serial dilution plate will be needed on the Hudson Solo, which the PlateCrane will not be able to reach.  
 
+### Hudson Solo Setup
 ![image](https://github.com/AD-SDL/BIO_workcell/assets/113743603/7814d759-1f13-41fd-a583-9d310d3da2dc)
 
 The positions for the Hudson Solo liquid handling steps are as follows:
