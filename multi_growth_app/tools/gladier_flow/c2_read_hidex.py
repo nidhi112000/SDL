@@ -1,5 +1,6 @@
 from gladier import GladierBaseTool, generate_flow_definition
 
+
 def excel_to_csv(**data):
     """
     Extracts Raw OD(590) data from Hidex excel file into csv file
@@ -13,6 +14,9 @@ def excel_to_csv(**data):
     from pathlib import Path
     import pandas as pd
     import csv
+    import re
+    from io import StringIO
+
 
     filepath = data.get('proc_folder')
     filename = data.get('file_name')
@@ -33,6 +37,18 @@ def excel_to_csv(**data):
         excel_OD_data.loc[i, "Plate #"] = str(int(data.get('plate_n')))
         excel_OD_data.loc[i, "Reading Hour"] = str(int(data.get('run_hour')))
     excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
+
+    experiment_info_string = data.get('experiment_run_df')
+    # lines = re.split(r'\s{2,}', experiment_info_string.strip())
+    # columns = lines[0].split()
+    # data_rows = [line.split() for line in lines[1:]]
+    # experiment_info_df = pd.DataFrame(data_rows, columns=columns)
+
+    experiment_info_df = pd.read_csv(StringIO(experiment_info_string), sep='\t')
+
+    # csv_df = pd.concat([excel_OD_data, experiment_info_df], axis=1)
+    experiment_info_df.to_csv(csv_filepath, encoding="utf-8", index=False)
+    # excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
     return csv_filepath
 
 
