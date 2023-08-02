@@ -26,7 +26,7 @@ def gather_metadata(**data):
     datal = {}
     for file in os.listdir(input_path):
         if re.match(".*csv", file):
-            if file.startswith("blank_adj"):
+            if file.startswith("run_info"):
                 with open(input_path / file) as f:
                     reader = csv.reader(f)
                     vals = []
