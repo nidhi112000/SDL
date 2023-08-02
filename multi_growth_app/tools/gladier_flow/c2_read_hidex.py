@@ -32,7 +32,9 @@ def excel_to_csv(**data):
     for i in range(8, len(excel_OD_data)+8):
         excel_OD_data.loc[i, "Plate #"] = str(int(data.get('plate_n')))
         excel_OD_data.loc[i, "Reading Hour"] = str(int(data.get('run_hour')))
-    excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
+    csv_df = pd.concat([excel_OD_data, data.get('experiment_run_df')], axis=1)
+    csv_df.to_csv(csv_filepath, encoding="utf-8", index=False)
+    # excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
     return csv_filepath
 
 

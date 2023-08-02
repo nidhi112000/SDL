@@ -3,10 +3,11 @@
 import logging
 from argparse import ArgumentParser
 import time
-from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+from io import StringIO
+# from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-from tools.hudson_solo_auxillary.hso_functions import package_hso
-from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+# from tools.hudson_solo_auxillary.hso_functions import package_hso
+# from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -21,14 +22,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-from rpl_wei import Experiment
+# from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
 ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ORIGINAL_CELL_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-TOTAL_CELL_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
-TOTAL_TREATMENT_COLUMN_CONCENTRATION = [] #Each row represents another plate, each value is the concentration of the cell in the column of the plate
+EXPERIMENT_RUN_DATAFRAMES = []
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
 HIDEX_UPLOADS = []
@@ -49,9 +49,9 @@ READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/wo
 DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_box_plate.yaml'
 DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_growth_media.yaml'
 
-exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-exp.register_exp() 
-exp.events.log_local_compute("package_hso")
+# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+# exp.register_exp() 
+# exp.events.log_local_compute("package_hso")
 
 def sample_method_implementing_ai():
     ai_actions.load_model()
@@ -362,27 +362,81 @@ def determine_payload_from_excel():
             added_items = added_items + 1
     if(len(MEDIA_PAYLOAD) != experiment_iterations):
         experiment_iterations = len(MEDIA_PAYLOAD)
-
-    for i in range(0,12):
-        original_concentration = ORIGINAL_ANTIBIOTIC_CONCENTRATION[i]
-        single_plate_treatment_columns = []
-        for iterations in range(0,2):
-            for j in range (1,6):
-                single_plate_treatment_columns.append(original_concentration/2**j)
-            single_plate_treatment_columns.append(0)
-        TOTAL_TREATMENT_COLUMN_CONCENTRATION.append(single_plate_treatment_columns)
-
-    for i in range(0,12):
-        original_concentration = ORIGINAL_CELL_CONCENTRATION[i]
-        single_plate_cell_columns = []
-        for iterations in range(0,12):
-            single_plate_cell_columns.append(original_concentration/10)
-        TOTAL_CELL_COLUMN_CONCENTRATION.append(single_plate_cell_columns)
     
     print(CULTURE_PAYLOAD)
     print(MEDIA_PAYLOAD)
     
     return experiment_iterations, incubation_time_seconds
+
+def setup_experiment_run_dataframes_from_stocks():
+    global EXPERIMENT_RUN_DATAFRAMES
+    
+    stock_cell_dictionary = return_stock_dictionary("stock_cell_concentration.csv")
+    stock_antibiotic_dictionary = return_stock_dictionary("stock_treatment_concentration.csv")
+
+    for i in range(0, len(MEDIA_PAYLOAD)):
+        global_stock_dictionary = {}
+
+        #Setting up the keys in the dictionary with a blank array
+        for key in stock_antibiotic_dictionary:
+            if key != "Well":
+                global_dictionary_key = "Antibiotic " + key
+                global_dictionary_key= global_dictionary_key.replace(" ", "_")
+
+                global_stock_dictionary[global_dictionary_key] = []
+        for key in stock_cell_dictionary:
+            if key != "Well":
+                global_dictionary_key = "Cell " + key
+                global_dictionary_key= global_dictionary_key.replace(" ", "_")
+                global_stock_dictionary[global_dictionary_key] = []
+
+        #Filling in the array for each key
+        cell_column = CULTURE_PAYLOAD[i]
+        antibiotic_column = MEDIA_PAYLOAD[i]
+        for i in range(0,8):
+            for j in range(1,13):
+                for key in stock_antibiotic_dictionary: 
+                    if key != "Well":
+                        key_column = stock_antibiotic_dictionary[key]
+                        array_index = antibiotic_column - 1 + 12 * i
+                        key_value = key_column[array_index]
+                        if str(key_value).lower() == "nan":
+                            key_value = "None"
+                        elif key == "Concentration (M)":
+                            mod_six_j = j % 6
+                            if mod_six_j == 0:
+                                key_value = "0"
+                            else:
+                                power_raise = mod_six_j + 1
+                                key_value = str(float(key_value)/2**power_raise)
+                        global_dictionary_key = "Antibiotic " + key
+                        global_dictionary_key= global_dictionary_key.replace(" ", "_")
+                        global_stock_dictionary[global_dictionary_key].append(key_value)
+                for key in stock_cell_dictionary:
+                    if key != "Well":
+                        key_column = stock_cell_dictionary[key]
+                        array_index = cell_column - 1 + 12 * i
+                        key_value = key_column[array_index]
+                        if key == "Concentration (M)":
+                                key_value = str(float(key_value)/10)
+                        global_dictionary_key = "Cell " + key
+                        global_dictionary_key = global_dictionary_key.replace(" ", "_")
+                        global_stock_dictionary[global_dictionary_key].append(key_value)
+
+        #Converting the dictionary into a Dataframe
+        run_info_df = pd.DataFrame.from_dict(global_stock_dictionary)
+        EXPERIMENT_RUN_DATAFRAMES.append(run_info_df)
+
+def return_stock_dictionary(file_name):
+    #file_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs\\stock_plate_information\\" + file_name
+    file_path = str(pathlib.Path().resolve()) + "/active_runs/stock_plate_information/" + file_name
+    stock_df = pd.read_csv(file_path)
+
+    stock_dictionary = {}
+    for column in stock_df.columns:
+        stock_dictionary[column] = stock_df[column].tolist()
+
+    return stock_dictionary
 
 #BIO Workflow Functions
 def run_experiment(total_iterations, incubation_time_sec): 
@@ -529,7 +583,7 @@ def T0_Reading(liconic_plate_id):
     payload['hso_3_basename'] = hso_3_basename
 
     # #run Growth Create Plate
-    hidex_upload_id=run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id)
+    hidex_upload_id=run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id, Experiment_Run_Dataframe = EXPERIMENT_RUN_DATAFRAMES[liconic_plate_id-1])
 
     HIDEX_UPLOADS.append(hidex_upload_id)
     COMPLETED_ANTIBIOTIC_COLUMNS.append(treatment_col_id)
@@ -571,10 +625,10 @@ def T12_Reading(liconic_plate_id):
     payload['hso_3_basename'] = hso_3_basename
 
     # # #run Growth Create Plate
-    hidex_upload_id=run_WEI(READ_PLATE_T12_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id)
+    hidex_upload_id=run_WEI(READ_PLATE_T12_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id, Experiment_Run_Dataframe = EXPERIMENT_RUN_DATAFRAMES[liconic_plate_id-1])
     HIDEX_UPLOADS.append(hidex_upload_id)
 
-def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
+def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0, Experiment_Run_Dataframe = None):
     flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
 
     flow_status = exp.query_job(flow_info["job_id"])
@@ -607,8 +661,7 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0):
         else:
             experiment_name = "T12_Reading"
             hour_read = '12'
-
-        c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, hour=hour_read, exp = exp)
+        c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, hour=hour_read, experiment_run_dataframe = Experiment_Run_Dataframe, exp = exp)
         print("Finished Uplodaing to Globus")
         return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
 
@@ -626,11 +679,13 @@ def return_barcode():
 #Experiment Run
 def main():
     iteration_runs, incubation_time = determine_payload_from_excel()
-    run_experiment(iteration_runs, incubation_time)
-    try:
-        process_experimental_results()
-    except Exception as e:
-        print("An exception occurred: ", e)
+    setup_experiment_run_dataframes_from_stocks()
+
+    # run_experiment(iteration_runs, incubation_time)
+    # try:
+    #     process_experimental_results()
+    # except Exception as e:
+    #     print("An exception occurred: ", e)
     # delete_experiment_excel_file()
 
 if __name__ == "__main__":
