@@ -4,10 +4,10 @@ import logging
 from argparse import ArgumentParser
 import time
 from io import StringIO
-from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+# from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-from tools.hudson_solo_auxillary.hso_functions import package_hso
-from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+# from tools.hudson_solo_auxillary.hso_functions import package_hso
+# from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -22,7 +22,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-from rpl_wei import Experiment
+# from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
@@ -51,9 +51,9 @@ DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_
 
 OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/open_close_hidex.yaml'
 
-exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-exp.register_exp() 
-exp.events.log_local_compute("package_hso")
+# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+# exp.register_exp() 
+# exp.events.log_local_compute("package_hso")
 
 def sample_method_implementing_ai():
     ai_actions.load_model()
@@ -684,7 +684,7 @@ def main():
     iteration_runs, incubation_time = determine_payload_from_excel()
     setup_experiment_run_dataframes_from_stocks()
     run_WEI(OPEN_CLOSE_HIDEX_FILE_PATH, None, True, 1, EXPERIMENT_RUN_DATAFRAMES[0])
-    
+
 
     # run_experiment(iteration_runs, incubation_time)
     # try:
