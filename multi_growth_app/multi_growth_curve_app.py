@@ -49,6 +49,8 @@ READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/wo
 DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_box_plate.yaml'
 DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_growth_media.yaml'
 
+OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/open_close_hidex.yaml'
+
 exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
 exp.register_exp() 
 exp.events.log_local_compute("package_hso")
@@ -388,7 +390,7 @@ def determine_payload_from_excel():
 def run_experiment(total_iterations, incubation_time_sec): 
     iterations = 0
     removals = 0
-    incubation_start_times = []
+    incubation_start_times = [] 
     print("Total Experimental Runs ", total_iterations)
     print("Current Iteration Variable: ", iterations)
     print("Incubation Time (Seconds): ", incubation_time_sec)
@@ -399,12 +401,12 @@ def run_experiment(total_iterations, incubation_time_sec):
             #Debug Log
             print("Starting Experiment ", iterations, ": Started Loop")
             #Set up the experiment based on the number of iterations passed.
-            setup(iterations)
+            # setup(iterations)
             #Calculate the ID of the plate needed for incubation based on the number of iterations that have passed
             liconic_id = iterations + 1
             #Run the experiment from the Hudson Solo step to the incubation step at a specified Liconic ID
             print("Starting T0 Reading")
-            T0_Reading(liconic_id)
+            # T0_Reading(liconic_id)
             print("Finished T0 Reading")
             assign_barcode()
             #Add the time of the incubation start to the array of 96 well plates that are currently in the incubator
@@ -416,7 +418,7 @@ def run_experiment(total_iterations, incubation_time_sec):
             #Based on the total number of completed incubation iterations, determine what needs to be disposed of from the experimental setup.
             if(iterations % 2 == 0):
                 print("Starting Disposal")
-                dispose(iterations)
+                # dispose(iterations)
                 print("Ending Disposal")
         # Check to see if delta current time and the time at which the well plate currently incubating longest exceeds the incubation time.
         if(round(time.time()) - incubation_start_times[0] > incubation_time_sec):
@@ -625,8 +627,8 @@ def return_barcode():
 
 #Experiment Run
 def main():
-    iteration_runs, incubation_time = determine_payload_from_excel()
-    run_experiment(iteration_runs, incubation_time)
+    # iteration_runs, incubation_time = determine_payload_from_excel()
+    run_experiment(0, 43200)#(iteration_runs, incubation_time)
     try:
         process_experimental_results()
     except Exception as e:
