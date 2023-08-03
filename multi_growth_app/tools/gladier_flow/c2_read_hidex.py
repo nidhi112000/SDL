@@ -32,23 +32,13 @@ def excel_to_csv(**data):
     excel_OD_data = pd.read_excel(filename, sheet_name=sheet_name, index_col=None)
     excel_OD_data.columns = excel_OD_data.iloc[7][:]
     excel_OD_data = excel_OD_data[8:]
+    excel_OD_data.reset_index(drop=True, inplace=True)
     excel_OD_data.columns = ["Plate #", "Well", "Reading Hour", 'Result']
-    for i in range(8, len(excel_OD_data)+8):
+    for i in range(0,len(excel_OD_data)):#(8, len(excel_OD_data)+8):
         excel_OD_data.loc[i, "Plate #"] = str(int(data.get('plate_n')))
         excel_OD_data.loc[i, "Reading Hour"] = str(int(data.get('run_hour')))
     excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
 
-    experiment_info_string = data.get('experiment_run_df')
-    # lines = re.split(r'\s{2,}', experiment_info_string.strip())
-    # columns = lines[0].split()
-    # data_rows = [line.split() for line in lines[1:]]
-    # experiment_info_df = pd.DataFrame(data_rows, columns=columns)
-
-    experiment_info_df = pd.read_csv(StringIO(experiment_info_string), sep='\t')
-
-    # csv_df = pd.concat([excel_OD_data, experiment_info_df], axis=1)
-    experiment_info_df.to_csv(csv_filepath, encoding="utf-8", index=False)
-    # excel_OD_data.to_csv(csv_filepath, encoding="utf-8", index=False)
     return csv_filepath
 
 

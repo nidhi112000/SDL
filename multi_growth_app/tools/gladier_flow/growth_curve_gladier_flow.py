@@ -13,6 +13,7 @@ from .c2_blank_adjust import C2_blank_adjust
 from .c2_gen_graphs import C2_gen_graphs
 from .gather_data import GatherMetaData
 from .c2_best_fit import C2_best_fit
+from .c2_run_info import C2_Add_Run_Info
 import os
 
 @generate_flow_definition(modifiers={'publishv2_gather_metadata' : {'payload': '$.GatherMetadata.details.result[0]'}})
@@ -25,11 +26,12 @@ class C2Flow(GladierBaseClient):
         C2_blank_adjust,
         C2_best_fit,
         C2_gen_graphs,
+        C2_Add_Run_Info,
         GatherMetaData,
        'gladier_tools.publish.Publishv2'
     ]
 
-def c2_flow(exp_name=None, plate_n="1",time=0, local_path="", fname="", exp=None, hour=0, experiment_run_dataframe = None):
+def c2_flow(exp_name=None, plate_n="1",time=0, local_path="", fname="", exp=None, hour=0, experiment_run_dataframe = ''):
         exp_label = exp_name + '_' + plate_n + '_' + time
         remote_folder = os.path.join('/home/rpl/wei_runs/',exp_label)
         local_gcp = 'e69053b2-f02f-11ed-ba44-09d6a6f08166'

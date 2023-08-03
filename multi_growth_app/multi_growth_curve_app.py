@@ -4,10 +4,10 @@ import logging
 from argparse import ArgumentParser
 import time
 from io import StringIO
-# from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-# from tools.hudson_solo_auxillary.hso_functions import package_hso
-# from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+from tools.hudson_solo_auxillary.hso_functions import package_hso
+from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -22,7 +22,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-# from rpl_wei import Experiment
+from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
@@ -51,9 +51,9 @@ DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_
 
 OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/open_close_hidex.yaml'
 
-# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-# exp.register_exp() 
-# exp.events.log_local_compute("package_hso")
+exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+exp.register_exp() 
+exp.events.log_local_compute("package_hso")
 
 def sample_method_implementing_ai():
     ai_actions.load_model()
@@ -322,13 +322,11 @@ def setup_experiment_run_dataframes_from_stocks():
         for key in stock_antibiotic_dictionary:
             if key != "Well":
                 global_dictionary_key = "Antibiotic " + key
-                global_dictionary_key= global_dictionary_key.replace(" ", "_")
 
                 global_stock_dictionary[global_dictionary_key] = []
         for key in stock_cell_dictionary:
             if key != "Well":
                 global_dictionary_key = "Cell " + key
-                global_dictionary_key= global_dictionary_key.replace(" ", "_")
                 global_stock_dictionary[global_dictionary_key] = []
 
         #Filling in the array for each key
@@ -351,7 +349,6 @@ def setup_experiment_run_dataframes_from_stocks():
                                 power_raise = mod_six_j + 1
                                 key_value = str(float(key_value)/2**power_raise)
                         global_dictionary_key = "Antibiotic " + key
-                        global_dictionary_key= global_dictionary_key.replace(" ", "_")
                         global_stock_dictionary[global_dictionary_key].append(key_value)
                 for key in stock_cell_dictionary:
                     if key != "Well":
@@ -361,7 +358,6 @@ def setup_experiment_run_dataframes_from_stocks():
                         if key == "Concentration (M)":
                                 key_value = str(float(key_value)/10)
                         global_dictionary_key = "Cell " + key
-                        global_dictionary_key = global_dictionary_key.replace(" ", "_")
                         global_stock_dictionary[global_dictionary_key].append(key_value)
 
         #Converting the dictionary into a Dataframe
@@ -602,7 +598,7 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0, 
         else:
             experiment_name = "T12_Reading"
             hour_read = '12'
-        exp_run_df_string = Experiment_Run_Dataframe.to_string()
+        exp_run_df_string = Experiment_Run_Dataframe.to_csv(index=False)
         c2_flow(exp_name = experiment_name, plate_n = str(int(Plate_Number)), time = experiment_time, local_path=flow_title, fname = fname, hour=hour_read, experiment_run_dataframe = exp_run_df_string, exp = exp)
         print("Finished Uplodaing to Globus")
         return experiment_name + '_' + str(int(Plate_Number)) + '_' + experiment_time
