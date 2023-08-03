@@ -76,15 +76,7 @@ def process_experimental_results():
     globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour', 'Result'])
     #Here, we are uploading all of the
     for upload_id in HIDEX_UPLOADS:
-        is_t0_run = False
-        run_number = 0
-        if upload_id.startswith("T0_") :
-            is_t0_run = True
-            run_number = int(upload_id[11:-9])
-        elif upload_id.startswith("T12_"):
-            is_t0_run = False
-            run_number = int(upload_id[12:-9])
-        single_reading_df = read_globus_data(title_name = upload_id, t0_reading = is_t0_run, plate_number=run_number)
+        single_reading_df = read_globus_data(title_name = upload_id)
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
 
     print(globus_runs_df)
@@ -136,28 +128,6 @@ def process_experimental_results():
     print(antibiotic_columns)
     print(cell_columns)
 
-    antibiotic_concentrations_list = []
-    for antibiotic_column in antibiotic_columns:
-        antibioitic_index = antibiotic_column - 1
-        single_column_antibiotic_concentration_list = TOTAL_TREATMENT_COLUMN_CONCENTRATION[antibioitic_index]
-        single_plate_all_antibiotic_concentrations = []
-        for i in range(0,8):
-            for j in range(0,12):
-                single_plate_all_antibiotic_concentrations.append(single_column_antibiotic_concentration_list[j])
-        antibiotic_concentrations_list.append(single_plate_all_antibiotic_concentrations)
-
-    cell_concentrations_list = []
-    for cell_column in cell_columns:
-        cell_index = cell_column - 1
-        single_column_cell_concentration_list = TOTAL_CELL_COLUMN_CONCENTRATION[cell_index]
-        single_plate_all_cell_concentrations = []
-        for i in range(0,8):
-            for j in range(0,12):
-                single_plate_all_cell_concentrations.append(single_column_cell_concentration_list[j])
-        cell_concentrations_list.append(single_plate_all_cell_concentrations)
-
-    print(antibiotic_concentrations_list)
-    print(cell_concentrations_list)
 
     folder_path = str(pathlib.Path().resolve()) + "/completed_runs/"
     #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
@@ -259,7 +229,7 @@ def process_experimental_results():
     COMPLETED_ANTIBIOTIC_COLUMNS = []
     PLATE_BARCODES = []
 
-def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
+def read_globus_data(title_name = ''):
     print("Reading Globus Data -- Accessed Chrome")
     driver = webdriver.Chrome()
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
@@ -284,38 +254,7 @@ def read_globus_data(title_name = '', t0_reading = True, plate_number = 0):
     
     driver.quit()
 
-    # globus_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour'])
-    # plate_array = [plate_number] * 96
-    # globus_df['Plate #'] = plate_array
-    # if t0_reading == True:
-    #     times_array = ["T0"] * 96
-    #     globus_df['Reading Hour'] = times_array
-    # else: 
-    #     times_array = ["T12"] * 96
-    #     globus_df['Reading Hour'] = times_array
-    # well_indices =[]
-    # for i in range (0, 96):
-    #     well_index = chr(65 + int((i - i % 12)/12)) + str(int(i % 12 + 1))
-    #     well_indices.append(well_index)
-    # globus_df["Well"] = well_indices
-    # results_list = table_data[0]
-    # results_list[0] = results_list[0][1:]
-    # results_list[len(results_list)-1] = results_list[len(results_list)-1][:-1]
-    # globus_df['Result'] = results_list
-
-
     globus_df = pd.DataFrame(table_data)
-    globus_df.iloc[0][3] = 'Result'
-    globus_df.iloc[0][2] = 'Reading Hour'
-    globus_df.columns = globus_df.iloc[0]
-    globus_df = globus_df[1:]
-    globus_df = globus_df.reset_index(drop=True)
-    globus_df['Plate #'] = plate_number
-    if t0_reading == True:
-        globus_df.iloc[:, 2] = "T0"
-    else: 
-        globus_df.iloc[:, 2] = "T12"
-
     return globus_df
 
 def return_line_of_best_fit(worksheet):
