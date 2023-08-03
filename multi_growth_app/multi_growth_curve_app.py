@@ -73,10 +73,14 @@ def process_experimental_results():
     global CULTURE_PAYLOAD
     global MEDIA_PAYLOAD
 
-    globus_runs_df = pd.DataFrame(columns=['Plate #', 'Well', 'Reading Hour', 'Result'])
+    globus_runs_df = pd.DataFrame()
+    re_indexed = False
     #Here, we are uploading all of the
     for upload_id in HIDEX_UPLOADS:
         single_reading_df = read_globus_data(title_name = upload_id)
+        if re_indexed != True:
+            globus_runs_df = single_reading_df.reindex(columns=single_reading_df.columns, fill_value=None)
+            re_indexed = True
         globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
 
     print(globus_runs_df)
@@ -85,60 +89,25 @@ def process_experimental_results():
     old_t0_run_ids = old_t0_run_ids.astype(int)
 
     globus_runs_df['Plate #'] = globus_runs_df['Plate #'].astype(int)
-    filter_check_runs_df = globus_runs_df.copy()
-    filter_check_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
-    filter_check_runs_df.reset_index(drop=True, inplace=True)
+    globus_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
+    globus_runs_df.reset_index(drop=True, inplace=True)
 
-    #Filtering runs without a t0 or t12 variable
-    plates_to_remove = []
-    prev_start_time = None
-    for index, row in filter_check_runs_df.iterrows():
-        current_start_time = row['Reading Hour']
-        if prev_start_time is None:
-            prev_start_time = current_start_time
-        elif prev_start_time == current_start_time:
-            plates_to_remove.append(row['Plate #'])
-        else:
-            prev_start_time = current_start_time
-    filtered_globus_runs_df = globus_runs_df[~globus_runs_df['Plate #'].isin(plates_to_remove)]
+    t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
+    t0_run_ids = t0_run_ids.astype(int)
 
-    print(filtered_globus_runs_df)
-
-    filtered_t0_run_ids = filtered_globus_runs_df['Plate #'].drop_duplicates().values
-    filtered_t0_run_ids = filtered_t0_run_ids.astype(int)
-
-    removed_plate_numbers = set(plates_to_remove)
-    num_removed_plates = len(removed_plate_numbers)
-
-    cell_columns = []
-    antibiotic_string_columns = []
     barcodes = []
     
-    for run_id in filtered_t0_run_ids:
+    for run_id in t0_run_ids:
         info_index = old_t0_run_ids.tolist().index(run_id)
-        cell_columns.append(COMPLETED_CELL_COLUMNS[info_index])
-        antibiotic_string_columns.append(COMPLETED_ANTIBIOTIC_COLUMNS[info_index])
         barcodes.append(PLATE_BARCODES[info_index])
 
-    antibiotic_columns = []
-    for string_column in antibiotic_string_columns:
-        integer_value = int(string_column[3:])
-        antibiotic_columns.append(integer_value)
-
-    print(antibiotic_columns)
-    print(cell_columns)
-
-
-    folder_path = str(pathlib.Path().resolve()) + "/completed_runs/"
-    #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
-    current_sheet_index = 1
+    # folder_path = str(pathlib.Path().resolve()) + "/completed_runs/"
+    folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
 
     if CREATED_COMPLETED_FILE:
         print("Completed File Name ", COMPLETED_FILE_NAME)
         path_name = folder_path + COMPLETED_FILE_NAME
         completed_workbook = openpyxl.load_workbook(path_name)
-        num_sheets = len(completed_workbook.worksheets)
-        current_sheet_index = num_sheets + 1
 
     else:
         print("Creating Excel Object")
@@ -155,69 +124,31 @@ def process_experimental_results():
         default_sheet = completed_workbook.active
         completed_workbook.remove(default_sheet)
 
-    for i in range(0, len(filtered_t0_run_ids)):
-        sheet_name = "Run " + str(int(i + 1))
+    for i in range(0, len(t0_run_ids)):
+        sheet_name = "Run " + str(int(i + 1)) + " -- Barcode " + barcodes[i]
         current_sheet = completed_workbook.create_sheet(sheet_name)
-        t0_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Reading Hour'] == 'T0')].copy()
+        # Make this so that it just has T0, T + reading hour for each one
+        plate_runs = globus_runs_df[(globus_runs_df['Plate #'] == t0_run_ids[i])].copy()
+        reading_hours = globus_runs_df['Plate #'].drop_duplicates().values
+        reading_hours = reading_hours.astype(int)
+        reading_hours = np.sort(reading_hours)
+        t0_specific_run_df = plate_runs[(int(globus_runs_df['Reading Hour']) == 0)].copy()
         t0_specific_run_df.reset_index(drop=True, inplace=True)
+        t0_specific_run_df = t0_specific_run_df.loc[:, ['Result', 'Blank Adjusted Result']]
+        t0_specific_run_df.rename(columns={'Result': 'T0 Result', 'Blank Adjusted Result': 'T0 Blank Adjusted Result'}, inplace=True)
+        t0_part_1 = t0_specific_run_df.iloc[:, :5]
+        t0_part_2 = t0_specific_run_df.iloc[:, 5:]
         print(t0_specific_run_df)
-        t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (globus_runs_df['Reading Hour'] == 'T12')].copy()
+        t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (int(globus_runs_df['Reading Hour']) >= 12)].copy()
         t12_specific_run_df.reset_index(drop=True, inplace=True)
+        t12_specific_run_df.rename(columns={'Result': 'T12 Result', 'Blank Adjusted Result': 'T12 Blank Adjusted Result'}, inplace=True)
         print(t12_specific_run_df)
-        print("antibiotic column ", antibiotic_columns)
-        runs_df = pd.DataFrame(columns=['Well', 'Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Growth Rate', 'T0 Reading', 'T12 Reading'])
-        control_df = pd.DataFrame(columns=['Well', 'Treatment Column', 'Treatment Concentration', 'Cell Column', 'Cell Concentration', 'Blank Growth Rate', 'Blank T0 Reading', 'Blank T12 Reading'])
-        for j in range(0,96):
-            t0_growth_value = float(t0_specific_run_df.loc[j, 'Result'])
-            t12_growth_value = float(t12_specific_run_df.loc[j, 'Result'])
-            growth_rate = t12_growth_value - t0_growth_value
-            well_index = chr(65 + int((j - j % 12)/12)) + str(int(j % 12 + 1))
-            if((j-j%12)/12)%2 == 0:
-                latest_row = {
-                    'Well' : well_index,
-                    'Treatment Column': antibiotic_columns[i], 
-                    'Treatment Concentration': antibiotic_concentrations_list[i][j],
-                    'Cell Column': cell_columns[i],
-                    'Cell Concentration': cell_concentrations_list[i][j],
-                    'Growth Rate' : growth_rate,
-                    'T0 Reading' : t0_growth_value,
-                    'T12 Reading' : t12_growth_value
-                }
-                latest_row_df = pd.DataFrame(latest_row, index=[0])
-                runs_df = pd.concat([runs_df, latest_row_df], ignore_index=True)
-            else:
-                blank_latest_row = {
-                    'Well' : well_index,
-                    'Treatment Column': 0.0, 
-                    'Treatment Concentration': 0.0,
-                    'Cell Column': 0.0,
-                    'Cell Concentration': 0.0,
-                    'Blank Growth Rate' : growth_rate,
-                    'Blank T0 Reading' : t0_growth_value,
-                    'Blank T12 Reading' : t12_growth_value
-                }
-                blank_latest_row = pd.DataFrame(blank_latest_row, index=[0])
-                control_df = pd.concat([control_df, blank_latest_row], ignore_index=True)
         
-        for _ in range (0,3):
-            current_sheet.append([])
-    
+        runs_df = pd.concat([t12_part_1, t0_specific_run_df,t12_part_2], axis=1)
+
         for row in dataframe_to_rows(runs_df, index=False, header=True):
             current_sheet.append(row)
-        
-        current_sheet.append([])
 
-        for row in dataframe_to_rows(control_df, index=False, header=True):
-            current_sheet.append(row)
-
-        current_sheet['A1'] = "Barcode Number"
-        current_sheet['B1'] = barcodes[i]
-
-        current_sheet['A2'] = "Slope (Best-Fit Line)"
-        slope,intercept = return_line_of_best_fit(current_sheet)
-        current_sheet['B2'] = slope
-        current_sheet['C2'] = "Y-Intercept (Best-Fit Line)"
-        current_sheet['D2'] = intercept
 
     save_path = folder_path + COMPLETED_FILE_NAME
     completed_workbook.save(save_path)
@@ -241,10 +172,7 @@ def read_globus_data(title_name = ''):
     link_element = driver.find_element(By.LINK_TEXT, title_name)
     link_element.click()
 
-    parent_element = driver.find_element("css selector", ".col-md-6")
-    table_elements = parent_element.find_elements(By.TAG_NAME, "table")
-    desired_table_element = table_elements[1]
-
+    desired_table_element = driver.find_element(By.XPATH, "(//table[@class='table table-striped table-bordered'])[2]")
     rows = desired_table_element.find_elements(By.TAG_NAME, "tr")
     table_data = []
     for row in rows:
@@ -256,18 +184,6 @@ def read_globus_data(title_name = ''):
 
     globus_df = pd.DataFrame(table_data)
     return globus_df
-
-def return_line_of_best_fit(worksheet):
-    x_data = []
-    y_data = []
-    for i in range(5,53):
-        x_data_index = "C" + str(int(i))
-        x_data.append(worksheet[x_data_index].value)
-
-        y_data_index = "F" + str(int(i))
-        y_data.append(worksheet[y_data_index].value)
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x_data, y_data)
-    return slope, intercept
 
 def delete_experiment_excel_file():
     global EXPERIMENT_FILE_PATH
@@ -618,7 +534,6 @@ def return_barcode():
 def main():
     iteration_runs, incubation_time = determine_payload_from_excel()
     setup_experiment_run_dataframes_from_stocks()
-    run_WEI(OPEN_CLOSE_HIDEX_FILE_PATH, None, True, 1, EXPERIMENT_RUN_DATAFRAMES[0])
 
 
     # run_experiment(iteration_runs, incubation_time)
