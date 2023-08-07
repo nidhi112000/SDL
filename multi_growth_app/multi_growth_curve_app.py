@@ -4,10 +4,10 @@ import logging
 from argparse import ArgumentParser
 import time
 from io import StringIO
-# from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-# from tools.hudson_solo_auxillary.hso_functions import package_hso
-# from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+from tools.hudson_solo_auxillary.hso_functions import package_hso
+from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -22,17 +22,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-# from rpl_wei import Experiment
+from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
-ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-ORIGINAL_CELL_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 EXPERIMENT_RUN_DATAFRAMES = []
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
-HIDEX_UPLOADS = ["T12_Reading_1_16_49_31", "T12_Reading_1_16_43_54", "T12_Reading_1_16_33_50"]
-PLATE_BARCODES = ["1", "2"]
+HIDEX_UPLOADS = []
+PLATE_BARCODES = []
 CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
 EXPERIMENT_FILE_PATH = ''
@@ -49,15 +47,17 @@ DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_
 
 OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/open_close_hidex.yaml'
 
-# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-# exp.register_exp() 
-# exp.events.log_local_compute("package_hso")
+exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+exp.register_exp() 
+exp.events.log_local_compute("package_hso")
 
 def sample_method_implementing_ai():
     ai_actions.load_model()
     path_name = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\" + "07-20-2023 at 13.19.40 Completed Run.xlsx"
     ai_actions.train_model(path_name)
-    treatment_column, treatment_concentration, cell_column, cell_concentration, predictions = ai_actions.predict_experiment(3 ,ORIGINAL_ANTIBIOTIC_CONCENTRATION, ORIGINAL_CELL_CONCENTRATION)
+    SAMPLE_DATA_FOR_MODEL_ORIGINAL_ANTIBIOTIC_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    SAMPLE_DATA_FOR_MODEL_ORIGINAL_CELL_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    treatment_column, treatment_concentration, cell_column, cell_concentration, predictions = ai_actions.predict_experiment(3 ,SAMPLE_DATA_FOR_MODEL_ORIGINAL_ANTIBIOTIC_CONCENTRATION, SAMPLE_DATA_FOR_MODEL_ORIGINAL_CELL_CONCENTRATION)
     ai_actions.save_model()
 
 #Data Processing Functions
@@ -82,23 +82,20 @@ def process_experimental_results():
             globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
         iteration = iteration + 1
 
-    old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
-    old_t0_run_ids = old_t0_run_ids.astype(int)
+    run_ids = globus_runs_df['Plate #'].drop_duplicates().values
+    run_ids = run_ids.astype(int)
 
     globus_runs_df['Plate #'] = globus_runs_df['Plate #'].astype(int)
-    globus_runs_df.sort_values(by=['Plate #', 'Well'], inplace=True)
     globus_runs_df.reset_index(drop=True, inplace=True)
 
-    t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
-    t0_run_ids = t0_run_ids.astype(int)
     barcodes = []
     
-    for run_id in t0_run_ids:
-        info_index = old_t0_run_ids.tolist().index(run_id)
+    for run_id in run_ids:
+        info_index = run_ids.tolist().index(run_id)
         barcodes.append(PLATE_BARCODES[info_index])
 
-    # folder_path = str(pathlib.Path().resolve()) + "/completed_runs/"
-    folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
+    folder_path = str(pathlib.Path().resolve()) + "/completed_runs/"
+    # folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\completed_runs\\"
 
     if CREATED_COMPLETED_FILE:
         print("Completed File Name ", COMPLETED_FILE_NAME)
@@ -120,11 +117,11 @@ def process_experimental_results():
         default_sheet = completed_workbook.active
         completed_workbook.remove(default_sheet)
 
-    for i in range(0, len(t0_run_ids)):
+    for i in range(0, len(run_ids)):
         sheet_name = "Run " + str(int(i + 1)) + " -- Barcode " + barcodes[i]
         current_sheet = completed_workbook.create_sheet(sheet_name)
         # Make this so that it just has T0, T + reading hour for each one
-        plate_runs = globus_runs_df[(globus_runs_df['Plate #'] == t0_run_ids[i])].copy()
+        plate_runs = globus_runs_df[(globus_runs_df['Plate #'] == run_ids[i])].copy()
         reading_hours = plate_runs['Reading Hour'].drop_duplicates().values
         reading_hours = reading_hours.astype(int)
         reading_hours = np.sort(reading_hours)
@@ -160,8 +157,8 @@ def process_experimental_results():
     PLATE_BARCODES = []
 
 def read_globus_data(title_name = ''):
-    # path_to_chrome_driver = str(pathlib.Path().resolve()) + "/tools/selenium_drivers/chromedriver.exe"
-    chrome_driver_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\tools\\selenium_drivers\\chromedriver.exe"
+    chrome_driver_path = str(pathlib.Path().resolve()) + "/tools/selenium_drivers/chromedriver.exe"
+    # chrome_driver_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\tools\\selenium_drivers\\chromedriver.exe"
     driver = webdriver.Chrome(executable_path=chrome_driver_path)
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
     search_bar = driver.find_element(By.ID, "search-input")
@@ -187,14 +184,6 @@ def read_globus_data(title_name = ''):
     globus_df = globus_df.iloc[1:]
     globus_df.reset_index(drop=True, inplace=True)
 
-    if title_name == "T12_Reading_1_16_43_54":
-        globus_df["Reading Hour"] = "0"
-        globus_df["Plate #"] = "1"
-    elif title_name == "T12_Reading_1_16_33_50":
-        globus_df["Reading Hour"] = "8"
-        globus_df["Plate #"] = "2"
-
-
     return globus_df
 
 def delete_experiment_excel_file():
@@ -206,8 +195,8 @@ def determine_payload_from_excel():
     global EXPERIMENT_FILE_PATH
 
     print("Run Log Starts Now")
-    folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs"
-    # folder_path = str(pathlib.Path().resolve()) + "/active_runs"
+    # folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs"
+    folder_path = str(pathlib.Path().resolve()) + "/active_runs"
     files = os.listdir(folder_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
     sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
@@ -293,8 +282,8 @@ def setup_experiment_run_dataframes_from_stocks():
         EXPERIMENT_RUN_DATAFRAMES.append(run_info_df)
 
 def return_stock_dictionary(file_name):
-    file_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs\\stock_plate_information\\" + file_name
-    # file_path = str(pathlib.Path().resolve()) + "/active_runs/stock_plate_information/" + file_name
+    # file_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs\\stock_plate_information\\" + file_name
+    file_path = str(pathlib.Path().resolve()) + "/active_runs/stock_plate_information/" + file_name
     stock_df = pd.read_csv(file_path)
 
     stock_dictionary = {}
@@ -318,12 +307,12 @@ def run_experiment(total_iterations, incubation_time_sec):
             #Debug Log
             print("Starting Experiment ", iterations, ": Started Loop")
             #Set up the experiment based on the number of iterations passed.
-            # setup(iterations)
+            setup(iterations)
             #Calculate the ID of the plate needed for incubation based on the number of iterations that have passed
             liconic_id = iterations + 1
             #Run the experiment from the Hudson Solo step to the incubation step at a specified Liconic ID
             print("Starting T0 Reading")
-            # T0_Reading(liconic_id)
+            T0_Reading(liconic_id)
             print("Finished T0 Reading")
             assign_barcode()
             #Add the time of the incubation start to the array of 96 well plates that are currently in the incubator
@@ -335,7 +324,7 @@ def run_experiment(total_iterations, incubation_time_sec):
             #Based on the total number of completed incubation iterations, determine what needs to be disposed of from the experimental setup.
             if(iterations % 2 == 0):
                 print("Starting Disposal")
-                # dispose(iterations)
+                dispose(iterations)
                 print("Ending Disposal")
         # Check to see if delta current time and the time at which the well plate currently incubating longest exceeds the incubation time.
         if(round(time.time()) - incubation_start_times[0] > incubation_time_sec):
@@ -517,6 +506,7 @@ def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0, 
         experiment_time = str(time.strftime("%H_%M_%S", time.localtime()))
         experiment_name = ''
         hour_read = ''
+        #Can expand this to take the hour reading based on the time incubated for -- simply pass in the incubation time (or difference) as a parameter and pass it in as hour_read
         if t0_reading:
             experiment_name = "T0_Reading"
             hour_read = '0'
@@ -543,13 +533,11 @@ def return_barcode():
 def main():
     iteration_runs, incubation_time = determine_payload_from_excel()
     setup_experiment_run_dataframes_from_stocks()
-
-    process_experimental_results()
-    # run_experiment(iteration_runs, incubation_time)
-    # try:
-    #     process_experimental_results()
-    # except Exception as e:
-    #     print("An exception occurred: ", e)
+    run_experiment(iteration_runs, incubation_time)
+    try:
+        process_experimental_results()
+    except Exception as e:
+        print("An exception occurred: ", e)
     # delete_experiment_excel_file()
 
 if __name__ == "__main__":
