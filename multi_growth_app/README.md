@@ -102,13 +102,6 @@ Switch over to the Windows computer and start the Hudson Solo and Hidex C# clein
 In the third terminal window, navigate to home/workspace/BIO_workcell/multi_growth_app and execute the prompt python multi_growth_app.py. This will run the experiment.
 
 ## Global Variables
-ORIGINAL_ANTIBIOTIC_CONCENTRATION - Array with length of 12 that specifies the original stock concentration of each antibiotic type in its respective column. Must be filled in at the start of the experiment run. Example: [1, 0, 0, 1, 0, 0, 0, .3, 0, 0, .75, 0] indicates that there is antibiotic concentration of 1 M in column one, 1 M in column four, 0.3 M in column eight, and 0.75 M in column 11 of the stock antibiotic concentration plate.
-
-ORIGINAL_CELL_CONCENTRATION - Array with length of 12 that specifies the original stock concentration of each cell type in its respective column. Must be filled in at the start of the experiment run. Example: [1, 0, 0, 1, 0, 0, 0, .3, 0, 0, .75, 0] indicates that there is cell concentration of 1 M in column one, 1 M in column four, 0.3 M in column eight, and 0.75 M in column 11 of the stock cell concentration plate.
-
-TOTAL_CELL_COLUMN_CONCENTRATION - An 8 row x 12 column array detailing the cell concentration across each row of a 96 deep well plate for each row
-
-TOTAL_TREATMENT_COLUMN_CONCENTRATION - An 8 row x 12 column array detailing the antibiotic concentration across each row of a 96 deep well plate for each row
 
 CULTURE_PAYLOAD - An array that details which cell culture column the Hudson Solo should use for each liquid handling run
 
@@ -132,7 +125,9 @@ EXPERIMENT_FILE_PATH - A string that keeps track of the file path for the Excel 
 
 def run_experiment(total_iterations, incubation_time_sec) - This function runs the experimental workflow continuously for a specified number of iterations and incubation time (in seconds). It requires that the CULTURE_PAYLOAD and MEDIA_PAYLOAD be filled with entries between 1 and 12 corresponding to the desired column of cells or antibiotic and must be greater than or equal to the length of the total_iterations.
 
-def determine_payload_from_excel() - This function reads the oldest Excel file in the active_runs folder and populates the CULTURE_PAYLOAD and MEDIA_PAYLOAD global variables. It also returns the number of iterations specified in the Excel document and the incubation time in seconds for the set of runs.
+def determine_payload_from_excel() - This function reads the oldest Excel file in the active_runs folder and populates the CULTURE_PAYLOAD and MEDIA_PAYLOAD global variables. It also returns the number of iterations specified in the Excel document and the incubation time in seconds for the set of runs. It must be called each run.
+
+def setup_experiment_run_dataframes_from_stocks() - This function reads the stock plates and adds them to an experiment dataframe that will be called during Globus data processing. For data processing to run smoothly, there should be stock plate information provided in a csv the active_runs/stock_plate_information folder. It must be called each run.
 
 def delete_experiment_excel_file() - This function deletes the Excel document specifying the run once the run has finished. It should be called at the end of a run to ensure the same experiment is not accidentally repeated twice. 
 
@@ -154,11 +149,14 @@ def return_barcode() - When a camera is implemented into the experimental setup,
 
 def assign_barcode() - This will assign the returned barcode to its plate number by appendinng it to the PLATE_BARCODES array.
 
+The following functions are called within setup_experiment_run_dataframes_from_stocks():
+
+def return_stock_dictionary(file_name) - This will return a dataframe of the stock plate csv file by providing just the name of the csv file in the stock_plate_information folder in active_runs. The csv file should be formatted with a title in the first row and data corresponding to the well for the next 96 rows.
+
 The following functions are called within process_experimental_results():
 
 def read_globus_data(title_name = '', t0_reading = True, plate_number = 0) - Reads Hidex data with the given experimental title_name from the https://acdc.alcf.anl.gov/ Portal and returns it as a Pandas dataframe. 
 
-def return_line_of_best_fit(worksheet) - Reads the line of best fit from the Treatment Concentration and Cell Density data in a workbook found in the format of those in the completed_runs folder
 
 ## Tools
 
@@ -183,11 +181,13 @@ Method for Running Experiment from Excel:
 def sample_method_for_growth_assay_run():
 
     iteration_runs, incubation_time = determine_payload_from_excel()
-
+    
+    setup_experiment_run_dataframes_from_stocks()
+    
     run_experiment(iteration_runs, incubation_time)
-
+    
     process_experimental_results()
-
+    
     delete_experiment_excel_file()
 
 Method for Exploring AI Integration:
