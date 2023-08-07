@@ -4,10 +4,10 @@ import logging
 from argparse import ArgumentParser
 import time
 from io import StringIO
-from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
+# from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
-from tools.hudson_solo_auxillary.hso_functions import package_hso
-from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
+# from tools.hudson_solo_auxillary.hso_functions import package_hso
+# from tools.hudson_solo_auxillary import solo_multi_step1, solo_multi_step2, solo_multi_step3
 import pandas as pd 
 import pathlib
 import openpyxl
@@ -22,7 +22,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-from rpl_wei import Experiment
+# from rpl_wei import Experiment
 
 #from rpl_wei.wei_workcell_base import WEI
 
@@ -31,10 +31,8 @@ ORIGINAL_CELL_CONCENTRATION = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 EXPERIMENT_RUN_DATAFRAMES = []
 CULTURE_PAYLOAD = []
 MEDIA_PAYLOAD = []
-HIDEX_UPLOADS = []
-COMPLETED_CELL_COLUMNS = []
-COMPLETED_ANTIBIOTIC_COLUMNS = []
-PLATE_BARCODES = []
+HIDEX_UPLOADS = ["T12_Reading_1_16_49_31", "T12_Reading_1_16_43_54", "T12_Reading_1_16_33_50"]
+PLATE_BARCODES = ["1", "2"]
 CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
 EXPERIMENT_FILE_PATH = ''
@@ -51,9 +49,9 @@ DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_
 
 OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/open_close_hidex.yaml'
 
-exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
-exp.register_exp() 
-exp.events.log_local_compute("package_hso")
+# exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
+# exp.register_exp() 
+# exp.events.log_local_compute("package_hso")
 
 def sample_method_implementing_ai():
     ai_actions.load_model()
@@ -65,8 +63,6 @@ def sample_method_implementing_ai():
 #Data Processing Functions
 def process_experimental_results():
     global HIDEX_UPLOADS
-    global COMPLETED_CELL_COLUMNS
-    global COMPLETED_ANTIBIOTIC_COLUMNS
     global PLATE_BARCODES
     global CREATED_COMPLETED_FILE
     global COMPLETED_FILE_NAME
@@ -76,14 +72,15 @@ def process_experimental_results():
     globus_runs_df = pd.DataFrame()
     re_indexed = False
     #Here, we are uploading all of the
+    iteration = 0
     for upload_id in HIDEX_UPLOADS:
         single_reading_df = read_globus_data(title_name = upload_id)
         if re_indexed != True:
             globus_runs_df = single_reading_df.reindex(columns=single_reading_df.columns, fill_value=None)
             re_indexed = True
-        globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
-
-    print(globus_runs_df)
+        else:
+            globus_runs_df = pd.concat([globus_runs_df, single_reading_df], ignore_index=True)
+        iteration = iteration + 1
 
     old_t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
     old_t0_run_ids = old_t0_run_ids.astype(int)
@@ -94,7 +91,6 @@ def process_experimental_results():
 
     t0_run_ids = globus_runs_df['Plate #'].drop_duplicates().values
     t0_run_ids = t0_run_ids.astype(int)
-
     barcodes = []
     
     for run_id in t0_run_ids:
@@ -129,22 +125,27 @@ def process_experimental_results():
         current_sheet = completed_workbook.create_sheet(sheet_name)
         # Make this so that it just has T0, T + reading hour for each one
         plate_runs = globus_runs_df[(globus_runs_df['Plate #'] == t0_run_ids[i])].copy()
-        reading_hours = globus_runs_df['Plate #'].drop_duplicates().values
+        reading_hours = plate_runs['Reading Hour'].drop_duplicates().values
         reading_hours = reading_hours.astype(int)
         reading_hours = np.sort(reading_hours)
-        t0_specific_run_df = plate_runs[(int(globus_runs_df['Reading Hour']) == 0)].copy()
-        t0_specific_run_df.reset_index(drop=True, inplace=True)
-        t0_specific_run_df = t0_specific_run_df.loc[:, ['Result', 'Blank Adjusted Result']]
-        t0_specific_run_df.rename(columns={'Result': 'T0 Result', 'Blank Adjusted Result': 'T0 Blank Adjusted Result'}, inplace=True)
-        t0_part_1 = t0_specific_run_df.iloc[:, :5]
-        t0_part_2 = t0_specific_run_df.iloc[:, 5:]
-        print(t0_specific_run_df)
-        t12_specific_run_df = filtered_globus_runs_df[(globus_runs_df['Plate #'] == filtered_t0_run_ids[i]) & (int(globus_runs_df['Reading Hour']) >= 12)].copy()
-        t12_specific_run_df.reset_index(drop=True, inplace=True)
-        t12_specific_run_df.rename(columns={'Result': 'T12 Result', 'Blank Adjusted Result': 'T12 Blank Adjusted Result'}, inplace=True)
-        print(t12_specific_run_df)
+        pd_concat_arrays = []
+        last_df = pd.DataFrame()
+        for i in range(0, len(reading_hours)):
+            specific_run_df = plate_runs[(plate_runs['Reading Hour'] == str(reading_hours[i]))].copy()
+            specific_run_df.reset_index(drop=True, inplace=True)
+            specific_run_df.rename(columns={'Result': 'T' + str(reading_hours[i])+ ' Result', 'Blank Adjusted Result': 'T' + str(reading_hours[i]) + ' Blank Adjusted Result'}, inplace=True)
+            if i == 0:
+                # Needs more than 5 columns in the Globus Portal to read -- stock concentration information is necessary
+                specific_part_1 = specific_run_df.iloc[:, :5]
+                specific_part_2 = specific_run_df.iloc[:, 5:]
+                last_df = specific_part_2
+                pd_concat_arrays.append(specific_part_1)
+            else:
+                specific_run_df = specific_run_df.loc[:, ['T' + str(reading_hours[i])+ ' Result', 'T' + str(reading_hours[i]) + ' Blank Adjusted Result']]
+                pd_concat_arrays.append(specific_run_df)
+        pd_concat_arrays.append(last_df)
         
-        runs_df = pd.concat([t12_part_1, t0_specific_run_df,t12_part_2], axis=1)
+        runs_df = pd.concat(pd_concat_arrays, axis=1)
 
         for row in dataframe_to_rows(runs_df, index=False, header=True):
             current_sheet.append(row)
@@ -156,13 +157,12 @@ def process_experimental_results():
     CULTURE_PAYLOAD = []
     MEDIA_PAYLOAD = []
     HIDEX_UPLOADS = []
-    COMPLETED_CELL_COLUMNS = []
-    COMPLETED_ANTIBIOTIC_COLUMNS = []
     PLATE_BARCODES = []
 
 def read_globus_data(title_name = ''):
-    print("Reading Globus Data -- Accessed Chrome")
-    driver = webdriver.Chrome()
+    # path_to_chrome_driver = str(pathlib.Path().resolve()) + "/tools/selenium_drivers/chromedriver.exe"
+    chrome_driver_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\tools\\selenium_drivers\\chromedriver.exe"
+    driver = webdriver.Chrome(executable_path=chrome_driver_path)
     driver.get("https://acdc.alcf.anl.gov/sdl-bio/?q=*")
     search_bar = driver.find_element(By.ID, "search-input")
     search_query = "\"" + title_name + "\""
@@ -183,6 +183,18 @@ def read_globus_data(title_name = ''):
     driver.quit()
 
     globus_df = pd.DataFrame(table_data)
+    globus_df.columns = globus_df.iloc[0]
+    globus_df = globus_df.iloc[1:]
+    globus_df.reset_index(drop=True, inplace=True)
+
+    if title_name == "T12_Reading_1_16_43_54":
+        globus_df["Reading Hour"] = "0"
+        globus_df["Plate #"] = "1"
+    elif title_name == "T12_Reading_1_16_33_50":
+        globus_df["Reading Hour"] = "8"
+        globus_df["Plate #"] = "2"
+
+
     return globus_df
 
 def delete_experiment_excel_file():
@@ -194,8 +206,8 @@ def determine_payload_from_excel():
     global EXPERIMENT_FILE_PATH
 
     print("Run Log Starts Now")
-    #folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs"
-    folder_path = str(pathlib.Path().resolve()) + "/active_runs"
+    folder_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs"
+    # folder_path = str(pathlib.Path().resolve()) + "/active_runs"
     files = os.listdir(folder_path)
     excel_files = [file for file in files if file.endswith(".xlsx")]
     sorted_files = sorted(excel_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)))
@@ -281,8 +293,8 @@ def setup_experiment_run_dataframes_from_stocks():
         EXPERIMENT_RUN_DATAFRAMES.append(run_info_df)
 
 def return_stock_dictionary(file_name):
-    #file_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs\\stock_plate_information\\" + file_name
-    file_path = str(pathlib.Path().resolve()) + "/active_runs/stock_plate_information/" + file_name
+    file_path = str(pathlib.Path().resolve()) + "\\multi_growth_app\\active_runs\\stock_plate_information\\" + file_name
+    # file_path = str(pathlib.Path().resolve()) + "/active_runs/stock_plate_information/" + file_name
     stock_df = pd.read_csv(file_path)
 
     stock_dictionary = {}
@@ -437,10 +449,7 @@ def T0_Reading(liconic_plate_id):
 
     # #run Growth Create Plate
     hidex_upload_id=run_WEI(CREATE_PLATE_T0_FILE_PATH, payload, Hidex_Used=True, Plate_Number=liconic_plate_id, Experiment_Run_Dataframe = EXPERIMENT_RUN_DATAFRAMES[liconic_plate_id-1])
-
     HIDEX_UPLOADS.append(hidex_upload_id)
-    COMPLETED_ANTIBIOTIC_COLUMNS.append(treatment_col_id)
-    COMPLETED_CELL_COLUMNS.append(culture_col_id)
 
 def T12_Reading(liconic_plate_id):
     plate_id = '' + str(int(liconic_plate_id))
@@ -535,7 +544,7 @@ def main():
     iteration_runs, incubation_time = determine_payload_from_excel()
     setup_experiment_run_dataframes_from_stocks()
 
-
+    process_experimental_results()
     # run_experiment(iteration_runs, incubation_time)
     # try:
     #     process_experimental_results()

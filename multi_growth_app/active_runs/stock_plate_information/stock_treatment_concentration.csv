@@ -1,5 +1,5 @@
 Well,Content Name,Concentration (M),Volume (uL),Diluted in,Identifiers (to be added)
-A1,,,,LB,O=C(C)Oc1ccccc1C(=O)O
+A1,A1,,,LB,O=C(C)Oc1ccccc1C(=O)O
 A2,A2,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 A3,A3,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 A4,A4,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
@@ -19,15 +19,15 @@ B5,B5,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 B6,B6,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 B7,B7,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 B8,B8,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
-,,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+B9,B9,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+B10,B10,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+B11,B11,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+B12,B12,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+C1,C1,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+C2,C2,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+C3,C3,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+C4,C4,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
+C5,C5,,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 C6,C6,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 C7,C7,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
 C8,C8,0.8,0.02,LB,O=C(C)Oc1ccccc1C(=O)O
