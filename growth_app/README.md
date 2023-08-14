@@ -93,20 +93,20 @@ https://www.azenta.com/products/gas-permeable-heat-seal
 
 ## Workflow Details 
 
-### Main Workflow Files  
-- TODO: link to main workflow file 
-- TODO: link to both yaml files
-- TODO: link to all 3 hso creation files
-
-
-
+### Main Application Files  
+- [growth_curve_app.py: main application python file](https://github.com/AD-SDL/BIO_workcell/blob/casey_dev/growth_app/growth_curve_app.py)
+- [create_plate_T0.yaml: workflow #1, create assay plate and T0 hidex sense reading](https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/workflows/create_plate_T0.yaml)
+- [read_plate_T0.yaml: workflow #2, T12 hidex sense reading](https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/workflows/read_plate_T12.yaml)
+- [solo_step1.py: liquid handling part 1](https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/tools/hudson_solo_auxillary/solo_step1.py)
+- [solo_step2.py: liquid handling part 2](https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/tools/hudson_solo_auxillary/solo_step2.py)
+- [solo_step3.py: liquid handling part 3](https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/tools/hudson_solo_auxillary/solo_step3.py)
 
 ### Workflow Steps 
 
 <figure align="center">
-<img src="./growth_curve_description/resources/figures/gc_workflow_diagram_now.jpg"  width="75%" height="75%" alt="SOLO deck positions with labels">
+<img src="https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/figures/growth_curve_one_plate.jpg"  width="75%" height="75%" alt="SOLO deck positions with labels">
 
-<figcaption>Growth Curve workflow action sequence</figcaption>
+<figcaption>Growth Curve application action sequence</figcaption>
 </figure>
 
 1. Plate Crane transfers new 180 uL tip box from Stack 4 to SOLO deck position 3
@@ -151,14 +151,7 @@ https://www.azenta.com/products/gas-permeable-heat-seal
 27. Hidex closes door
 
 
-## Running the Campaigns
-
-For the PCR campaign:
-
-```
-source ~/wei_ws/install/setup.bash
-./wc_client_run.py -wf workflows/pcr_workflow.yaml
-```
+## Running the Application
 
 For the Growth campaign:
 
@@ -167,10 +160,5 @@ source ~/wei_ws/install/setup.bash
 ./wc_client_run.py -wf /workflows/growth_workflow.yaml
 ```
 
-For the MoveTest campaign:
-```
-source ~/wei_ws/install/setup.bash
-./wc_client_run.py -wf /workflows/move_test.yaml
-```
 
 
