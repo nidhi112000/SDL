@@ -95,16 +95,9 @@ def main():
     #Uploading the Hidex Data to the Globus client and portal. The arguments in the function are the strings of the experiment name (exp_name), plate number (plate_n), time uploaded (time), the flow_title (local_path), and file name (fname), and the WEI Experiment Object).
     c2_flow(exp_name = "T0_Reading", plate_n = "1", time = str(time.strftime("%H_%M_%S", time.localtime())), local_path=flow_title, fname = fname, exp = exp)
 
-    #Gathers the time after the data to begin waiting before a T12 Reading run
-    startTime = round(time.time())
-    while((round(time.time()) - startTime) < 43200): # The number on the right side of the inequality is the total number of seconds to wait between T0 and T12 readings. 43200 seconds equals 12 hours
-        #Printing Statement for the time since the wait since starts.
-        deltaSeconds = int(round(time.time()) - startTime) 
-        hours = int((deltaSeconds - deltaSeconds % 3600)/3600)
-        minutes = int(((deltaSeconds - hours*3600) - (deltaSeconds - hours*3600) % 60)/60)
-        seconds = deltaSeconds - hours*3600 - minutes * 60
-        #print("Time Since Start: ", hours, " Hours, ", minutes, " Minutes, ", seconds, " Seconds")
-    print("Time Since Start: 12 Hours")
+    # Incubate for 12 hours
+    print("Incubating plate for 12 hours")
+    time.sleep(43200)
 
     # Run the T12 Workflow on the Registered WEI Experiment with the payload specified above to read the plate after the 12 hour wait
     flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)

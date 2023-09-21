@@ -4,7 +4,7 @@ ONE ASSAY PLATE VERSION
 
 ## Initial Setup
 
-Before running the Growth Curve workflow, visually check each machine in the bio workcell to ensure that it is powered on, and ready to perform its task in the workflow as follows. See documentation on the bio workcell (TODO: link)
+Before running the Growth Curve workflow, visually check each machine in the bio workcell to ensure that it is powered on, and ready to perform its task in the workflow as follows. See documentation on the [bio workcell](https://github.com/AD-SDL/BIO_workcell.git)
 ### SOLO Liquid Handler
 Our Hudson SOLO liquid handler was expanded to contain 8 deck positions, 7 of which are required for this growth curve workflow.
 
@@ -61,7 +61,6 @@ Our Hudson SOLO liquid handler was expanded to contain 8 deck positions, 7 of wh
 
 ### Plate Crane EX
 
-(TODO: Photo/diagram of stacks at start of run)
 #### Stack layout
 
 - Stack 1: EMPTY at start 
@@ -76,7 +75,7 @@ Our Hudson SOLO liquid handler was expanded to contain 8 deck positions, 7 of wh
 
 ### Azenta Microplate Sealer
 
-(TODO: link to sealer module setup and details)
+[Azenta Microplate Sealer](https://github.com/AD-SDL/a4s_sealer_module.git)
 
 Loaded Seal
 - Azenta Gas Permiable Heat Seals (4ti-0598) 
@@ -86,7 +85,7 @@ https://www.azenta.com/products/gas-permeable-heat-seal
 - Ensure the peeler is powered on and set up according to the instructions in the repo above. Check to make sure the Peeler is loaded with a tape roll and that there is enough tape to complete the workflow (2 peels required per assay plate created.
 ### LiCONiC StoreX STX88 Incubator
 
-- TODO: Link to incubtor repo
+[Liconic Incubator Repo](https://github.com/AD-SDL/liconic_module.git)
 
 - Ensure the incubator is powered on and set up according to instructions in the above repo.
     
@@ -112,7 +111,8 @@ https://www.azenta.com/products/gas-permeable-heat-seal
 1. Plate Crane transfers new 180 uL tip box from Stack 4 to SOLO deck position 3
 2. Plate Crane transfers new assay plate with lid from Stack 5 to SOLO deck position 4
 3. Plate Crane removes lid from assay plate on SOLO deck position 4 and places it on Lid Nest 2
-    - TODO: Diagram of Lid nest locations
+    <figure align="center">
+<img src="https://github.com/AD-SDL/BIO_workcell/blob/main/growth_app/figures/stack_layout.jpeg"  width="75%" height="75%" alt="stack locations with labels">
 4. SOLO liquid handler runs step 1 of assay plate prep
     - SOLO step 1: dilute cells and transfer to assay plate
         - Transfer 60uL media from 2 columns of media reservoir into each well of assay plate
@@ -130,13 +130,12 @@ https://www.azenta.com/products/gas-permeable-heat-seal
 7. Hidex opens door 
 8. Plate Crane transfers completed assay plate from SOLO deck position 4 to Hidex drawer
 9. Hidex takes initial time 0 hour (T0) absorbance OD(590) readings of the assay plate
-10. TODO: New Hidex data file is sent away for processing
+10. New Hidex data file is sent away for processing via Globus Tranfer service
 11. Hidex opens door 
 12. Plate Crane transfers assay plate from Hidex drawer to Sealer
 13. Hidex closes door 
 14. Sealer seals assay plate 
 15. Plate Crane transfers assay plate from Sealer to Liconic Nest 
-    - TODO: Photo of liconic nest (necessary?)
 16. Liconic loads assay plate into specified stack and slot 
 17. Liconic begins shaking 
 18. Assay plate is incubated with shaking for 12 hours
@@ -153,11 +152,77 @@ https://www.azenta.com/products/gas-permeable-heat-seal
 
 ## Running the Application
 
-For the Growth campaign:
+Once the initial setup is complete and all the labware are in the correct positions, follow these steps to make sure that all of the devices are ready and to run the experiment.
+
+### Windows Clients
+
+The clients for the SOLO and Hidex instruments are both located on the attached Windows computer, and must be activated from that computer.
+
+### SOLO client
+
+In order to activate the Hudson Solo client, open a Visual Studio window containing the Solo project, and run the code
+
+### Hidex client
+
+In order to activate the Hidex client, open a Visual Studio window containing the Hidex project, and run the code
+
+### Running the ROS2 Nodes
+Once both of the listeners on the Windows computer are running, navigate back to the Linux computer. We must start the ROS2 nodes for the remainder of the instruments and ensure that they are all in a READY state.
+
+### Building the ROS Clients
+
+open a terminal and from the home directory, enter the following in order to build and source all of your ROS clients and ensure there are no errors in their code.
 
 ```
+cd wei_ws
+colcon build
 source ~/wei_ws/install/setup.bash
-./wc_client_run.py -wf /workflows/growth_workflow.yaml
+```
+
+### Activating the ROS Nodes
+
+In the same terminal, run the following commands to activate each of the required ROS nodes in their own tmux window
+
+```
+cd
+cd workspace/BIO_workcell/scripts
+./run_bionuc.sh
+```
+
+### Navigate in between TMUX shells
+Once the TMUX session is started, you can navigate in between windows to check all the nodes. Number that correspond to the nodes are listed along bottom of the window.
+- `Ctrl+B` 
+- `Desired window number`
+
+If you know that TMUX session is running in the background, you can reopen the session on your shell with below commands.
+
+- `tmux a`
+- `Ctrl+B`
+- `w`
+- Choose the window you want to display
+
+### Activate the WEI Server
+
+After ensuring all of your nodes are broadcasting a READY state, you can now activate the wei server
+
+```
+cd
+cd workspace/BIO_workcell/scripts
+./run_wei_server.sh
+```
+
+This should open up two additional tmux windows containing the WEI worker and server
+
+### Running the Growth Assay
+
+You are now able to execute the Growth Assay.
+
+```
+cd
+cd workspace/BIO_workcell/growth_app
+source /opt/ros/humble/setup.bash  
+source ~/wei_ws/install/setup.bash
+python growth_curve_app.py
 ```
 
 
