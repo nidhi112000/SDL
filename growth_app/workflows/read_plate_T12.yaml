@@ -9,8 +9,9 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
-  - name: camera
+  - name: plateCrane
+  - name: hidex
+  - name: liconic
 
 flowdef:
 
