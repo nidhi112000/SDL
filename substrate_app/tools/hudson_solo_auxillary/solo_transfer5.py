@@ -14,11 +14,11 @@ def generate_hso_file(
     """generate_hso_file
 
     Description: 
-        Generates SOLOSoft .hso file for step 2 of the substrate transfer workflow
-        NOTE: if this was included in solo_transfer1.py the hso file would be too long
+        Generates SOLOSoft .hso file for step 5 of the substrate transfer workflow
 
-        Step 2 of the substrate transfer workflow includes:
-            - transfer 150uL from substrate stock plate column 3 into each 12 columns of a 96 well plate at SOLO position 6
+        Basic steps:
+            - transfer 150uL from substrate stock plate column 10 into each 12 columns of a 96 well plate at SOLO position 6
+            - transfer 150uL from substrate stock plate column 11 into each 12 columns of a 96 well plate at SOLO position 7
 
     Args:
         payload (dict): input variables from the wei workflow
@@ -35,6 +35,7 @@ def generate_hso_file(
     # except Exception as error_msg: 
     #     raise error_msg
 
+
 # * Other program variables
     # general SOLO variables
     blowoff_volume = 10
@@ -47,7 +48,7 @@ def generate_hso_file(
     substrate_transfer_volume = 150
 
     """
-    SOLO STEP 2: TRANSFER SUBSTRATE STOCK INTO REPLICATE PLATE 3  -----------------------------------------------------------------
+    SOLO STEP 5: TRANSFER SUBSTRATE STOCK INTO REPLICATE PLATES 8 AND 9 -----------------------------------------------------------------
     """
     # * Initialize soloSoft deck layout 
     soloSoft = SoloSoft(
@@ -60,22 +61,40 @@ def generate_hso_file(
             "Plate.96.Corning-3635.ClearUVAssay",       # substrate replicate plate
             "Plate.96.Corning-3635.ClearUVAssay",       # substrate replicate plate
             "Plate.96.Corning-3635.ClearUVAssay",       # substrate replicate plate
-            "Plate.96.Corning-3635.ClearUVAssay",       # substrate replicate plate
+            "Empty",       
         ],
     )
 
-    # * Third set of 12 substrate column transfers (Stock plate column 3 --> replicate plate in position 6)
-    soloSoft.getTip("Position3")  # NOTE: Previous tips will be shucked automatically as part of .getTip() command
+    # * Eighth set of 12 substrate column transfers (Stock plate column 10 --> replicate plate in position 6)
+    soloSoft.getTip("Position3")  
     for i in range(1, 13):  # repeat for all 12 columns of replicate plate
         soloSoft.aspirate(
             position="Position2",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
-                3, substrate_transfer_volume
+                10, substrate_transfer_volume
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
             position="Position6",
+            dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
+                i, substrate_transfer_volume
+            ),
+            dispense_shift=[0, 0, flat_bottom_z_shift],
+        )
+    
+    # * Ninth set of 12 substrate column transfers (Stock plate column 11 --> replicate plate in position 7)
+    soloSoft.getTip("Position3")  # NOTE: Previous tips will be shucked automatically as part of .getTip() command
+    for i in range(1, 13):  # repeat for all 12 columns of replicate plate
+        soloSoft.aspirate(
+            position="Position2",
+            aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
+                11, substrate_transfer_volume
+            ),
+            aspirate_shift=[0, 0, media_z_shift],
+        )
+        soloSoft.dispense(
+            position="Position7",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, substrate_transfer_volume
             ),

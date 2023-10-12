@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import time
 
 # from rpl_wei.wei_workcell_base import WEI
-
-from pathlib import Path
-from tools.hudson_solo_auxillary.hso_functions import package_hso
-from tools.hudson_solo_auxillary import solo_transfer1, solo_transfer2
 from rpl_wei import Experiment
-import time
+
+from tools.hudson_solo_auxillary.hso_functions import package_hso
+from tools.hudson_solo_auxillary import solo_transfer1, solo_transfer2, solo_transfer3
+
 
 
 """ 
@@ -22,15 +22,17 @@ Basic steps:
         steps:
             1.) Refill tips at position 3 (purely a software action)
             2.) Run SOLO .hso file (from "solo_transfer1.py")
-                - completes all substrate transfers for first 3 96-well flat-bottom substrate plates 
-            3.) Run COLO .hso file (from "solo_transfer2.py") 
-                - completed all substrate transfers for the next two (#4 and #5) 96-well flat-bottom substrate plates
+                - completes all substrate transfers for first two 96-well flat-bottom substrate plates (#1 and #2)
+            3.) Run SOLO .hso file (from "solo_transfer2.py") 
+                - completes all substrate transfers next 96-well flat-bottom substrate plate (#3)
+            3.) Run SOLO .hso file (from "solo_transfer3.py") 
+                - completes all substrate transfers next two 96-well flat-bottom substrate plate (#4 and #5)
 
 """
 def main():
    
     # * Point to relevant workflow (yaml) file 
-    wf_path_1 = Path(
+    wf_path = Path(
         "/home/rpl/workspace/BIO_workcell/substrate_app/workflows/substrate_step1.yaml"
     )
   
@@ -58,6 +60,10 @@ def main():
     hso_2, hso_2_lines, hso_2_basename = package_hso(
         solo_transfer2.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso"
     )
+    hso_3, hso_3_lines, hso_3_basename = package_hso(
+        solo_transfer3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp3.hso"
+    )
+
 
     # * Add the HSO Packages to the payload to send to the Hudson Solo
     payload["hso_1"] = hso_1
@@ -68,8 +74,12 @@ def main():
     payload["hso_2_lines"] = hso_2_lines
     payload["hso_2_basename"] = hso_2_basename
 
+    payload["hso_3"] = hso_3
+    payload["hso_3_lines"] = hso_3_lines
+    payload["hso_3_basename"] = hso_3_basename
+
     # * Run the substrate step 1 workflow
-    flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
+    flow_info = exp.run_job(wf_path.resolve(), payload=payload, simulate=False)
 
     # * Pinging the status of the T0 Workflow sent to the WEI Experiment
     flow_status = exp.query_job(flow_info["job_id"])

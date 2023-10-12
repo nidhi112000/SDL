@@ -24,14 +24,13 @@ def generate_hso_file(
         Step 1 of the substrate transfer workflow includes:
             - transfer 150uL from substrate stock plate column 1 into each 12 columns of a 96 well plate at SOLO position 4
             - transfer 150uL from substrate stock plate column 2 into each 12 columns of a 96 well plate at SOLO position 5
-            - transfer 150uL from substrate stock plate column 3 into each 12 columns of a 96 well plate at SOLO position 6
 
     Args:
         payload (dict): input variables from the wei workflow
         temp_file_path (str): file path to temporarily save hso file to 
     """
     
-    # extract payload variables 
+    # extract payload variables (a commented out example)
     # try: 
     #     # treatment = payload['treatment'] 
     #     # culture_column = payload['culture_column']
@@ -39,7 +38,6 @@ def generate_hso_file(
     #     # media_start_column = payload['media_start_column']
     #     # treatment_dil_half = payload['treatment_dil_half']
     # except Exception as error_msg: 
-    #     # TODO: how to handle this?
     #     raise error_msg
 
 # * Other program variables
@@ -54,7 +52,7 @@ def generate_hso_file(
     substrate_transfer_volume = 150
 
     """
-    SOLO STEP 1: TRANSFER FIRST SUBSTRATE STOCK INTO 3 REPLICATE PLATES  -----------------------------------------------------------------
+    SOLO STEP 1: TRANSFER SUBSTRATE STOCK INTO REPLICATE PLATES 1 AND 2  -----------------------------------------------------------------
     """
     # * Initialize soloSoft deck layout 
     soloSoft = SoloSoft(
@@ -101,24 +99,6 @@ def generate_hso_file(
         )
         soloSoft.dispense(
             position="Position5",
-            dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
-                i, substrate_transfer_volume
-            ),
-            dispense_shift=[0, 0, flat_bottom_z_shift],
-        )
-
-    # * Third set of 12 substrate column transfers (Stock plate column 3 --> replicate plate in position 6)
-    soloSoft.getTip("Position3")  # NOTE: Previous tips will be shucked automatically as part of .getTip() command
-    for i in range(1, 13):  # repeat for all 12 columns of replicate plate
-        soloSoft.aspirate(
-            position="Position2",
-            aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
-                3, substrate_transfer_volume
-            ),
-            aspirate_shift=[0, 0, media_z_shift],
-        )
-        soloSoft.dispense(
-            position="Position6",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, substrate_transfer_volume
             ),

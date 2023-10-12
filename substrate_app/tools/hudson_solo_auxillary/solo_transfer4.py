@@ -1,7 +1,3 @@
-"""
-Generates SOLO .hso instruction file for fourth set of steps for substrate transfer experiment
-
-"""
 import os
 import sys
 import time
@@ -20,16 +16,16 @@ def generate_hso_file(
     Description: 
         Generates SOLOSoft .hso file for step 4 of the substrate transfer workflow
 
-        Step 4 of the substrate transfer workflow includes:
-            - transfer 150uL from substrate stock plate column 10 into each 12 columns of a 96 well plate at SOLO position 6
-            - transfer 150uL from substrate stock plate column 11 into each 12 columns of a 96 well plate at SOLO position 7
+        Basic steps:
+            - transfer 150uL from substrate stock plate column 7 into each 12 columns of a 96 well plate at SOLO position 4
+            - transfer 150uL from substrate stock plate column 9 into each 12 columns of a 96 well plate at SOLO position 5
 
     Args:
         payload (dict): input variables from the wei workflow
         temp_file_path (str): file path to temporarily save hso file to 
     """
     
-    # extract payload variables 
+    # extract payload variables (a commented out example)
     # try: 
     #     # treatment = payload['treatment'] 
     #     # culture_column = payload['culture_column']
@@ -37,7 +33,6 @@ def generate_hso_file(
     #     # media_start_column = payload['media_start_column']
     #     # treatment_dil_half = payload['treatment_dil_half']
     # except Exception as error_msg: 
-    #     # TODO: how to handle this?
     #     raise error_msg
 
 
@@ -53,7 +48,7 @@ def generate_hso_file(
     substrate_transfer_volume = 150
 
     """
-    SOLO STEP 1: TRANSFER FIRST SUBSTRATE STOCK INTO 3 REPLICATE PLATES  -----------------------------------------------------------------
+    SOLO STEP 4: TRANSFER SUBSTRATE STOCK INTO REPLICATE PLATES 6 AND 7  -----------------------------------------------------------------
     """
     # * Initialize soloSoft deck layout 
     soloSoft = SoloSoft(
@@ -70,36 +65,36 @@ def generate_hso_file(
         ],
     )
 
-    # * Eighth set of 12 substrate column transfers (Stock plate column 10 --> replicate plate in position 6)
+    # * Sixth set of 12 substrate column transfers (Stock plate column 7 --> replicate plate in position 4)
     soloSoft.getTip("Position3")  
     for i in range(1, 13):  # repeat for all 12 columns of replicate plate
         soloSoft.aspirate(
             position="Position2",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
-                10, substrate_transfer_volume
+                7, substrate_transfer_volume
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position6",
+            position="Position4",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, substrate_transfer_volume
             ),
             dispense_shift=[0, 0, flat_bottom_z_shift],
         )
     
-    # * Ninth set of 12 substrate column transfers (Stock plate column 11 --> replicate plate in position 7)
+    # * Seventh set of 12 substrate column transfers (Stock plate column 9 --> replicate plate in position 5)
     soloSoft.getTip("Position3")  # NOTE: Previous tips will be shucked automatically as part of .getTip() command
     for i in range(1, 13):  # repeat for all 12 columns of replicate plate
         soloSoft.aspirate(
             position="Position2",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
-                11, substrate_transfer_volume
+                9, substrate_transfer_volume
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position5",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, substrate_transfer_volume
             ),
@@ -109,3 +104,4 @@ def generate_hso_file(
     # * Dispense tips at end of protocol and process these instructions into a .hso file 
     soloSoft.shuckTip()
     soloSoft.savePipeline()
+    

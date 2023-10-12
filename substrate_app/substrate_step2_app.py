@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import time
 
 # from rpl_wei.wei_workcell_base import WEI
-
-from pathlib import Path
-from tools.hudson_solo_auxillary.hso_functions import package_hso
-from tools.hudson_solo_auxillary import solo_transfer3, solo_transfer4
 from rpl_wei import Experiment
-import time
+
+from tools.hudson_solo_auxillary.hso_functions import package_hso
+from tools.hudson_solo_auxillary import solo_transfer4, solo_transfer5
+
+
 
 """ 
 substrate_step2_app.py 
@@ -29,8 +30,8 @@ Basic steps:
 def main():
    
     # * Point to relevant workflow (yaml) file 
-    wf_path_1 = Path(
-        "/home/rpl/workspace/BIO_workcell/substrate_app/workflows/substrate_step1.yaml"
+    wf_path = Path(
+        "/home/rpl/workspace/BIO_workcell/substrate_app/workflows/substrate_step2.yaml"
     )
   
     # * Creates a WEI Experiment at port 8000 and registers the experiment with the title Substrate
@@ -38,7 +39,8 @@ def main():
     exp.register_exp()
 
     # * Generate the initial payload values (will update below to include SOLO liquid handler details)
-    payload = {
+    # none of this payload is used yet
+    payload = {  
         "temp": 37.0, #a float value setting the temperature of the Liconic Incubator (in Celsius) 
         "humidity": 95.0, # a float value setting the humidity of the Liconic Incubator
         "shaker_speed": 30, #an integer value setting the shaker speed of the Liconic Incubator
@@ -51,24 +53,24 @@ def main():
     # NOTE: There are multiple .hso files because the SOLO can only handle files with >70 steps/file
     exp.events.log_local_compute("package_hso")  # note current step for logging
 
-    hso_1, hso_1_lines, hso_1_basename = package_hso(
-        solo_transfer3.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp1.hso"
+    hso_4, hso_4_lines, hso_4_basename = package_hso(
+        solo_transfer4.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp4.hso"
     )
-    hso_2, hso_2_lines, hso_2_basename = package_hso(
-        solo_transfer4.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp2.hso"
+    hso_5, hso_5_lines, hso_5_basename = package_hso(
+        solo_transfer5.generate_hso_file, payload, "/home/rpl/wei_temp/solo_temp5.hso"
     )
 
     # * Add the HSO Packages to the payload to send to the Hudson Solo
-    payload["hso_1"] = hso_1
-    payload["hso_1_lines"] = hso_1_lines
-    payload["hso_1_basename"] = hso_1_basename
+    payload["hso_4"] = hso_4
+    payload["hso_4_lines"] = hso_4_lines
+    payload["hso_4_basename"] = hso_4_basename
 
-    payload["hso_2"] = hso_2
-    payload["hso_2_lines"] = hso_2_lines
-    payload["hso_2_basename"] = hso_2_basename
+    payload["hso_5"] = hso_5
+    payload["hso_5_lines"] = hso_5_lines
+    payload["hso_5_basename"] = hso_5_basename
 
     # * Run the substrate step 1 workflow
-    flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
+    flow_info = exp.run_job(wf_path.resolve(), payload=payload, simulate=False)
 
     # * Pinging the status of the T0 Workflow sent to the WEI Experiment
     flow_status = exp.query_job(flow_info["job_id"])
