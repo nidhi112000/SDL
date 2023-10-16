@@ -34,7 +34,7 @@ def generate_hso_file(
         # extract payload variables
     try: 
         # treatment = payload['treatment'] 
-        substrates_start_column_1 = payload['substrates_start_column_1']
+        substrates_start_column = payload['substrates_start_column_3']
         # tiprack_start_column = payload['tiprack_start_column']
         # plates_start_column = payload['plates_start_column']
         # media_start_column = payload['media_start_column']
@@ -87,12 +87,12 @@ def generate_hso_file(
         soloSoft.aspirate(
             position="Position3",
             aspirate_volumes=DeepBlock_96VWR_75870_792_sterile().setColumn(
-                substrates_start_column_1, substrates_transfer_volume_s1
+                substrates_start_column_3, substrates_transfer_volume_s1
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position5",
+            position="Position8",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, substrates_transfer_volume_s1
             ),
