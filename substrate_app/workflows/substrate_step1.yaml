@@ -18,7 +18,7 @@ flowdef:
     comment: Reset Tip Box Number to 96 Tips just in case (this is purely a software step)
 
     # SOLO STEP 1  (substrate plates 1 and 2)
-  - name: First set of substrate transfers into replicate plates 1-3
+  - name: First set of substrate transfers
     module: solo
     action: run_protocol
     args:
@@ -29,7 +29,7 @@ flowdef:
     comment: resource check not yet implemented 
 
     # STEP 2  (substrate plate 3)
-  - name: Second substrate transfer
+  - name: Second set of substrate transfers
     module: solo
     action: run_protocol
     args:
@@ -40,7 +40,7 @@ flowdef:
     comment: resource check not yet implemented
 
     # STEP 3  (substrate plate 4 and 5)
-  - name: Second substrate transfer
+  - name: Third set of substrate transfers
     module: solo
     action: run_protocol
     args:

@@ -9,16 +9,10 @@ modules:
   - name: solo
 
 flowdef:
-  - name: Refill Tips
-    module: solo
-    action: refill_tips
-    args:
-      position: payload.tip_box_position
-    checks: null
-    comment: Reset Tip Box Number to 96 Tips just in case (this is purely a software step)
+  # No need to refill tips here, there will be enough left over after the first step
 
-    # SOLO STEP 1  (substrate plates 6 and 7)
-  - name: First set of substrate transfers into replicate plates 1-3
+    # SOLO STEP 4  (substrate plates 6 and 7)
+  - name: Fourth set of substrate transfers
     module: solo
     action: run_protocol
     args:
@@ -28,8 +22,8 @@ flowdef:
     checks: RESOURCE_CHECK
     comment: resource check not yet implemented 
 
-    # STEP 2  (substrate plates 8 and 9)
-  - name: Second substrate transfer
+    # STEP 5  (substrate plates 8 and 9)
+  - name: Fifth set of substrate transfers
     module: solo
     action: run_protocol
     args:
