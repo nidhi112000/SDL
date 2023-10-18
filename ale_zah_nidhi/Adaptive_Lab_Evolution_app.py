@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-# from rpl_wei.wei_workcell_base import WEI
+from rpl_wei.wei_workcell_base import WEI
 # from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
 from tools.hudson_solo_auxillary.hso_functions import package_hso
@@ -78,13 +78,21 @@ def main():
     payload["hso_1_lines"] = hso_1_lines
     payload["hso_1_basename"] = hso_1_basename
 
-    # payload["hso_2"] = hso_2
-    # payload["hso_2_lines"] = hso_2_lines
-    # payload["hso_2_basename"] = hso_2_basename
+    payload["hso_2"] = hso_2
+    payload["hso_2_lines"] = hso_2_lines
+    payload["hso_2_basename"] = hso_2_basename
 
-    # payload["hso_3"] = hso_3
-    # payload["hso_3_lines"] = hso_3_lines
-    # payload["hso_3_basename"] = hso_3_basename
+    payload["hso_3"] = hso_3
+    payload["hso_3_lines"] = hso_3_lines
+    payload["hso_3_basename"] = hso_3_basename
+
+    payload["hso_4"] = hso_4
+    payload["hso_4_lines"] = hso_4_lines
+    payload["hso_4_basename"] = hso_4_basename
+
+    payload["hso_5"] = hso_5
+    payload["hso_5_lines"] = hso_5_lines
+    payload["hso_5_basename"] = hso_5_basename
 
     # Run the T0 Workflow on the Registered WEI Experiment with the payload specified above
     # flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
