@@ -1,0 +1,53 @@
+name: Growth Curve - Workflow
+
+metadata:
+  author: Casey Stone, Zahmeeth Sayed Sakkaff, Nidhi Gupta
+  info: First workflow of substrate app
+  version: 0.1
+
+modules:
+  - name: solo
+
+flowdef:
+  - name: Refill Tips
+    module: solo
+    action: refill_tips
+    args:
+      position: payload.tip_box_position
+    checks: null
+    comment: Reset Tip Box Number to 96 Tips just in case (this is purely a software step)
+
+    # SOLO STEP 1  (substrate plates 1 and 2)
+  - name: First set of substrate transfers
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_1
+      hso_num_lines: payload.hso_1_lines
+      hso_basename: payload.hso_1_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not yet implemented 
+
+    # STEP 2  (substrate plate 3)
+  - name: Second set of substrate transfers
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_2
+      hso_num_lines: payload.hso_2_lines
+      hso_basename: payload.hso_2_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not yet implemented
+
+    # STEP 3  (substrate plate 4 and 5)
+  - name: Third set of substrate transfers
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_3
+      hso_num_lines: payload.hso_3_lines
+      hso_basename: payload.hso_3_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not yet implemented
+
+    
