@@ -30,6 +30,8 @@ def main():
         "substrates_start_column_3": 3,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
         "substrates_start_column_4": 4,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
         "substrates_start_column_5": 5,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.   
+
+        "tip_box_position": 1, 
     }
 
     # Creating HSO Packages to send liquid handling protocols to the Hudson Solo.
