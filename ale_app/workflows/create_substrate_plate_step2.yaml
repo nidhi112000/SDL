@@ -1,0 +1,64 @@
+name: Adaptive_Lab_Evolution - Workflow 2
+
+metadata:
+  author: Zahmeeth Sakkaff, Casey Stone, Abe Stroka, and Nidhi Gupta
+  info: Initial Adaptive_Lab_Evolution workflow for RPL workcell
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+
+flowdef:
+  - name: Substrates transfer to Position4 plate
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_1
+      hso_num_lines: payload.hso_1_lines
+      hso_basename: payload.hso_1_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
+
+  - name: Substrates transfer to Position5 plate
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_2
+      hso_num_lines: payload.hso_2_lines
+      hso_basename: payload.hso_2_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
+
+  - name: Substrates transfer to Position6 plate
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_3
+      hso_num_lines: payload.hso_3_lines
+      hso_basename: payload.hso_3_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
+
+  - name: Substrates transfer to Position7 plate
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_4
+      hso_num_lines: payload.hso_4_lines
+      hso_basename: payload.hso_4_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
+
+  - name: Substrates transfer to Position8 plate
+    module: solo
+    action: run_protocol
+    args:
+      hso_contents: payload.hso_5
+      hso_num_lines: payload.hso_5_lines
+      hso_basename: payload.hso_5_basename
+    checks: RESOURCE_CHECK
+    comment: resource check not implemented, but will be
