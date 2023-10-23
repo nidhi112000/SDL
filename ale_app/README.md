@@ -26,7 +26,7 @@ The current experiment, described in more detail below, will automate the prepar
 Two application python files must be run in succession to complete this section of the experiment. Running the first application file (Adaptive_Lab_Evolution_step1_app.py) will execute robotic actions required to produce the first 5 substrate microplates. A technician will then replace the lids on the newly prepped substrate plates and transfer them to Stack 5. They will also prep the SOLO deck with another set of 5 empty microplates then run the second application file (Adaptive_Lab_Evolution_step1_app.py) which will execute all robotic steps required to prep the second set of 5 substrate microplates. 
 
 #### Running steps:
-##### 1. Set Up SOLO Deck
+##### 1a. Set Up SOLO Deck
 
 <!-- TODO: center align images -->
 ![Labware layout on SOLO deck at start of substrate prep](https://github.com/AD-SDL/BIO_workcell/blob/main/ale_app/figures/substrate_prep_SOLO_deck.png)
@@ -42,11 +42,11 @@ SOLO deck layout:
 - Position 7: 96-well flat bottom microplate, empty
 - Position 8: 96-well flat bottom microplate, empty
 
-##### 2. Run First Application File
+##### 1b. Run First Application File
 TODO
 
 
-##### Manual Cleanup and SOLO Deck Setup in Preparation for Second Application File 
+##### 1c. Manual Cleanup and SOLO Deck Setup in Preparation for Second Application File 
 TODO: manual cleanup
 
 ![Place substrate plates 1-5 in stack 5](https://github.com/AD-SDL/BIO_workcell/blob/main/ale_app/figures/substrate_prep_manual_cleanup_1.jpg)
@@ -65,11 +65,11 @@ SOLO deck layout:
 - Position 7: 96-well flat bottom microplate, empty
 - Position 8: 96-well flat bottom microplate, empty
 
-##### Run Second Application File
+##### 1d. Run Second Application File
 TODO
 
 
-##### Manual Cleanup
+##### 1e. Manual Cleanup
 TODO
 
 
