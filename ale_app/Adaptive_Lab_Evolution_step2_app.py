@@ -2,24 +2,20 @@
 
 from pathlib import Path
 
-# from tools.gladier_flow.growth_curve_gladier_flow import c2_flow
 from pathlib import Path
 from tools.hudson_solo_auxillary.hso_functions import package_hso
-# from tools.hudson_solo_auxillary import solo_step1, solo_step2, solo_step3
 from tools.hudson_solo_auxillary import solo_step1, solo_step2, solo_step3, solo_step4, solo_step5
 from rpl_wei import Experiment
 import time
-
-# The main script for running a single-cell plate growth assay. 
+ 
 def main():
-    #Accessing the paths for the T0 Workflow and the T12 workflow. 
     #The Paths will need to be changed if the corresponding Yaml file locations are changed
     wf_path_1 = Path(
         "/home/rpl/workspace/BIO_workcell/ale_zah_nidhi/workflows/create_substrate_plate_step2.yaml"
     )
  
     #Creates a WEI Experiment at the 8000 port and registers the expermient with the title Growth_Curve
-    exp = Experiment("127.0.0.1", "8000", "Adaptive_Lab_Evolution")
+    exp = Experiment("127.0.0.1", "8000", "Adaptive_Lab_Evolution_step2")
     exp.register_exp()
 
     #Generate the payload for the T0 and T12 readings. The T0 and T12 Yaml files (at the position paths above) and hso_packages for the Hudson Solo (created below) will use the following values in the workflow

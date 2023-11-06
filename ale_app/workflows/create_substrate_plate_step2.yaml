@@ -2,15 +2,11 @@ name: Adaptive_Lab_Evolution - Workflow 2
 
 metadata:
   author: Zahmeeth Sakkaff, Casey Stone, Abe Stroka, and Nidhi Gupta
-  info: Initial Adaptive_Lab_Evolution workflow for RPL workcell
+  info: Initial Adaptive_Lab_Evolution workflow for BIO workcell
   version: 0.1
 
 modules:
   - name: solo
-  - name: peeler
-  - name: sealer
-  - name: plateEx
-  - name: camera
 
 flowdef:
   - name: Substrates transfer to Position4 plate

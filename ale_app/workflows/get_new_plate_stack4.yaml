@@ -1,0 +1,34 @@
+name: Adaptive_Lab_Evolution - Get New Substrate Plate from Stack 4 and Prep for Innoculation
+
+metadata:
+  author: Zahmeeth Sakkaff, Casey Stone, Abe Stroka, and Nidhi Gupta
+  info: Initial Adaptive_Lab_Evolution workflow for BIO workcell
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: plateEx
+
+
+flowdef:
+  - name: Move substrate plate from Stack 4 onto SOLO Position 4
+    module: plateCrane
+    action: transfer
+    args:
+      source: "Stack5"
+      target: "Solo.Position4"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "96_well"
+    checks: null
+    comment: Place substrate plate on SOLO Position 5
+
+  - name: Remove lid
+    module: plateCrane
+    action: remove_lid
+    args:
+      source: "Solo.Position4"
+      target: "Stack2"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate lid on lid nest 2
