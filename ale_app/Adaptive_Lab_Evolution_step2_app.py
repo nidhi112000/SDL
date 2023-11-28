@@ -11,10 +11,10 @@ import time
 def main():
     #The Paths will need to be changed if the corresponding Yaml file locations are changed
     wf_path_1 = Path(
-        "/home/rpl/workspace/BIO_workcell/ale_zah_nidhi/workflows/create_substrate_plate_step2.yaml"
+        "/home/rpl/workspace/BIO_workcell/ale_app/workflows/create_substrate_plate_step2.yaml"
     )
  
-    #Creates a WEI Experiment at the 8000 port and registers the expermient with the title Growth_Curve
+    #Creates a WEI Experiment at the 8000 port and registers the experiment with the title Growth_Curve
     exp = Experiment("127.0.0.1", "8000", "Adaptive_Lab_Evolution_step2")
     exp.register_exp()
 

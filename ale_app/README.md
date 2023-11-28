@@ -23,7 +23,7 @@ The current experiment, described in more detail below, will automate the prepar
 
 ### 1. Preparation of 10 substrate plates
 
-Two application python files must be run in succession to complete this section of the experiment. Running the first application file (Adaptive_Lab_Evolution_step1_app.py) will execute robotic actions required to produce the first 5 substrate microplates. A technician will then replace the lids on the newly prepped substrate plates and transfer them to Stack 5. They will also prep the SOLO deck with another set of 5 empty microplates then run the second application file (Adaptive_Lab_Evolution_step1_app.py) which will execute all robotic steps required to prep the second set of 5 substrate microplates. 
+Two application python files must be run in succession to complete this section of the experiment. Running the first application file (**Adaptive_Lab_Evolution_step1_app.py**) will execute robotic actions required to produce the first 5 substrate microplates. A technician will then replace the lids on the newly prepped substrate plates and transfer them to Stack 5. They will also prep the SOLO deck with another set of 5 empty microplates then run the second application file (**Adaptive_Lab_Evolution_step1_app.py**) which will execute all robotic steps required to prep the second set of 5 substrate microplates. 
 
 #### Running steps:
 ##### 1a. Set Up SOLO Deck
