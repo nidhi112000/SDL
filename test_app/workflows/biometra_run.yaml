@@ -1,0 +1,43 @@
+name: Solo Run
+
+metadata:
+  author: Abraham Stroka
+  info: Workflow for Running Biometra Individually
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: plateEx
+  - name: camera
+  - name: Biometra
+
+flowdef:
+
+  # - name: open lid
+  #   module: Biometra
+  #   action: open_lid
+  #   args:
+  #     plate_type: 96
+  #   checks: null
+  #   comment: open biometra lid
+
+  - name: close lid
+    module: Biometra
+    action: close_lid
+    args:
+      plate_type: 96
+    checks: null
+    comment: close biometra lid
+
+  # - name: run protocol
+  #   module: Biometra
+  #   action: run_protocol
+  #   args:
+  #     program: "1"
+  #   checks: null
+  #   comment: close biometra lid
+
+
+

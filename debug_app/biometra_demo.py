@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from rpl_wei.wei_workcell_base import WEI
+from wei.wei_workcell_base import WEI
 
 def main():
     wf_path = Path('/home/rpl/workspace/rpl_workcell/bio_workcell/workflows/biometra_test.yaml')

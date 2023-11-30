@@ -3,8 +3,8 @@
 from pathlib import Path
 import time
 
-# from rpl_wei.wei_workcell_base import WEI
-from rpl_wei import Experiment
+# from wei.wei_workcell_base import WEI
+from wei import Experiment
 
 from tools.hudson_solo_auxillary.hso_functions import package_hso
 from tools.hudson_solo_auxillary import solo_transfer4, solo_transfer5

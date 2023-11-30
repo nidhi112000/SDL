@@ -22,9 +22,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools.ai_model import ai_actions
 import scipy.stats as stats
 
-from rpl_wei import Experiment
+from wei import Experiment
 
-#from rpl_wei.wei_workcell_base import WEI
+#from wei.wei_workcell_base import WEI
 
 EXPERIMENT_RUN_DATAFRAMES = []
 CULTURE_PAYLOAD = []

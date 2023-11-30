@@ -5,7 +5,7 @@ from pathlib import Path
 from pathlib import Path
 from tools.hudson_solo_auxillary.hso_functions import package_hso
 from tools.hudson_solo_auxillary import solo_innoculate_from_stock
-from rpl_wei import Experiment
+from wei import Experiment
 import time
 
 
@@ -57,6 +57,7 @@ def main():
             payload["innoculant_stock_columns"] = [1,2,3] 
             payload.plate_id = "1"
 
+            # create hso files and package them for use in workflow
             hso, hso_lines, hso_basename = package_hso(
                 solo_innoculate_from_stock.generate_hso_file, 
                 payload, 
@@ -110,12 +111,22 @@ def main():
             loop_num += 1   # done with this loop
 
         if loop_num != 0:  # if not the very beginning of the protocol
-            if loop_num % 4 == 0:  # innoculation transfer within plate
-                # TODO
+            if loop_num % 4 == 0:  # innoculation transfer between plate
+                
+                # unload plate from incubator -> stack 4 (old)
+
+                # get new plate from stack 5 (new)
+                
+                # innoculate 
+
+                # repeat for other plate
+
+                # incubate 6 hours
 
                 loop_num += 1
 
-            elif loop_num % 4 != 0:  # innoculation transfer between plates 
+            elif loop_num % 4 != 0:  # innoculation transfer within plates 
+                
                 # TODO
 
                 loop_num += 1
@@ -123,7 +134,8 @@ def main():
             else: 
                 # something went very wrong
 
-            
+
+
 
 
 if __name__ == "__main__":
