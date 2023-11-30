@@ -68,7 +68,7 @@ def main():
     payload["hso_5_basename"] = hso_5_basename
 
     # Run workflow file
-    flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
+    flow_info = exp.start_run(wf_path_1.resolve(), payload=payload, simulate=False)
 
 if __name__ == "__main__":
     main()

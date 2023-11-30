@@ -75,13 +75,13 @@ def main():
     # payload["hso_3_lines"] = hso_3_lines
     # payload["hso_3_basename"] = hso_3_basename
 
-    flow_info = exp.run_job(liconic_run.resolve(), payload=payload, simulate=False)
+    flow_info = exp.start_run(liconic_run.resolve(), payload=payload, simulate=False)
 
-    flow_status = exp.query_job(flow_info["job_id"])
+    flow_status = exp.query_run(flow_info["run_id"])
     while (
         flow_status["status"] != "finished" and flow_status["status"] != "failure"
     ):
-        flow_status = exp.query_job(flow_info["job_id"])
+        flow_status = exp.query_run(flow_info["run_id"])
         time.sleep(3)
 
     run_info = flow_status["result"]

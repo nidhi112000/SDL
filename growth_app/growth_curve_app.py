@@ -67,13 +67,13 @@ def main():
     payload["hso_3_basename"] = hso_3_basename
 
     # Run the T0 Workflow on the Registered WEI Experiment with the payload specified above
-    flow_info = exp.run_job(wf_path_1.resolve(), payload=payload, simulate=False)
+    flow_info = exp.start_run(wf_path_1.resolve(), payload=payload, simulate=False)
 
     # Pinging the status of the T0 Workflow sent to the WEI Experiment
-    flow_status = exp.query_job(flow_info["job_id"])
+    flow_status = exp.query_run(flow_info["run_id"])
     #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
     while flow_status["status"] != "finished" and flow_status["status"] != "failure":
-        flow_status = exp.query_job(flow_info["job_id"])
+        flow_status = exp.query_run(flow_info["run_id"])
         time.sleep(3)
 
     # Receiving the Results of the now completed T0 Workflow, Creating a Path of the Run Directory, and printing the Run Information
@@ -100,13 +100,13 @@ def main():
     time.sleep(43200)
 
     # Run the T12 Workflow on the Registered WEI Experiment with the payload specified above to read the plate after the 12 hour wait
-    flow_info = exp.run_job(wf_path_2.resolve(), payload=payload, simulate=False)
+    flow_info = exp.start_run(wf_path_2.resolve(), payload=payload, simulate=False)
     
     # Pinging the status of the T0 Workflow sent to the WEI Experiment
-    flow_status = exp.query_job(flow_info["job_id"])
+    flow_status = exp.query_run(flow_info["run_id"])
     #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
     while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
-        flow_status = exp.query_job(flow_info["job_id"])
+        flow_status = exp.query_run(flow_info["run_id"])
         time.sleep(3)
     
     # Receiving the Results of the now completed T0 Workflow, Creating a Path of the Run Directory, and printing the Run Information

@@ -101,7 +101,7 @@ def main():
 
             """
             # Get new plate from stack 5 -> solo deck pos4, remove lid
-            flow_info = exp.run_job(
+            flow_info = exp.start_run(
                 wf_path_new_plate_stack5.resolve(), 
                 payload=payload, 
                 simulate=False
@@ -124,14 +124,14 @@ def main():
             payload["hso_basename"] = hso_basename
 
             # inoculate plate from stack 5, hidex reading, place in incubator
-            flow_info = exp.run_job(
+            flow_info = exp.start_run(
                 wf_path_inoculate_from_stock.resolve(), 
                 payload=payload, 
                 simulate=False
             ) 
 
             # Get new plate from Stack 4
-            flow_info = exp.run_job(
+            flow_info = exp.start_run(
                 wf_path_new_plate_stack4.resolve(), 
                 payload=payload, 
                 simulate=False
@@ -152,7 +152,7 @@ def main():
             payload["hso_basename"] = hso_basename
 
             # inoculate plate from stack 4, hidex reading, place in incubator
-            flow_info = exp.run_job(
+            flow_info = exp.start_run(
                 wf_path_inoculate_from_stock.resolve(), 
                 payload=payload, 
                 simulate=False
@@ -235,14 +235,14 @@ def main():
                 payload.plate_id = 1
 
                 # run the inoculate_between_plates_step1.yaml workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_inoculate_between_plates_step1.resolve(), 
                     payload=payload, 
                     simulate=False
                 ) 
 
                 # run get_new_plate_stack5.yaml workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_new_plate_stack5.resolve(), 
                     payload=payload, 
                     simulate=False
@@ -261,7 +261,7 @@ def main():
                 payload["hso_basename"] = hso_basename
 
                 # run inoculate_between_plates_step2.yaml workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_inoculate_between_plates_step2.resolve(), 
                     payload=payload, 
                     simulate=False
@@ -271,14 +271,14 @@ def main():
                 payload.plate_id = 2
 
                 # run the inoculate_between_plates_step1.yaml workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_inoculate_between_plates_step1.resolve(), 
                     payload=payload, 
                     simulate=False
                 ) 
 
                 # run get_new_plate_stack4.yaml workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_new_plate_stack4.resolve(), 
                     payload=payload, 
                     simulate=False
@@ -297,7 +297,7 @@ def main():
                 payload["hso_basename"] = hso_basename
 
                 # run inoculate_between_plates_step2.yaml workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_inoculate_between_plates_step2.resolve(), 
                     payload=payload, 
                     simulate=False
@@ -361,7 +361,7 @@ def main():
                 payload["hso_basename"] = hso_basename
 
                 # Run the within plate inoculation workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_inoculate_within_plate.resolve(), 
                     payload=payload, 
                     simulate=False
@@ -385,7 +385,7 @@ def main():
                 payload["hso_basename"] = hso_basename
 
                 # Run the within plate inoculation workflow
-                flow_info = exp.run_job(
+                flow_info = exp.start_run(
                     wf_path_inoculate_within_plate.resolve(), 
                     payload=payload, 
                     simulate=False

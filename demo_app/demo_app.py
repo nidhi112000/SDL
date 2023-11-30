@@ -47,14 +47,14 @@ def main():
     payload["hso_1_basename"] = hso_1_basename
 
     # * Run the substrate step 1 workflow
-    flow_info = exp.run_job(wf_path.resolve(), payload=payload, simulate=False)
+    flow_info = exp.start_run(wf_path.resolve(), payload=payload, simulate=False)
 
     # * Pinging the status of the T0 Workflow sent to the WEI Experiment
-    flow_status = exp.query_job(flow_info["job_id"])
+    flow_status = exp.query_run(flow_info["run_id"])
 
     #Periodically checking the status every 3 seconds of the T0 Workflow until it is finished
     while flow_status["status"] != "finished" and flow_status["status"] != "failure":
-        flow_status = exp.query_job(flow_info["job_id"])
+        flow_status = exp.query_run(flow_info["run_id"])
         time.sleep(3)
 
     # Receive the results of the now completed workflow, create a path to the run directory, and print the run information

@@ -480,11 +480,11 @@ def T12_Reading(liconic_plate_id):
     HIDEX_UPLOADS.append(hidex_upload_id)
 
 def run_WEI(file_location, payload_class, Hidex_Used = False, Plate_Number = 0, Experiment_Run_Dataframe = None):
-    flow_info = exp.run_job(Path(file_location).resolve(), payload=payload_class, simulate=False)
+    flow_info = exp.start_run(Path(file_location).resolve(), payload=payload_class, simulate=False)
 
-    flow_status = exp.query_job(flow_info["job_id"])
+    flow_status = exp.query_run(flow_info["run_id"])
     while(flow_status["status"] != "finished" and flow_status["status"] != "failure"):
-        flow_status = exp.query_job(flow_info["job_id"])
+        flow_status = exp.query_run(flow_info["run_id"])
         time.sleep(3)
 
     run_info = flow_status["result"]
