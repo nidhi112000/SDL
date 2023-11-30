@@ -1,0 +1,108 @@
+1. run inoculate_between_plates_step1.yaml workflow
+  - unload plate from incubator (based on plate_id variable)
+  - transfer plate to peeler
+  - peel plate
+  - open hidex gate
+  - transfer plate to hidex
+  - run hidex OD(590) assay
+  - open hidex gate 
+  - transfer plate to SOLO Position 6
+  - close hidex gate
+
+name: Adaptive_Lab_Evolution - Inoculate from Stock 
+
+metadata:
+  author: Zahmeeth Sakkaff, Casey Stone, Abe Stroka, and Nidhi Gupta
+  info: An Adaptive_Lab_Evolution workflow for the BIO workcell
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: hidex
+  - name: plateCrane
+  - name: sealer
+  - name: liconic
+
+flowdef:
+  - name: Unload Liconic
+    module: liconic
+    action: unload_plate
+    args: 
+      plate_id: payload.plate_id
+    checks: null
+    comment: Unload plate from incubator
+      
+  - name: Move plate from Liconic to Peeler
+    module: plateCrane
+    action: transfer
+    args:
+      source: "Liconic.Nest"
+      target: "PeelerNest"
+      source_type: "stack"
+      target_type: "module"   
+    checks: null
+    comment: Place plate onto PeelerNest
+  
+  - name: Peel
+    module: peeler
+    action: peel
+    args:
+      test: null
+    checks: null
+    comment: null
+    
+  - name: Open Hidex
+    module: hidex
+    action: open
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Open Hidex Gate
+
+  - name: Move plate from PeelerNest to HidexNest
+    module: plateCrane
+    action: transfer
+    args:
+      source: "PeelerNest"
+      target: "HidexNest2"
+      source_type: "module"
+      target_type: "module"  
+      height_offset: "700"
+    checks: null
+    comment: Place plate in Hidex Nest
+
+  - name: run Hidex
+    module: hidex
+    action: run_assay
+    args: 
+      assay_name: "Campaign2_wei_cs"
+    checks: null  
+    comment: Run Hidex protocol
+
+  - name: Open Hidex
+    module: hidex
+    action: open
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Open Hidex Gate
+
+  - name: Move plate from HidexNest to SOLO Position 6
+    module: plateCrane
+    action: transfer
+    args:
+      source: "HidexNest2"
+      target: "Solo.Position6"
+      source_type: "module"
+      target_type: "module"   
+      height_offset: "650"   # TODO: check that this still works
+    checks: null
+    comment: Place plate onto SOLO deck position 6
+
+  - name: Close Hidex
+    module: hidex
+    action: close
+    args: 
+      foo: "bar"
+    checks: null
+    comment: Close Hidex Gate

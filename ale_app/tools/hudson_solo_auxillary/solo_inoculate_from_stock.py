@@ -19,7 +19,7 @@ def generate_hso_file(
     """generate_hso_file
 
     Description: 
-        Generates SOLOSoft .hso file for first substrate innoculations from stock culture plate
+        Generates SOLOSoft .hso file for first substrate inoculations from stock culture plate
 
     Args:
         payload (dict): input variables from the wei workflow
@@ -28,7 +28,7 @@ def generate_hso_file(
     
     # extract payload variables
     try: 
-        innoculant_stock_columns = payload['innoculant_stock_columns']
+        inoculant_stock_columns = payload['inoculant_stock_columns']
   
     except Exception as error_msg: 
         # TODO: how to handle this?
@@ -38,16 +38,16 @@ def generate_hso_file(
     # other program variables
     deepwell_z_shift = 0.5
     flat_bottom_z_shift = 2  # Note: 1 is not high enough (tested)
-    innoculant_transfer_volume = 10  # TODO: check that this volume is right
+    inoculant_transfer_volume = 10  # TODO: check that this volume is right
     destination_columns = [1,5,9]
 
-    # * Initialize soloSoft (step 1)
+    # * Initialize soloSoft
     soloSoft = SoloSoft(
         filename=temp_file_path,
         plateList=[
-            "TipBox.180uL.Axygen-EVF-180-R-S.bluebox",  # TODO: change to 50 uL tip def
+            "TipBox.50uL.Axygen-EV-50-R-S.tealbox",  
             "Empty",
-            "TipBox.180uL.Axygen-EVF-180-R-S.bluebox",  # TODO: change to 50 uL tip def
+            "TipBox.50uL.Axygen-EV-50-R-S.tealbox",  
             "Plate.96.Corning-3635.ClearUVAssay",
             "DeepBlock.96.VWR-75870-792.sterile",
             "Empty",
@@ -61,8 +61,8 @@ def generate_hso_file(
         soloSoft.aspirate(
             position="Position5",
             aspirate_volumes=DeepBlock_96VWR_75870_792_sterile().setColumn(
-                innoculant_stock_columns[i], 
-                innoculant_transfer_volume
+                inoculant_stock_columns[i], 
+                inoculant_transfer_volume
             ),
             aspirate_shift=[0, 0, deepwell_z_shift],
         )
@@ -70,7 +70,7 @@ def generate_hso_file(
             position="Position4",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 destination_columns[i], 
-                innoculant_transfer_volume
+                inoculant_transfer_volume
             ),
             dispense_shift=[0, 0, flat_bottom_z_shift],
         )
