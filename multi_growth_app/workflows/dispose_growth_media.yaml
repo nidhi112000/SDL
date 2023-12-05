@@ -9,12 +9,12 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
+  - name: platecrane
   - name: camera
 
 flowdef:
   - name: Move Growth Media Plate from Solo Position2 to Stack 2
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position2"

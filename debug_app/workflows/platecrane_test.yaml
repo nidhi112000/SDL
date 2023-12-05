@@ -7,11 +7,11 @@ metadata:
 
 
 modules:
-  - name: plateCrane
+  - name: platecrane
 
 flowdef:
   - name: Move tip bin from Stack4 to Solo Position3
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Stack4"
@@ -23,7 +23,7 @@ flowdef:
     comment: Place plate in Solo Position4
 
   - name: Move plate from Stack5 to Solo Position4
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Stack5"
@@ -35,7 +35,7 @@ flowdef:
     comment: Place plate in Solo Position4
 
   - name: Remove lid
-    module: plateCrane
+    module: platecrane
     action: remove_lid
     args:
       source: "Solo.Position4"
@@ -45,7 +45,7 @@ flowdef:
     comment: Place plate lid on lid nest 2
 
   - name: Move plate from Solo Position4 to Hidex Nest
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position4"
@@ -59,7 +59,7 @@ flowdef:
 
 
   - name: Move plate from HidexNest to Sealer
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"
@@ -73,7 +73,7 @@ flowdef:
 
 
   - name: Move plate from Sealer to Liconic
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "SealerNest"
@@ -85,7 +85,7 @@ flowdef:
     comment: Place plate onto Liconic
  
   - name: Move plate from Liconic to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Liconic.Nest"
@@ -97,7 +97,7 @@ flowdef:
     comment: Place plate onto PeelerNest
   
   - name: Move plate from PeelerNest to HidexNest
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "PeelerNest"
@@ -111,7 +111,7 @@ flowdef:
 
 
   - name: Move plate from HidexNest to Stack1
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"

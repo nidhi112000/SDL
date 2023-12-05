@@ -7,12 +7,12 @@ metadata:
 
 modules:
   - name: solo
-  - name: plateEx
+  - name: platecrane
 
 
 flowdef:
   - name: Move substrate plate from Stack 4 onto SOLO Position 4
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Stack5"
@@ -24,7 +24,7 @@ flowdef:
     comment: Place substrate plate on SOLO Position 5
 
   - name: Remove lid
-    module: plateCrane
+    module: platecrane
     action: remove_lid
     args:
       source: "Solo.Position4"

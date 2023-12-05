@@ -9,7 +9,7 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
+  - name: platecrane
   - name: camera
 
 flowdef:

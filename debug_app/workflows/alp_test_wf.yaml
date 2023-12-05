@@ -9,13 +9,13 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
+  - name: platecrane
   - name: camera
 
 flowdef:
 # 96 Well Plate from Stack 3 to Solo Position 4  
   - name: 96 well plate from Stack 3 to Solo Position 4
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Stack3"
@@ -28,7 +28,7 @@ flowdef:
 
 # Remove Lid
   - name: Remove lid
-    module: plateCrane
+    module: platecrane
     action: remove_lid
     args:
       source: "Solo.Position4"
@@ -39,7 +39,7 @@ flowdef:
 
 # Tip box from Stack 4 to Solo Position 3
   - name: Tip box from Stack 4 to Solo Position 3
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Stack4"
@@ -63,7 +63,7 @@ flowdef:
 
 # Move to Sealer
   - name: Move 96 well plate from Solo Position 4 to Sealer
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position4"
@@ -86,7 +86,7 @@ flowdef:
 
 # Move to Liconic
   - name: Move plate from Sealer to Liconic
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "SealerNest"
@@ -125,7 +125,7 @@ flowdef:
 
 # Move to Peeler
   - name: Move plate from Liconic to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Liconic.Nest"
@@ -146,7 +146,7 @@ flowdef:
 
 # Move to Stack 1
   - name: Move Plate from Peeler to Stack 1
-    module: plateCrane
+    module: platecrane
     action: transfer
     args: 
       source: "PeelerNest"

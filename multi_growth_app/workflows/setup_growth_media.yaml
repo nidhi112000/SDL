@@ -9,12 +9,12 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
+  - name: platecrane
   - name: camera
 
 flowdef:
   - name: Move Growth Media Plate from LidNest to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: payload.lidnest_index
@@ -34,7 +34,7 @@ flowdef:
     comment: null
   
   - name: Move Growth Media Plate from Peeler to Solo Position2
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "PeelerNest"

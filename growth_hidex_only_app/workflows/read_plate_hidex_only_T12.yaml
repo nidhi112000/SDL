@@ -9,7 +9,7 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
+  - name: platecrane
   - name: camera
 
 flowdef:
@@ -24,7 +24,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from Hidex to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"
@@ -61,7 +61,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from PeelerNest to HidexNest
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "PeelerNest"
@@ -91,7 +91,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from HidexNest to Stack1
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"

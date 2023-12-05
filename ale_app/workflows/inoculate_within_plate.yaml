@@ -8,7 +8,7 @@ metadata:
 modules:
   - name: solo
   - name: hidex
-  - name: plateCrane
+  - name: platecrane
   - name: sealer
   - name: liconic
 
@@ -24,7 +24,7 @@ flowdef:
     comment: Unload plate from incubator
       
   - name: Move plate from Liconic to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Liconic.Nest"
@@ -51,7 +51,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from PeelerNest to HidexNest
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "PeelerNest"
@@ -79,7 +79,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from HidexNest to SOLO Position 4
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"
@@ -117,7 +117,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from Solo Position4 to Hidex Nest
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position4"
@@ -145,7 +145,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from HidexNest to Sealer
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"
@@ -174,7 +174,7 @@ flowdef:
     comment: Seal the plate
 
   - name: Move plate from Sealer to Liconic
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "SealerNest"

@@ -9,13 +9,13 @@ modules:
   - name: solo
   - name: peeler
   - name: sealer
-  - name: plateEx
+  - name: platecrane
   - name: camera
 
 flowdef:
 
   # - name: Move tip bin from Solo Position3 to Stack4
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "Solo.Position3"
@@ -27,7 +27,7 @@ flowdef:
   #   comment: Place plate in Solo Position4
 
   - name: Move deep well plate from Stack3 to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position2"
@@ -40,7 +40,7 @@ flowdef:
 
 
   - name: Move deep well plate from Stack3 to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position4"
@@ -52,7 +52,7 @@ flowdef:
     comment: Place plate in Solo Position4
 
   - name: Move deep well plate from Stack3 to Peeler
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position6"
@@ -64,7 +64,7 @@ flowdef:
     comment: Place plate in Solo Position4
 
   # - name: Move tip bin from Solo Position3 to Stack 1
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "Solo.Position3"
@@ -76,7 +76,7 @@ flowdef:
   #   comment: Place plate in Solo Position4
 
   # - name: Move tip bin from Stack4 to Solo Position3
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "Solo.Position3"
@@ -88,7 +88,7 @@ flowdef:
   #   comment: Place plate in Solo Position4
 
   # - name: Move plate from PeelerNest to HidexNest
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "PeelerNest"
@@ -100,7 +100,7 @@ flowdef:
   #   comment: Place plate in Hidex Nest
   
   # - name: Move plate from HidexNest to Stack2
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "HidexNest2"
@@ -112,7 +112,7 @@ flowdef:
   #   comment: Place plate into trash Stack
 
   # - name: Move plate from HidexNest to Sealer
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "HidexNest2"
@@ -124,7 +124,7 @@ flowdef:
   #   comment: Place plate to Sealer
 
   # - name: Move deep well plate from Stack3 to Peeler
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "Stack3"
@@ -136,7 +136,7 @@ flowdef:
   #   comment: Place plate in Solo Position4
 
   # - name: Move plate from Sealer to Liconic
-  #   module: plateCrane
+  #   module: platecrane
   #   action: transfer
   #   args:
   #     source: "SealerNest"

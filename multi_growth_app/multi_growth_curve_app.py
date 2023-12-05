@@ -380,11 +380,11 @@ def setup(iteration_number):
             #Specify the LidNest index of the growth well media plate that will be added to the setup (This equation assumes that there are only two growth media plates on LidNest 2 and LidNest 3 respectively for a total of 12 runs)
             LidNest_index = 2 + iteration_number/6
             #Convert the index to a readable string
-            plateCrane_readable_index = "LidNest" + str(int(LidNest_index))
-            print("LidNest Being Used: ", plateCrane_readable_index)
+            platecrane_readable_index = "LidNest" + str(int(LidNest_index))
+            print("LidNest Being Used: ", platecrane_readable_index)
             #Add the LidNest Index to the payload
             payload={
-                'lidnest_index':  plateCrane_readable_index,
+                'lidnest_index':  platecrane_readable_index,
             }
             #Run the Yaml file that outlines the setup procedure for the growth media plate
             print("Starting Growth Media Setup")

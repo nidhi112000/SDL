@@ -26,7 +26,7 @@ metadata:
 modules:
   - name: solo
   - name: hidex
-  - name: plateCrane
+  - name: platecrane
   - name: sealer
   - name: liconic
 
@@ -50,7 +50,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from Solo Position4 to Hidex Nest
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Solo.Position4"
@@ -78,7 +78,7 @@ flowdef:
     comment: Open Hidex Gate
 
   - name: Move plate from HidexNest to Sealer
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "HidexNest2"
@@ -107,7 +107,7 @@ flowdef:
     comment: Seal the plate
 
   - name: Move plate from Sealer to Liconic
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "SealerNest"
@@ -134,7 +134,7 @@ flowdef:
     comment: Stage pcr plates
 
   - name: Move old plate from SOLO Position6 to Stack1 (trash)
-    module: plateCrane
+    module: platecrane
     action: transfer
     args:
       source: "Position6"
