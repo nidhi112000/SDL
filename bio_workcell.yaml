@@ -11,54 +11,42 @@ config:
   origin_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
 modules:
-  - name: plateCrane
-    model: plateCrane
-    interface: wei_ros_node
+  - name: platecrane
+    model: platecrane
+    interface: wei_rest_node
     config:
-      ros_node_address: "/std_ns/PlateCraneNode"
+      rest_node_address: "http://potts.cels.anl.gov:2000"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: sealer
     active: false
     model: a4S_sealer
-    interface: wei_ros_node
+    interface: wei_rest_node
     config:
-      ros_node_address: "/std_ns/SealerNode"
+      rest_node_address: "http://potts.cels.anl.gov:2001"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
       
   - name: peeler
     # active: false
     model: peeler
-    interface: wei_ros_node
+    interface: wei_rest_node
     config:
-      ros_node_address: "/std_ns/PeelerNode"
+      rest_node_address: "http://potts.cels.anl.gov:2002"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
-<<<<<<< Updated upstream
-  - name: biometra
-    model: biometra
-    interface: wei_ros_node
-    config:
-      ros_node_address: "/std_ns/biometraNode"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
-
-=======
->>>>>>> Stashed changes
   - name: liconic
     active: false
     model: liconic
-    interface: wei_ros_node
+    interface: wei_rest_node
     config:
-      ros_node_address: "/std_ns/liconicNode"
+      rest_node_address: "http://potts.cels.anl.gov:2003"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: hidex
-    active: false
     model: Hidex
-    interface: wei_tcp_node
+    interface: wei_rest_node
     config:
-      tcp_node_address: "hudson01.cels.anl.gov"
-      tcp_node_port: "2000"
+      rest_node_address: "http://hudson01.cels.anl.gov:2002"
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: solo
@@ -66,7 +54,6 @@ modules:
     interface: wei_rest_node
     config:
       rest_node_address: "http://hudson01.cels.anl.gov:2003"
-      rest_node_auth: ""
     workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
 locations:

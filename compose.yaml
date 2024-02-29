@@ -33,12 +33,12 @@ services:
     tty: true
     profiles: [ debug ]
 
-  a4s_sealer_node:
-    image: ghcr.io/ad-sdl/a4s_sealer_module
-    container_name: a4s_sealer_node
+  platecrane_node:
+    image: ghcr.io/ad-sdl/hudson_platecrane_module
+    container_name: platecrane_node
     ports:
       - 2000:2000
-    command: python a4s_sealer_module/scripts/a4s_sealer_rest_node.py --port=2000
+    command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2000
 
   brooks_xpeel_node:
     image: ghcr.io/ad-sdl/brooks_xpeel_module
@@ -47,12 +47,13 @@ services:
       - 2001:2001
     command: python brooks_xpeel_module/scripts/brooks_xpeel_rest_node.py --port=2001
 
-  platecrane_node:
-    image: ghcr.io/ad-sdl/hudson_platecrane_module
-    container_name: platecrane_node
+  a4s_sealer_node:
+    image: ghcr.io/ad-sdl/a4s_sealer_module
+    container_name: a4s_sealer_node
     ports:
       - 2002:2002
-    command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2002
+    command: python a4s_sealer_module/scripts/a4s_sealer_rest_node.py --port=2002
+
 
 ################
 # Data Storage #
