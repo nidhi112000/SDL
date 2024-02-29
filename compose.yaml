@@ -1,0 +1,62 @@
+name: b350_lab
+
+services:
+  # Single Redis used by whole lab
+  rpl_redis:
+    image: redis
+    container_name: rpl_redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ${REDIS_DIR}:/data
+    command: redis-server --save 60 1 --loglevel warning
+
+  redis_commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis_commander
+    ports:
+      - 8081:8081
+    environment:
+      - REDIS_HOSTS=local:rpl_redis:6379
+    depends_on:
+      - rpl_redis
+  # Attachable terminal container with WEI installed, for testing/debugging
+  # Run docker compose with "--profile debug" to include this container
+  lab_terminal:
+    image: ghcr.io/ad-sdl/wei
+    container_name: lab_terminal
+    volumes:
+      - ${WORKCELLS_DIR}:/workcell_defs
+      - ${WEI_DATA_DIR}:/home/app/.wei
+      - diaspora_config:/home/app/.diaspora
+    entrypoint: [ "/sbin/matchhostfsowner" ]
+    tty: true
+    profiles: [ debug ]
+
+  a4s_sealer_node:
+    image: ghcr.io/ad-sdl/a4s_sealer_module
+    container_name: a4s_sealer_node
+    ports:
+      - 2000:2000
+    command: python a4s_sealer_module/scripts/a4s_sealer_rest_node.py --port=2000
+
+  brooks_xpeel_node:
+    image: ghcr.io/ad-sdl/brooks_xpeel_module
+    container_name: brooks_xpeel_node
+    ports:
+      - 2001:2001
+    command: python brooks_xpeel_module/scripts/brooks_xpeel_rest_node.py --port=2001
+
+  platecrane_node:
+    image: ghcr.io/ad-sdl/hudson_platecrane_module
+    container_name: platecrane_node
+    ports:
+      - 2002:2002
+    command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2002
+
+################
+# Data Storage #
+################
+volumes:
+  diaspora_config:
+    driver: local
