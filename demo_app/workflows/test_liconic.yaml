@@ -1,0 +1,50 @@
+name: Growth Curve - Workflow
+
+metadata:
+  author: Casey Stone, Rafael Vescovi
+  info: Testing Liconic
+  version: 0.1
+
+modules:
+  # - name: solo
+  # - name: peeler
+  # - name: sealer
+  # - name: platecrane
+  # - name: hidex
+  - name: liconic
+
+
+flowdef:
+  - name: Load Liconic
+    module: liconic
+    action: load_plate
+    args: 
+      plate_id: "1"
+    checks: null
+    comment: Stage pcr plates
+
+  - name: Start shaker at set speed
+    module: liconic
+    action: begin_shake
+    args: 
+      shaker_speed: payload.shaker_speed
+    checks: null
+    comment: Stage pcr plates
+
+  - name: Stop Shaker
+    module: liconic
+    action: end_shake
+    # args:
+    checks: null
+    comment: Stage pcr plates
+
+
+    end step 1
+
+  - name: Unload Liconic
+    module: liconic
+    action: unload_plate
+    args: 
+      plate_id: "1"
+    checks: null
+    comment: Stage pcr plates

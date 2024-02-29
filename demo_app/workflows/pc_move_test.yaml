@@ -1,0 +1,40 @@
+name: Growth Curve - Workflow
+
+metadata:
+  author: Casey Stone, Rafael Vescovi
+  info: Initial PCR workflow for RPL workcell
+  version: 0.1
+
+modules:
+  - name: solo
+  - name: peeler
+  - name: sealer
+  - name: platecrane
+  - name: hidex
+  - name: liconic
+
+
+flowdef:
+  - name: Move plate from LidNest1 to Solo Position1
+    module: platecrane
+    action: transfer
+    args:
+      source: "LidNest1"
+      target: "Solo.Position1"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate in Solo Position1
+
+  - name: Move plate from Solo Position1 to LidNest1
+    module: platecrane
+    action: transfer
+    args:
+      source: "Solo.Position1"
+      target: "LidNest1"
+      source_type: "stack"
+      target_type: "stack"
+      plate_type: "96_well"
+    checks: null
+    comment: Place plate in LidNest1
