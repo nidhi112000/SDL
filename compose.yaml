@@ -39,6 +39,12 @@ services:
     ports:
       - 2000:2000
     command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2000
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+    privileged: true
+    volumes:
+      - /dev:/dev
 
   brooks_xpeel_node:
     image: ghcr.io/ad-sdl/brooks_xpeel_module
@@ -46,6 +52,12 @@ services:
     ports:
       - 2001:2001
     command: python brooks_xpeel_module/scripts/brooks_xpeel_rest_node.py --port=2001
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+    privileged: true
+    volumes:
+      - /dev:/dev
 
   a4s_sealer_node:
     image: ghcr.io/ad-sdl/a4s_sealer_module
@@ -53,7 +65,12 @@ services:
     ports:
       - 2002:2002
     command: python a4s_sealer_module/scripts/a4s_sealer_rest_node.py --port=2002
-
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+    privileged: true
+    volumes:
+      - /dev:/dev
 
 ################
 # Data Storage #
