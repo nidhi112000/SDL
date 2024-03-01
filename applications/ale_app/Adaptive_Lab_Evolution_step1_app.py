@@ -15,7 +15,7 @@ def main():
     #Accessing the paths for the T0 Workflow and the T12 workflow. 
     #The Paths will need to be changed if the corresponding Yaml file locations are changed
     wf_path_1 = Path(
-        "/home/rpl/workspace/BIO_workcell/ale_zah_nidhi/workflows/create_substrate_plate_step1.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/applications/applications/ale_zah_nidhi/workflows/create_substrate_plate_step1.yaml"
     )
  
     #Creates a WEI Experiment at the 8000 port and registers the expermient with the title Growth_Curve

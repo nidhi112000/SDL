@@ -2,13 +2,13 @@ name: b350_lab
 
 services:
   # Single Redis used by whole lab
-  rpl_redis:
+  b350_redis:
     image: redis
-    container_name: rpl_redis
+    container_name: b350_redis
     ports:
       - 6379:6379
     volumes:
-      - ${REDIS_DIR}:/data
+      - ~/.wei/redis:/data
     command: redis-server --save 60 1 --loglevel warning
 
   redis_commander:
@@ -17,21 +17,9 @@ services:
     ports:
       - 8081:8081
     environment:
-      - REDIS_HOSTS=local:rpl_redis:6379
+      - REDIS_HOSTS=local:b350_redis:6379
     depends_on:
-      - rpl_redis
-  # Attachable terminal container with WEI installed, for testing/debugging
-  # Run docker compose with "--profile debug" to include this container
-  lab_terminal:
-    image: ghcr.io/ad-sdl/wei
-    container_name: lab_terminal
-    volumes:
-      - ${WORKCELLS_DIR}:/workcell_defs
-      - ${WEI_DATA_DIR}:/home/app/.wei
-      - diaspora_config:/home/app/.diaspora
-    entrypoint: [ "/sbin/matchhostfsowner" ]
-    tty: true
-    profiles: [ debug ]
+      - b350_redis
 
   platecrane_node:
     image: ghcr.io/ad-sdl/hudson_platecrane_module
@@ -71,6 +59,19 @@ services:
     privileged: true
     volumes:
       - /dev:/dev
+
+  # liconic_node:
+  #   image: ghcr.io/ad-sdl/liconic_module
+  #   container_name: liconic_node
+  #   ports:
+  #     - 2002:2002
+  #   command: python liconic_module/scripts/liconic_rest_node.py --port=2003
+  #   environment:
+  #     - USER_ID=1000
+  #     - GROUP_ID=1000
+  #   privileged: true
+  #   volumes:
+  #     - /dev:/dev
 
 ################
 # Data Storage #

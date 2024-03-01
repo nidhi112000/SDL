@@ -31,7 +31,7 @@ def main():
    
     # * Point to relevant workflow (yaml) file 
     wf_path = Path(
-        "/home/rpl/workspace/BIO_workcell/substrate_app/workflows/substrate_step2.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/substrate_app/workflows/substrate_step2.yaml"
     )
   
     # * Creates a WEI Experiment at port 8000 and registers the experiment with the title Substrate

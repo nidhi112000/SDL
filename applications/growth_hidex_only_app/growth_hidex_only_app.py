@@ -15,13 +15,13 @@ def main():
     #Accessing the paths for the T0 Workflow and the T12 workflow. 
     #The Paths will need to be changed if the corresponding Yaml file locations are changed
     wf_path_1 = Path(
-        "/home/rpl/workspace/BIO_workcell/growth_hidex_only_app/workflows/create_plate_hidex_only_T0.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/applications/growth_hidex_only_app/workflows/create_plate_hidex_only_T0.yaml"
     )
     wf_path_2 = Path(
-        "/home/rpl/workspace/BIO_workcell/growth_hidex_only_app/workflows/hidex_incubation_12hrs.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/applications/growth_hidex_only_app/workflows/hidex_incubation_12hrs.yaml"
     )
     wf_path_3 = Path(
-        "/home/rpl/workspace/BIO_workcell/growth_hidex_only_app/workflows/read_plate_hidex_only_T12.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/applications/growth_hidex_only_app/workflows/read_plate_hidex_only_T12.yaml"
     )
 
 

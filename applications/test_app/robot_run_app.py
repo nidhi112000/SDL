@@ -12,27 +12,27 @@ from tools.hudson_solo_auxillary import solo_step1, solo_step2, solo_step3
 
 def main():
     hidex_run = Path(
-        "/home/rpl/workspace/BIO_workcell/test_app/workflows/hidex_run.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/test_app/workflows/hidex_run.yaml"
     )
     
     liconic_run = Path(
-        "/home/rpl/workspace/BIO_workcell/test_app/workflows/liconic_run.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/test_app/workflows/liconic_run.yaml"
     )
 
     peeler_run = Path(
-        "/home/rpl/workspace/BIO_workcell/test_app/workflows/peeler_run.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/test_app/workflows/peeler_run.yaml"
     )
 
     platecrane_run = Path(
-        "/home/rpl/workspace/BIO_workcell/test_app/workflows/platecrane_run.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/test_app/workflows/platecrane_run.yaml"
     )
 
     sealer_run = Path(
-        "/home/rpl/workspace/BIO_workcell/test_app/workflows/sealer_run.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/test_app/workflows/sealer_run.yaml"
     )
 
     solo_run = Path(
-        "/home/rpl/workspace/BIO_workcell/test_app/workflows/solo_run.yaml"
+        "/home/rpl/workspace/BIO_workcell/applications/test_app/workflows/solo_run.yaml"
     )
 
     exp = Experiment("127.0.0.1", "8000", "Hidex_Test")

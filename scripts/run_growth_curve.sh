@@ -1,4 +1,2 @@
-source /opt/ros/humble/setup.bash
-source ~/wei_ws/install/setup.bash
-python3 ../growth_curve.py
+python3 ../applications/growth_curve_app/growth_curve.py
 

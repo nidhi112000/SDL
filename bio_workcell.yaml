@@ -16,45 +16,36 @@ modules:
     interface: wei_rest_node
     config:
       rest_node_address: "http://potts.cels.anl.gov:2000"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
-  - name: sealer
-    active: false
-    model: a4S_sealer
-    interface: wei_rest_node
-    config:
-      rest_node_address: "http://potts.cels.anl.gov:2001"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
-      
   - name: peeler
-    # active: false
     model: peeler
     interface: wei_rest_node
     config:
-      rest_node_address: "http://potts.cels.anl.gov:2002"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
+      rest_node_address: "http://potts.cels.anl.gov:2001"
 
+  - name: sealer
+    model: a4S_sealer
+    interface: wei_rest_node
+    config:
+      rest_node_address: "http://potts.cels.anl.gov:2002"
+      
   - name: liconic
-    active: false
     model: liconic
     interface: wei_rest_node
     config:
       rest_node_address: "http://potts.cels.anl.gov:2003"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: hidex
     model: Hidex
     interface: wei_rest_node
     config:
       rest_node_address: "http://hudson01.cels.anl.gov:2002"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
   - name: solo
     model: Solo
     interface: wei_rest_node
     config:
       rest_node_address: "http://hudson01.cels.anl.gov:2003"
-    workcell_coordinates: [0,0,0,1,0,0,0] # X, Y, Z, Q0, Q1, Q2, Q3
 
 locations:
   plateCrane:

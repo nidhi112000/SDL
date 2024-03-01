@@ -35,17 +35,17 @@ CREATED_COMPLETED_FILE = False
 COMPLETED_FILE_NAME = ''
 EXPERIMENT_FILE_PATH = ''
 
-COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/complete_hudson_setup.yaml'
-STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/streamlined_hudson_setup.yaml'
-SETUP_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/setup_growth_media.yaml'
+COMPLETE_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/complete_hudson_setup.yaml'
+STREAMLINED_HUDSON_SETUP_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/streamlined_hudson_setup.yaml'
+SETUP_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/setup_growth_media.yaml'
 
-CREATE_PLATE_T0_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/create_plate_T0.yaml'
-READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/read_plate_T12.yaml'
+CREATE_PLATE_T0_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/create_plate_T0.yaml'
+READ_PLATE_T12_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/read_plate_T12.yaml'
 
-DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_box_plate.yaml'
-DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/dispose_growth_media.yaml'
+DISPOSE_BOX_PLATE_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/dispose_box_plate.yaml'
+DISPOSE_GROWTH_MEDIA_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/dispose_growth_media.yaml'
 
-OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/multi_growth_app/workflows/open_close_hidex.yaml'
+OPEN_CLOSE_HIDEX_FILE_PATH = '/home/rpl/workspace/BIO_workcell/applications/multi_growth_app/workflows/open_close_hidex.yaml'
 
 exp = Experiment('127.0.0.1', '8000', 'Growth_Curve')
 exp.register_exp() 
