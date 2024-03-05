@@ -2,6 +2,7 @@ name: BIO_workcell
 
 config:
   redis_host: b350_redis
+  server_host: b350_wc_server
   ##
   funcx_local_ep: ""
   globus_local_ep: ""
@@ -18,7 +19,7 @@ modules:
     model: platecrane
     interface: wei_rest_node
     config:
-      rest_node_address: "http://potts.cels.anl.gov:2000"
+      rest_node_address: "http://platecrane_node:2000"
 
   - name: peeler
     model: peeler
@@ -42,7 +43,7 @@ modules:
     model: Hidex
     interface: wei_rest_node
     config:
-      rest_node_address: "http://hudson01.cels.anl.gov:2002"
+      rest_node_address: "http://hudson01.cels.anl.gov:2005"
 
   - name: solo
     model: Solo

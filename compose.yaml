@@ -1,5 +1,9 @@
 name: b350_lab
 
+include:
+  - dashboard/dashboard.compose.yaml
+  - frigate/bio-frigate.compose.yaml
+  
 services:
   # Single Redis used by whole lab
   b350_redis:
@@ -34,6 +38,10 @@ services:
       - ~/.wei:/home/app/.wei
       - diaspora_config:/home/app/.diaspora
     command: python3 -m wei.server --workcell /workcell_defs/b350_workcell.yaml --use_diaspora false
+    environment:
+      - PYTHONUNBUFFERED=1 # Fix weird bug with empty logging
+      - USER_ID=1000
+      - GROUP_ID=1000
     depends_on:
       - b350_redis
   b350_wc_engine:
@@ -45,6 +53,8 @@ services:
     command: python3 -m wei.engine --workcell /workcell_defs/b350_workcell.yaml --use_diaspora false
     environment:
       - PYTHONUNBUFFERED=1 # Fix weird bug with empty logging
+      - USER_ID=1000
+      - GROUP_ID=1000
     depends_on:
       - b350_redis
 
@@ -53,10 +63,7 @@ services:
     container_name: platecrane_node
     ports:
       - 2000:2000
-    command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2000 --device='/dev/ttyUSB1'
-    environment:
-      - USER_ID=1000
-      - GROUP_ID=1000
+    command: python3 -m platecrane_rest_node --port=2000 --device='/dev/ttyUSB2'
     privileged: true
     volumes:
       - /dev:/dev
@@ -66,10 +73,7 @@ services:
     container_name: brooks_xpeel_node
     ports:
       - 2001:2001
-    command: python -m brooks_xpeel_rest_node --port=2001
-    environment:
-      - USER_ID=1000
-      - GROUP_ID=1000
+    command: python -m brooks_xpeel_rest_node --port=2001 --device='/dev/ttyUSB4'
     privileged: true
     volumes:
       - /dev:/dev
@@ -79,10 +83,7 @@ services:
     container_name: a4s_sealer_node
     ports:
       - 2002:2002
-    command: python a4s_sealer_module/scripts/a4s_sealer_rest_node.py --port=2002
-    environment:
-      - USER_ID=1000
-      - GROUP_ID=1000
+    command: python -m a4s_sealer_rest_node --port=2002 --device='/dev/ttyUSB6'
     privileged: true
     volumes:
       - /dev:/dev
@@ -92,10 +93,7 @@ services:
     container_name: liconic_node
     ports:
       - 2003:2003
-    command: python liconic_module/scripts/liconic_rest_node.py --port=2003
-    environment:
-      - USER_ID=1000
-      - GROUP_ID=1000
+    command: python liconic_module/scripts/liconic_rest_node.py --port=2003 --device='/dev/ttyUSB0'
     privileged: true
     volumes:
       - /dev:/dev

@@ -23,7 +23,7 @@ birdseye:
 cameras:
   biocam1:
     ffmpeg:
-      hwaccel_args: preset-nvidia-h264
+      # hwaccel_args: preset-nvidia-h264
       inputs:
         - path: rtsp://localhost:8554/biocam1
           roles:
@@ -31,7 +31,7 @@ cameras:
 
   biocam3:
     ffmpeg:
-      hwaccel_args: preset-nvidia-h264
+      # hwaccel_args: preset-nvidia-h264
       inputs:
         - path: rtsp://localhost:8554/biocam3
           roles:
@@ -39,7 +39,7 @@ cameras:
 
   biocam2:
     ffmpeg:
-      hwaccel_args: preset-nvidia-h264
+      # hwaccel_args: preset-nvidia-h264
       inputs:
         - path: rtsp://localhost:8554/biocam2
           roles:
