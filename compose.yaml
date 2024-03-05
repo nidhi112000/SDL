@@ -21,6 +21,33 @@ services:
     depends_on:
       - b350_redis
 
+  #####################
+  # WEI Core Services #
+  #####################
+  b350_wc_server:
+    image: ghcr.io/ad-sdl/wei
+    container_name: b350_wc_server
+    ports:
+      - 8000:8000
+    volumes:
+      - ~/.wei:/home/app/.wei
+      - diaspora_config:/home/app/.diaspora
+    command: python3 -m wei.server --workcell /b350_workcell.yaml --use_diaspora false
+    env_file: [ ../../.env ]
+    depends_on:
+      - b350_redis
+  b350_wc_engine:
+    image: ghcr.io/ad-sdl/wei
+    container_name: b350_wc_engine
+    volumes:
+      - ~/.wei:/home/app/.wei
+    command: python3 -m wei.engine --workcell /b350_workcell.yaml --use_diaspora false
+    environment:
+      - PYTHONUNBUFFERED=1 # Fix weird bug with empty logging
+    env_file: [ ../../.env ]
+    depends_on:
+      - b350_redis
+
   platecrane_node:
     image: ghcr.io/ad-sdl/hudson_platecrane_module
     container_name: platecrane_node
@@ -60,18 +87,18 @@ services:
     volumes:
       - /dev:/dev
 
-  # liconic_node:
-  #   image: ghcr.io/ad-sdl/liconic_module
-  #   container_name: liconic_node
-  #   ports:
-  #     - 2002:2002
-  #   command: python liconic_module/scripts/liconic_rest_node.py --port=2003
-  #   environment:
-  #     - USER_ID=1000
-  #     - GROUP_ID=1000
-  #   privileged: true
-  #   volumes:
-  #     - /dev:/dev
+  liconic_node:
+    image: ghcr.io/ad-sdl/liconic_module
+    container_name: liconic_node
+    ports:
+      - 2002:2002
+    command: python liconic_module/scripts/liconic_rest_node.py --port=2003
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+    privileged: true
+    volumes:
+      - /dev:/dev
 
 ################
 # Data Storage #
