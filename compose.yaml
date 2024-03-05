@@ -30,17 +30,19 @@ services:
     ports:
       - 8000:8000
     volumes:
+      - .:/workcell_defs
       - ~/.wei:/home/app/.wei
       - diaspora_config:/home/app/.diaspora
-    command: python3 -m wei.server --workcell /b350_workcell.yaml --use_diaspora false
+    command: python3 -m wei.server --workcell /workcell_defs/b350_workcell.yaml --use_diaspora false
     depends_on:
       - b350_redis
   b350_wc_engine:
     image: ghcr.io/ad-sdl/wei
     container_name: b350_wc_engine
     volumes:
+      - .:/workcell_defs
       - ~/.wei:/home/app/.wei
-    command: python3 -m wei.engine --workcell /b350_workcell.yaml --use_diaspora false
+    command: python3 -m wei.engine --workcell /workcell_defs/b350_workcell.yaml --use_diaspora false
     environment:
       - PYTHONUNBUFFERED=1 # Fix weird bug with empty logging
     depends_on:
@@ -51,7 +53,7 @@ services:
     container_name: platecrane_node
     ports:
       - 2000:2000
-    command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2000
+    command: python3 hudson_platecrane_module/src/platecrane_rest_node.py --port=2000 --device='/dev/ttyUSB1'
     environment:
       - USER_ID=1000
       - GROUP_ID=1000
@@ -64,7 +66,7 @@ services:
     container_name: brooks_xpeel_node
     ports:
       - 2001:2001
-    command: python brooks_xpeel_module/scripts/brooks_xpeel_rest_node.py --port=2001
+    command: python -m brooks_xpeel_rest_node --port=2001
     environment:
       - USER_ID=1000
       - GROUP_ID=1000
@@ -89,7 +91,7 @@ services:
     image: ghcr.io/ad-sdl/liconic_module
     container_name: liconic_node
     ports:
-      - 2002:2002
+      - 2003:2003
     command: python liconic_module/scripts/liconic_rest_node.py --port=2003
     environment:
       - USER_ID=1000
