@@ -33,7 +33,6 @@ services:
       - ~/.wei:/home/app/.wei
       - diaspora_config:/home/app/.diaspora
     command: python3 -m wei.server --workcell /b350_workcell.yaml --use_diaspora false
-    env_file: [ ../../.env ]
     depends_on:
       - b350_redis
   b350_wc_engine:
@@ -44,7 +43,6 @@ services:
     command: python3 -m wei.engine --workcell /b350_workcell.yaml --use_diaspora false
     environment:
       - PYTHONUNBUFFERED=1 # Fix weird bug with empty logging
-    env_file: [ ../../.env ]
     depends_on:
       - b350_redis
 
