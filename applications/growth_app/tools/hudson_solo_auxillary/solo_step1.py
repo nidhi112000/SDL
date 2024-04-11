@@ -79,7 +79,7 @@ def generate_hso_file(
     )
 
     # * Fill all columns of empty 96 well plate (corning 3383 or Falcon - ref 353916) with fresh lb media (12 channel in Position 3, media_start_column and media_start_column+1)
-    soloSoft.getTip("Position3")  
+    soloSoft.getTip("Position1")  
     j = 1
     for i in range(1, 7):  # first half plate = media from column 1
         soloSoft.aspirate(
@@ -199,7 +199,7 @@ def generate_hso_file(
     )
 
     # * Add bacteria from 10 fold diluted culture plate (Position 7, column = culture_column[k]) to growth plate with fresh media (both halves)
-    soloSoft.getTip("Position3")  
+    soloSoft.getTip("Position1")  
     for i in range(1, 7):  # trying a different method of cell dispensing (09/07/21)
         soloSoft.aspirate(  # well in first half
             position="Position7",
