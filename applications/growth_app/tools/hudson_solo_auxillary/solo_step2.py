@@ -86,7 +86,7 @@ def generate_hso_file(
     ):  # columns 1-5 or columns 7-11 (treatment_dil_half = 1 or 2)
         # draws from both lb media wells to prevent running out of media
         soloSoft.aspirate(  # 120 from first lb media well
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 media_start_column, media_transfer_volume_s2
             ),
@@ -103,7 +103,7 @@ def generate_hso_file(
         )
 
         soloSoft.aspirate(  # 120 from second lb media well
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 media_start_column + 1, media_transfer_volume_s2
             ),
@@ -123,7 +123,7 @@ def generate_hso_file(
     # * Fill column 6 of a generic 96 well plate with 240uL lb media total in two steps
     for i in range(media_start_column, media_start_column + 2):
         soloSoft.aspirate(  # first lb media well
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 i, last_column_transfer_volume_s2
             ),
