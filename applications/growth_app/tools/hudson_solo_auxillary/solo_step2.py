@@ -80,7 +80,7 @@ def generate_hso_file(
     )
 
     # * Fill colums 1-5 of generic 96 well plate with 216uL lb media in two steps (will use for both halves of plate)
-    soloSoft.getTip("Position3")  
+    soloSoft.getTip("Position1")  
     for i in range(
         (6 * (treatment_dil_half - 1)) + 1, (6 * (treatment_dil_half - 1)) + 6
     ):  # columns 1-5 or columns 7-11 (treatment_dil_half = 1 or 2)
