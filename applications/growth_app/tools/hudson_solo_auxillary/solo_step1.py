@@ -123,7 +123,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position4",
             dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, half_dilution_media_volume
             ),
@@ -139,7 +139,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position4",
             dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, half_dilution_media_volume
             ),
@@ -149,7 +149,7 @@ def generate_hso_file(
     # * Make culture 10 fold dilution
     for i in range(1, 3):  # all cells dispensed into same cell dilution column
         soloSoft.aspirate(
-            position="Position5",
+            position="Position3",
             aspirate_volumes=DeepBlock_96VWR_75870_792_sterile().setColumn(
                 culture_column, dilution_culture_volume
             ),
@@ -162,7 +162,7 @@ def generate_hso_file(
             syringe_speed=25,
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position4",
             dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, dilution_culture_volume
             ),
@@ -177,7 +177,7 @@ def generate_hso_file(
 
     # * Separate big mix step to ensure cell diluton column is well mixed  # added for 09/07/21
     soloSoft.aspirate(
-        position="Position7",
+        position="Position4",
         aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
             culture_dil_column, dilution_culture_volume
         ),
@@ -185,7 +185,7 @@ def generate_hso_file(
         # 100% syringe speed
     )
     soloSoft.dispense(
-        position="Position7",
+        position="Position4",
         dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
             culture_dil_column, dilution_culture_volume
         ),
@@ -202,7 +202,7 @@ def generate_hso_file(
     soloSoft.getTip("Position1")  
     for i in range(1, 7):  # trying a different method of cell dispensing (09/07/21)
         soloSoft.aspirate(  # well in first half
-            position="Position7",
+            position="Position4",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, culture_transfer_volume_s1
             ),
@@ -231,7 +231,7 @@ def generate_hso_file(
         )
 
         soloSoft.aspirate(  # well in second half
-            position="Position7",
+            position="Position4",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, culture_transfer_volume_s1
             ),
