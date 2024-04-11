@@ -78,7 +78,7 @@ def generate_hso_file(
         ],
     )
 
-    # * Fill all columns of empty 96 well plate (corning 3383 or Falcon - ref 353916) with fresh lb media (12 channel in Position 3, media_start_column and media_start_column+1)
+    # * Fill all columns of empty 96 well plate (corning 3383 or Falcon - ref 353916) with fresh lb media (12 channel in Position 1, media_start_column and media_start_column+1)
     soloSoft.getTip("Position1")  
     j = 1
     for i in range(1, 7):  # first half plate = media from column 1
@@ -90,7 +90,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, media_transfer_volume_s1
             ),
@@ -106,7 +106,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, media_transfer_volume_s1
             ),
@@ -218,7 +218,7 @@ def generate_hso_file(
             syringe_speed=25,
         )
         soloSoft.dispense(  # do need to mix at end of transfer
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, culture_transfer_volume_s1
             ),
@@ -247,7 +247,7 @@ def generate_hso_file(
             syringe_speed=25,
         )
         soloSoft.dispense(  # do need to mix at end of transfer
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 6 + i, culture_transfer_volume_s1
             ),
