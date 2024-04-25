@@ -3,28 +3,8 @@ name: b350_lab
 include:
   - dashboard/dashboard.compose.yaml
   - frigate/bio-frigate.compose.yaml
-  
+
 services:
-  # Single Redis used by whole lab
-  b350_redis:
-    image: redis
-    container_name: b350_redis
-    ports:
-      - 6379:6379
-    volumes:
-      - ~/.wei/redis:/data
-    command: redis-server --save 60 1 --loglevel warning
-
-  redis_commander:
-    image: rediscommander/redis-commander:latest
-    container_name: redis_commander
-    ports:
-      - 8081:8081
-    environment:
-      - REDIS_HOSTS=local:b350_redis:6379
-    depends_on:
-      - b350_redis
-
   #####################
   # WEI Core Services #
   #####################
@@ -57,6 +37,18 @@ services:
       - GROUP_ID=1000
     depends_on:
       - b350_redis
+  b350_redis:
+    image: redis
+    container_name: b350_redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ~/.wei/redis:/data
+    command: redis-server --save 60 1 --loglevel warning
+
+  ###############
+  # WEI Modules #
+  ###############
 
   platecrane_node:
     image: ghcr.io/ad-sdl/hudson_platecrane_module
