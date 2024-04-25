@@ -80,7 +80,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, reservoir_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, antibiotic_transfer_volume_s3
             ),
@@ -107,7 +107,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, reservoir_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i + 6, antibiotic_transfer_volume_s3
             ),
