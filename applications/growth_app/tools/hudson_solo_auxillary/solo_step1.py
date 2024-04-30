@@ -78,19 +78,19 @@ def generate_hso_file(
         ],
     )
 
-    # * Fill all columns of empty 96 well plate (corning 3383 or Falcon - ref 353916) with fresh lb media (12 channel in Position 3, media_start_column and media_start_column+1)
-    soloSoft.getTip("Position3")  
+    # * Fill all columns of empty 96 well plate (corning 3383 or Falcon - ref 353916) with fresh lb media (12 channel in Position 1, media_start_column and media_start_column+1)
+    soloSoft.getTip("Position1")  
     j = 1
     for i in range(1, 7):  # first half plate = media from column 1
         soloSoft.aspirate(
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 media_start_column, media_transfer_volume_s1
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, media_transfer_volume_s1
             ),
@@ -99,14 +99,14 @@ def generate_hso_file(
 
     for i in range(7, 13):  # second half plate = media from column 2
         soloSoft.aspirate(
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 media_start_column + 1, media_transfer_volume_s1
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, media_transfer_volume_s1
             ),
@@ -116,14 +116,14 @@ def generate_hso_file(
     # * Fill one column of culture dilution plate with fresh lb media (do in two steps due to 180uL filter tips)
     for i in range(2):  # from first media column -> cell dilution plate, column = same as culture column
         soloSoft.aspirate(
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 media_start_column, half_dilution_media_volume
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position4",
             dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, half_dilution_media_volume
             ),
@@ -132,14 +132,14 @@ def generate_hso_file(
 
     for i in range(2):  # from second media column -> cell dilution plate
         soloSoft.aspirate(
-            position="Position1",
+            position="Position7",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 media_start_column + 1, half_dilution_media_volume
             ),
             aspirate_shift=[0, 0, media_z_shift],
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position4",
             dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, half_dilution_media_volume
             ),
@@ -149,7 +149,7 @@ def generate_hso_file(
     # * Make culture 10 fold dilution
     for i in range(1, 3):  # all cells dispensed into same cell dilution column
         soloSoft.aspirate(
-            position="Position5",
+            position="Position3",
             aspirate_volumes=DeepBlock_96VWR_75870_792_sterile().setColumn(
                 culture_column, dilution_culture_volume
             ),
@@ -162,7 +162,7 @@ def generate_hso_file(
             syringe_speed=25,
         )
         soloSoft.dispense(
-            position="Position7",
+            position="Position4",
             dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, dilution_culture_volume
             ),
@@ -177,7 +177,7 @@ def generate_hso_file(
 
     # * Separate big mix step to ensure cell diluton column is well mixed  # added for 09/07/21
     soloSoft.aspirate(
-        position="Position7",
+        position="Position4",
         aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
             culture_dil_column, dilution_culture_volume
         ),
@@ -185,7 +185,7 @@ def generate_hso_file(
         # 100% syringe speed
     )
     soloSoft.dispense(
-        position="Position7",
+        position="Position4",
         dispense_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
             culture_dil_column, dilution_culture_volume
         ),
@@ -199,10 +199,10 @@ def generate_hso_file(
     )
 
     # * Add bacteria from 10 fold diluted culture plate (Position 7, column = culture_column[k]) to growth plate with fresh media (both halves)
-    soloSoft.getTip("Position3")  
+    soloSoft.getTip("Position1")  
     for i in range(1, 7):  # trying a different method of cell dispensing (09/07/21)
         soloSoft.aspirate(  # well in first half
-            position="Position7",
+            position="Position4",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, culture_transfer_volume_s1
             ),
@@ -218,7 +218,7 @@ def generate_hso_file(
             syringe_speed=25,
         )
         soloSoft.dispense(  # do need to mix at end of transfer
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, culture_transfer_volume_s1
             ),
@@ -231,7 +231,7 @@ def generate_hso_file(
         )
 
         soloSoft.aspirate(  # well in second half
-            position="Position7",
+            position="Position4",
             aspirate_volumes=Reservoir_12col_Agilent_201256_100_BATSgroup().setColumn(
                 culture_dil_column, culture_transfer_volume_s1
             ),
@@ -247,7 +247,7 @@ def generate_hso_file(
             syringe_speed=25,
         )
         soloSoft.dispense(  # do need to mix at end of transfer
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 6 + i, culture_transfer_volume_s1
             ),

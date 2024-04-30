@@ -14,35 +14,35 @@ modules:
   - name: liconic
 
 flowdef:
-  - name: Move tip bin from Stack4 to Solo Position3
+  - name: Move tip bin from Stack4 to Solo Position1
     module: plateCrane
     action: transfer
     args:
       source: "Stack4"
-      target: "Solo.Position3"
+      target: "Solo.Position1"
       source_type: "stack"
       target_type: "stack"
       plate_type: "tip_box_lid_off"
     checks: null
-    comment: Place plate in Solo Position4
+    comment: Place plate in Solo Position1
 
-  - name: Move plate from Stack5 to Solo Position4
+  - name: Move plate from Stack5 to Solo Position2
     module: plateCrane
     action: transfer
     args:
       source: "Stack5"
-      target: "Solo.Position4"
+      target: "Solo.Position2"
       source_type: "stack"
       target_type: "stack"
       plate_type: "96_well"
     checks: null
-    comment: Place plate in Solo Position4
+    comment: Place plate in Solo Position2
 
   - name: Remove lid
     module: plateCrane
     action: remove_lid
     args:
-      source: "Solo.Position4"
+      source: "Solo.Position2"
       target: "Stack2"
       plate_type: "96_well"
     checks: null
@@ -97,11 +97,11 @@ flowdef:
     checks: null
     comment: Open Hidex Gate
 
-  - name: Move plate from Solo Position4 to Hidex Nest
+  - name: Move plate from Solo Position2 to Hidex Nest
     module: plateCrane
     action: transfer
     args:
-      source: "Solo.Position4"
+      source: "Solo.Position2"
       target: "HidexNest2"
       source_type: "module"
       target_type: "module"      

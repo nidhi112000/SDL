@@ -64,7 +64,7 @@ def generate_hso_file(
         ],
     )
 
-    soloSoft.getTip("Position3")  
+    soloSoft.getTip("Position1")  
     for i in range(6, 0, -1):  # first half of plate
         # if i == 3:  # switch tips half way through to reduce error  # tested and ok to remove
         #     soloSoft.getTip()
@@ -80,7 +80,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, reservoir_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i, antibiotic_transfer_volume_s3
             ),
@@ -91,7 +91,7 @@ def generate_hso_file(
             dispense_shift=[0, 0, flat_bottom_z_shift],
         )
 
-    soloSoft.getTip("Position3")
+    soloSoft.getTip("Position1")
     for i in range(6, 0, -1):  # second half of plate
         # if i == 3:  # switch tips half way through to reduce error  # tested and ok to remove
         #     soloSoft.getTip()
@@ -107,7 +107,7 @@ def generate_hso_file(
             aspirate_shift=[0, 0, reservoir_z_shift],
         )
         soloSoft.dispense(
-            position="Position4",
+            position="Position2",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
                 i + 6, antibiotic_transfer_volume_s3
             ),
