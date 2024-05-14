@@ -8,22 +8,22 @@ The current experiment, described in more detail below, will automate the prepar
 
 ## Basic Application and Robotic Steps 
 
-1. Preparation of 10 substrate plates
+1. Preparation of substrate plates
 
-    In two steps, all wells of 10, 96-well flat bottom microplates will be filled with pre-prepared stocks of different substrate concentrations. 
+    In one step, all wells of 96-well flat bottom microplates will be filled with pre-prepared substrate solution. 
 
-2. Inoculation of first substrate plates
+2. Inoculation of substrate plate
 
-    Two of the substrate plates prepared in the previous step will be inoculated with ADP1 in triplicate (columns 1, 5, and 9)
+    First column of the substrate plate will be inoculated with ADP1 and ADP1 with DNA (in triplicate)
     
 3. Absorbance readings and new inoculation at set time intervals
 
-    The inoculated substrate plates will be incubated for a standard amount of time then transferred to a plate reader for an absorbance reading. After the reading, the next column in the inoculated substrate plate (columns 2, 6, and 10) will be inoculated from the previous column (columns 1, 5, and 9) then returned to the incubator. This cycle of incubation and absorbance reading will continue until all columns of all substrate plates prepped in step 1 are used. 
+    The inoculated substrate plates will be transferred to a plate reader and T0 will be recorded and then it will be incubated for 24 hours. After incubation plate will be transferred to a plate reader for an absorbance reading at O.D 590 nm (T1). After the reading, the next column in the substrate plate will be inoculated from the previous column and then returned to the incubator. This cycle of incubation and absorbance reading will continue until all columns of all substrate plates prepped in step 1 are used. 
 
 
-### 1. Preparation of 10 substrate plates
+### 1. Preparation of substrate plate and inoculation
 
-Two application python files must be run in succession to complete this section of the experiment. Running the first application file (Adaptive_Lab_Evolution_step1_app.py) will execute robotic actions required to produce the first 5 substrate microplates. A technician will then replace the lids on the newly prepped substrate plates and transfer them to Stack 5. They will also prep the SOLO deck with another set of 5 empty microplates then run the second application file (Adaptive_Lab_Evolution_step1_app.py) which will execute all robotic steps required to prep the second set of 5 substrate microplates. 
+Two application python files must be run in succession to complete this section of the experiment. Running the first application file (Adaptive_Lab_Evolution_step1_app.py) will execute robotic actions required to produce Substrate/Biolog plate. Second application file (Adaptive_Lab_Evolution_step2_app.py) which will inoculate the substrate plate.
 
 #### Running steps:
 ##### 1a. Set Up SOLO Deck
@@ -45,32 +45,10 @@ SOLO deck layout:
 ##### 1b. Run First Application File
 TODO
 
-
-##### 1c. Manual Cleanup and SOLO Deck Setup in Preparation for Second Application File 
-TODO: manual cleanup
-
-![Place substrate plates 1-5 in stack 5](https://github.com/AD-SDL/BIO_workcell/blob/main/ale_app/figures/substrate_prep_manual_cleanup_1.jpg)
-
-<!-- TODO: center align images -->
-![Labware layout on SOLO deck at start of substrate prep](https://github.com/AD-SDL/BIO_workcell/blob/main/ale_app/figures/substrate_prep_SOLO_deck.png)
-
-SOLO deck layout: 
-- Position 1: 180uL Tip Box, full
-- Position 2: Empty
-- Position 3: Substrate Stock Deep Well Plate
-    - columns 7-11 will be used in this application file
-- Position 4: 96-well flat bottom microplate, empty
-- Position 5: 96-well flat bottom microplate, empty
-- Position 6: 96-well flat bottom microplate, empty
-- Position 7: 96-well flat bottom microplate, empty
-- Position 8: 96-well flat bottom microplate, empty
-
-##### 1d. Run Second Application File
+##### 1c. Run Second Application File
 TODO
 
 
-##### 1e. Manual Cleanup
-TODO
 
 
 
