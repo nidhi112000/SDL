@@ -62,7 +62,7 @@ def generate_hso_file(
     # * Fill all columns of empty 96 well plate (corning 3383 or Falcon - ref 353916) with fresh substrates (12 channel in Position 1, media_start_column and media_start_column+1)
     soloSoft.getTip("Position1")  
     # j = 1
-    for i in range(1, 13):  
+    for i in range(1):  
         soloSoft.aspirate(
             position="Position3",
             aspirate_volumes=DeepBlock_96VWR_75870_792_sterile().setColumn(
@@ -73,7 +73,7 @@ def generate_hso_file(
         soloSoft.dispense(
             position="Position5",
             dispense_volumes=Plate_96_Corning_3635_ClearUVAssay().setColumn(
-                i, substrates_transfer_volume
+                1, substrates_transfer_volume
             ),
             dispense_shift=[0, 0, flat_bottom_z_shift],
         )
