@@ -25,7 +25,7 @@ def main():
     #Generate the payload for the T0 and T12 readings. The T0 and T12 Yaml files (at the position paths above) and hso_packages for the Hudson Solo (created below) will use the following values in the workflow
     payload = {
         # SUBSTRATE LOAD - STEP 1
-        "substrates_start_column_1": 3,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
+        "substrates_start_column_1": 2,  # int of column to draw media from (requires 2 columns, 1 means columns 1 and 2) Ex. 1, 3, 5, etc.
  
     }
 
