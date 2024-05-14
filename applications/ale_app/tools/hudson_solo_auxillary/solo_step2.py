@@ -42,7 +42,7 @@ def generate_hso_file(
     flat_bottom_z_shift = 2  # Note: 1 is not high enough (tested)
 
     # Step 1 variables
-    substrates_transfer_volume = 150
+    substrates_transfer_volume = 15
 
     # * Initialize soloSoft (step 2)
     soloSoft = SoloSoft(
