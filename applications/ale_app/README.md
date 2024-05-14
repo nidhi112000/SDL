@@ -43,7 +43,6 @@ SOLO deck layout:
 - Position 8: 96-well flat bottom microplate, empty
 
 ##### 1b. Run First Application File
-TODO
 
 ##### 1c. Run Second Application File
 TODO
